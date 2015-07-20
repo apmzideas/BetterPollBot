@@ -39,5 +39,4 @@ req = urllib.request.Request("https://api.telegram.org/bot" + TelegramToken + "/
 with urllib.request.urlopen(req) as response:
    the_page = response.read()
 
-
 print("offline")
