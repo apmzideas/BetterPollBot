@@ -1,7 +1,7 @@
 # BetterPollBot
 
-### BetterPollBot About Text (/setabouttext)
+### About Text (/setabouttext)
 Work in progress! @BetterPollBot is a bot similar to @PollBot, but with more features and less spaming in groups.
-### What can this bot do?
+### Description (/setdescription)
 Work in progress! Please return later.
 @BetterPollBot 
