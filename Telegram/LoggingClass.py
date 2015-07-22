@@ -40,7 +40,6 @@ class Logger(object):
         getattr(self.logger, option)(message)
 
 if __name__ == '__main__':
-
     #c = conf()
     #log_to = c.read_ini('LOG').getboolean('log to file')
     log_to = False

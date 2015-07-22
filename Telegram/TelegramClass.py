@@ -27,7 +27,7 @@ class TelegramApi(object):
         if JSONData["ok"]:
             return True
         else:
-            raise ErrorClasses.TokenError( LanguageClass.GetStringName())
+            raise ErrorClasses.TokenError( LanguageClass.GetString())
         
        
     def GetUpdates(self, CommentNumber = None):

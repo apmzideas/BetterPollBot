@@ -26,9 +26,19 @@ class Languages(object):
                 exit()
                 
                 
-    def GetStringName(self, StringToSearch):
-        return getattr(self.LanguageObject, StringToSearch) 
-
-if __name__ == "__main__":        
+    def GetString(self, StringToSearch):
+        try:
+            return  getattr(self.LanguageObject, StringToSearch) 
+        except ErrorClasses.LanguageImportError:
+            pass
+        try:
+            return getattr(LaodLanguageFile("enGB"), StringToSearch)
+        except ErrorClasses.LanguageImportError:
+            print(self.GetString(LaodLanguageFile("enGB"), ))
+            
+            
+if __name__ == "__main__":
     a = Languages("enGB")
-    print(a.GetStringName("TokenError"))
+    print(a.GetString("NotExistingDatabase"))
+    a = Languages("gerDE")
+    print(a.GetString("NotExistingDatabase"))

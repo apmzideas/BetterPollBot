@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import mysql.connector #A additional interface needed for the connection to the MySql-Database
-
+import LoggingClass
 
 
 class SqlApi(object):
@@ -35,22 +35,49 @@ class SqlApi(object):
         UserSettingOfPoll
         
     """
-    def __init__(self, User, Password, DatabaseName,  Host ):
+    def __init__(self, User, Password, DatabaseName, LanguageObject,  Host = "127.0.0.1", Port = "3306"):
 
         self.User = User
         self.Password = Password
+        self.LanguageObject = LanguageObject
         self.Host = Host
         self.DatabaseName = DatabaseName
+        self.Port =  Port
         self.connection = self.CreateConnection()
         
     def CreateConnection(self):
-
-        config = {
-                  'user': self.User,
-                  'password': self.Password,
-                  'host': self.Host,
-                  'database': self.DatabaseName,
-                  'raise_on_warnings': True,
-                  }
-
-        return  mysql.connector.connect(**config)
+        try:
+            config = {
+                      'user': self.User,
+                      'password': self.Password,
+                      'host': self.Host,
+                      'database': self.DatabaseName,
+                      'port': 3306,
+                      'raise_on_warnings': True,
+                      'use_pure': True,
+                      }
+    
+            return  mysql.connector.connect(**config)
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print(self.LanguageObject.GetString("DatabaseAutentificationError"))
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print(self.LanguageObject.GetString("NotExistingDatabase"))
+            else:
+                print(err)
+    
+    def CreateCursor(self):
+        #this methode will ceate the cursor needet for the connection to the server
+        return self.connection.cursor()
+    
+    def DestroyCursor(self, cursor):
+        #this methode closes the connection opend by the cursor
+        return cursor.close()
+    
+    def CreateDatabase(self,):
+        pass
+    
+    def CreateTables(self, **TableData):
+        pass
+    
+    
