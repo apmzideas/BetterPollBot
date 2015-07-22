@@ -10,7 +10,7 @@ import importlib
 
 class Languages(object):
     def __init__(self, languageName):
-        self.languageName = languageName
+        self.languageName = "Language." + languageName
         #the object that holds the languagedata 
         self.LanguageObject = self.LaodLanguageFile(self.languageName)
     
@@ -30,5 +30,5 @@ class Languages(object):
         return getattr(self.LanguageObject, StringToSearch) 
 
 if __name__ == "__main__":        
-    a = Languages("Language.enGB")
+    a = Languages("enGB")
     print(a.GetStringName("TokenError"))
