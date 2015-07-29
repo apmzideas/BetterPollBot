@@ -1,8 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import GlobalObjects
+
 import mysql.connector #A additional interface needed for the connection to the MySql-Database
 import LoggingClass
+
+import LanguageClass
+
+
+__author__ = "Adrian Hornung"
+__copyright__ = "Copyright (C) Adrian Hornung 2013-2015"
+__credits__ = ["Adrian Hornung"]
+__license__ = "License GNU General Public License https://www.gnu.org/copyleft/gpl.html"
+__version__ = "0.1"
+__maintainer__ = "Adrian Hornung"
+__email__ = "hornung.adrian@gmial.com"
+__status__ = "Development"
 
 
 class SqlApi(object):
@@ -11,35 +25,55 @@ class SqlApi(object):
     This API enables an easy connection to the mysql driver and to the server with the database 
     
     VARIABLES:
-        User            String - contains the Databaseuser
-        Password        String - contains the Databaseuserpassword
-        DatabaseName    String - contains the Databasename
+        User                     String                               - contains the Databaseuser
+        Password                 String                               - contains the Databaseuserpassword
+        DatabaseName             String                               - contains the Databasename
     
     DATABASE STRUCTURE:
         Polltable
-            I_Poll_Id    Integer (auto_increment)             - conntains the polltable id
-            E_Poll_Id    Binary(16) or Varchar(36)            - UUID for external use
-            Question     Varchar(999)                         - contains the question that has to be asked to the groupe
-            MasterUser   Interger                             - Contains the internal user Id
+            Internal_Poll_Id     Integer (auto_increment)             - conntains the internal polltable id
+            External_Poll_Id     Binary(16) or Varchar(36)            - contains the UUID for external use
+            Question             Varchar(999)                         - contains the question that has to be asked to the groupe
+            MasterUser           Integer                              - contains the internal user Id
+            
+            PRIMARY KEY (Internal_Poll_Id)
             
         Options
-            Id_Option    Integer                              - Contains the id of the qption
-            Id-Polltable Interger                             - Contains the id of the question (from the polltable)
-            Option_Name  Varchar(128)                         - Contains the option to be displayed
+            Id_Option            Integer                              - contains the id of the qption
+            Id-Polltable         Integer                              - contains the id of the question (from the polltable)
+            Option_Name          Varchar(128)                         - contains the option to be displayed
+            
+            PRIMARY KEY (Id_Option)
             
         Usertable
-            I_User_ID    Interger                             - Contains the internal user id
-            E_User_ID    Interger Usigned                     - Contains the external interger
+            Internal_User_ID     Integer                              - contains the internal user id
+            External_User_ID     Integer Usigned                      - contains the external interger
+            
+            PRIMARY KEY (Internal_User_ID)
+            
         SettingsOfPoll
-        
+            Setting_Id           Integer                              - contains the internal settings id
+            Setting_Name         Varchar(128)                         - contains the name of the setting
+            Default_String       Varchar(256)                         - contains the default value for the setting if string
+            Default_Integer      Integer                              - contains the default value for the setting if integer
+            Default_Boolean      Boolean                              - contains the default value for the setting if boolean
+            
+            PRIMARY KEY (Setting_Id)
+            
         UserSettingOfPoll
-        
+            User_Setting_Id
+            Setting_Id          Integer                                - contains the settings id
+            User_Id             Integer                                - contains the internal user id
+            String              Varchar(256)                           - contanis the set string value for the setting
+            Interger            Integer                                - contains the set integer value for the setting
+            Boolean             Boolean                                - contains the set boolean value for the setting
+            
+            PRIMARY KEY (User_Setting_Id)
     """
-    def __init__(self, User, Password, DatabaseName, LanguageObject,  Host = "127.0.0.1", Port = "3306"):
+    def __init__(self, User, Password, DatabaseName=None,  Host = "127.0.0.1", Port = "3306"):
 
         self.User = User
         self.Password = Password
-        self.LanguageObject = LanguageObject
         self.Host = Host
         self.DatabaseName = DatabaseName
         self.Port =  Port
@@ -51,18 +85,18 @@ class SqlApi(object):
                       'user': self.User,
                       'password': self.Password,
                       'host': self.Host,
-                      'database': self.DatabaseName,
                       'port': 3306,
                       'raise_on_warnings': True,
-                      'use_pure': True,
                       }
+            if self.DatabaseName:
+                config['database'] = self.DatabaseName
     
             return  mysql.connector.connect(**config)
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print(self.LanguageObject.GetString("DatabaseAutentificationError"))
+                print(GlobalObjects.ObjectHolder.LanguageObject.GetString("DatabaseAutentificationError"))
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print(self.LanguageObject.GetString("NotExistingDatabase"))
+                print(GlobalObjects.ObjectHolder.LanguageObject.GetString("NotExistingDatabase"))
             else:
                 print(err)
     
@@ -70,14 +104,31 @@ class SqlApi(object):
         #this methode will ceate the cursor needet for the connection to the server
         return self.connection.cursor()
     
-    def DestroyCursor(self, cursor):
+    def DestroyCursor(self, Cursor):
         #this methode closes the connection opend by the cursor
-        return cursor.close()
+        return Cursor.close()
     
-    def CreateDatabase(self,):
-        pass
+    def CreateDatabase(self, Cursor, DatabaseName):
+        try:
+            Cursor.execute(
+            "CREATE DATABASE IF NOT EXISTS {0} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName))
+        except mysql.connector.Error as err:
+            print("Failed creating database: {0}".format(err))
+            exit(1)
     
     def CreateTables(self, **TableData):
         pass
+
+    def Dummy(self):
+        print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('NotExistingDatabase'))
+
+if __name__ == "__main__":
+    print("online")
+    import Main
+    a = SqlApi("root", "Password")
+    Cursor = a.CreateCursor()
+    a.CreateDatabase(Cursor, "Test")
+    a.DestroyCursor(Cursor)
+    print("offline")
     
     

@@ -1,31 +1,44 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 import urllib.request
 import urllib.parse
 import json
+
+import GlobalObjects
 import LoggingClass
 import ErrorClasses
 import LanguageClass
+
+import platform
+
 
 class TelegramApi(object):
     def __init__(self, token, LoggingObject, LanguageObject):
         self.token = token
         self.url = "https://api.telegram.org/bot" + self.token
         self.LoggingObject = LoggingObject  # holds the logging Objekt
-        
+        self.Headers = {
+                        'User-agent': (GlobalObjects.__name__ + '/'+  str(GlobalObjects.__version__) +' (' +
+                                       '; '.join( platform.system_alias( platform.system(), platform.release(), platform.version() ) ) +
+                                       ') Python-urllib/' + platform.python_version() +' from https://github.com/apmzideas/BetterPollBot'),
+                        "Content-Type":" application/x-www-form-urlencoded;charset=utf-8"
+                        }
+        print(self.Headers)
         self.GetMe()
             
     
     def GetMe(self):
-        #A methode to confirm the token exists
+        #A methode to confirm the token exists                                                    
+        Request = urllib.request.Request(self.url + "/getMe", headers=self.Headers)
         
-        response = urllib.request.urlopen(self.url + "/getMe").read().decode("utf-8")
+        response = urllib.request.urlopen(Request).read().decode("utf-8")
         
         JSONData = json.loads(response)
         
         if JSONData["ok"]:
-            return True
+            return JSONData
         else:
             raise ErrorClasses.TokenError( LanguageClass.GetString())
         
@@ -55,6 +68,7 @@ class TelegramApi(object):
         else:
             return None
         
+        
     def SendMessage(self, Message, SendTo, DisableWebPagePreview = False,ReplyToId = None, ReplyMarkup = None):
         #a methode to send Messeges to the TelegramApi
         
@@ -73,16 +87,20 @@ class TelegramApi(object):
         
         MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8') # data should be bytes
     
-        req = urllib.request.Request(self.url + "/sendMessage", data= MessageData )
+        req = urllib.request.Request(self.url + "/sendMessage", data= MessageData, headers=self.Headers)
         
         with urllib.request.urlopen(req) as response:
            the_page = response.read()
-           print(the_page)
+        return True
+    
     
 if __name__ == "__main__":
+    print('online')
     import pprint
     a = TelegramApi("80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY", LoggingClass.Logger(), LanguageClass.Languages("enGB"))
     if a:
+        pprint.PrettyPrinter(indent=4).pprint((a.GetMe()))
         pprint.PrettyPrinter(indent=4).pprint((a.GetUpdates()))
     else:
         print("None")
+    print('offline')

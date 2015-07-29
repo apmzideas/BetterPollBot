@@ -1,7 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-''' some error classes'''
+''' 
+    some error classes
+'''
 
 __author__ = "Adrian Hornung"
 __copyright__ = "Copyright (C) Adrian Hornung 2013-2015"

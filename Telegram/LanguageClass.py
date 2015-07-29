@@ -6,7 +6,7 @@
 """
 
 import ErrorClasses
-import importlib
+import GlobalObjects
 
 class Languages(object):
     def __init__(self, languageName):
@@ -22,23 +22,33 @@ class Languages(object):
             try:
                 raise ErrorClasses.LanguageImportError("The languagefiles could not be loaded")
             except ErrorClasses.LanguageImportError as Error:
-                print("The languagefiles could not be loaded")
-                exit()
+                self.LanguageObject = self.LaodLanguageFile("Language.enGB")
+                print(self.GetString("LanguageFileLoadingError"))
                 
                 
     def GetString(self, StringToSearch):
+        #The methode to get the correct string
+        
+        Temp = None
+        #Try to get the string in the correct language
         try:
-            return  getattr(self.LanguageObject, StringToSearch) 
-        except ErrorClasses.LanguageImportError:
+            Temp = getattr(self.LanguageObject, StringToSearch) 
+        except AttributeError:
             pass
-        try:
-            return getattr(LaodLanguageFile("enGB"), StringToSearch)
-        except ErrorClasses.LanguageImportError:
-            print(self.GetString(LaodLanguageFile("enGB"), ))
-            
+        
+        #Try to get the string in the alternative language english    
+        if Temp == None:
+            try:
+                Temp = getattr(self.LaodLanguageFile("Language.enGB"), StringToSearch)
+            except ErrorClasses.LanguageImportError:
+                self.LanguageObject = self.LaodLanguageFile("Language.enGB")
+                print(self.GetString(self.LanguageObject, "LanguageFileLoadingError"))
+        return Temp
             
 if __name__ == "__main__":
     a = Languages("enGB")
     print(a.GetString("NotExistingDatabase"))
+    
     a = Languages("gerDE")
     print(a.GetString("NotExistingDatabase"))
+    print(a.GetString("TokenError"))

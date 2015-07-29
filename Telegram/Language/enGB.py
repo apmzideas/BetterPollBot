@@ -14,7 +14,6 @@ class language(object):
         #String for DatabaseErrors
         self.DatabaseAutentificationError = "Something is wrong with your user name or password."
         self.NotExistingDatabase = "Database does not exist."
-
         
-        
-print(a)
+        #Strings for LanguageErrors
+        self.LanguageFileLoadingError = "The languagefiles could not be loaded or found, insted the english language will be used." 
