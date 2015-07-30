@@ -46,3 +46,6 @@ class Message(TelegramObject):
         self.delete_chat_photo = delete_chat_photo
         self.group_chat_created = group_chat_created
 
+        def GetMessage(self):
+            pass
+            

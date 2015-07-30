@@ -69,8 +69,18 @@ class TelegramApi(object):
         else:
             return None
         
+    def SendMessage(self, MessageObject):
+        #a methode to send Messeges to the TelegramApi
         
-    def SendMessage(self, Message, SendTo, DisableWebPagePreview = False,ReplyToId = None, ReplyMarkup = None):
+        MessageData = urllib.parse.urlencode(MessageObject.getMessage()).encode('utf-8') # data should be bytes
+    
+        req = urllib.request.Request(self.url + "/sendMessage", data= MessageData, headers=self.Headers)
+        
+        with urllib.request.urlopen(req) as response:
+           the_page = response.read()
+        return True      
+     
+    def SendMessageOld(self, Message, SendTo, DisableWebPagePreview = False,ReplyToId = None, ReplyMarkup = None):
         #a methode to send Messeges to the TelegramApi
         
         DataToBeSend = { 
