@@ -4,6 +4,7 @@
 
 import urllib.request
 import urllib.parse
+import ssl
 import json
 
 import GlobalObjects
@@ -19,13 +20,13 @@ class TelegramApi(object):
         self.token = token
         self.url = "https://api.telegram.org/bot" + self.token
         self.LoggingObject = LoggingObject  # holds the logging Objekt
+        self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {
                         'User-agent': (GlobalObjects.__name__ + '/'+  str(GlobalObjects.__version__) +' (' +
                                        '; '.join( platform.system_alias( platform.system(), platform.release(), platform.version() ) ) +
                                        ') Python-urllib/' + platform.python_version() +' from https://github.com/apmzideas/BetterPollBot'),
                         "Content-Type":" application/x-www-form-urlencoded;charset=utf-8"
                         }
-        print(self.Headers)
         self.GetMe()
             
     
@@ -33,7 +34,7 @@ class TelegramApi(object):
         #A methode to confirm the token exists                                                    
         Request = urllib.request.Request(self.url + "/getMe", headers=self.Headers)
         
-        response = urllib.request.urlopen(Request).read().decode("utf-8")
+        response = urllib.request.urlopen(Request, context = self.SSLEncription).read().decode("utf-8")
         
         JSONData = json.loads(response)
         
@@ -59,7 +60,7 @@ class TelegramApi(object):
         
         MessageData = urllib.parse.urlencode({"limit": 1}).encode('utf-8')  # data should be bytes
         
-        response = urllib.request.urlopen(self.url + "/getUpdates", data=MessageData).read().decode("utf-8")
+        response = urllib.request.urlopen(self.url + "/getUpdates", data=MessageData, context=self.SSLEncription).read().decode("utf-8")
         
         JSONData = json.loads(response)
         
