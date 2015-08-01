@@ -13,7 +13,7 @@ import ErrorClasses
 import SqlClass
 
 def ObjectInitialiser():
-    GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('enGB')
+    GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('gerDE')
     
 if __name__ == "__main__":
     ObjectInitialiser()

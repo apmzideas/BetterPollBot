@@ -14,6 +14,8 @@ class language(object):
         #String for DatabaseErrors
         self.DatabaseAutentificationError = "Something is wrong with your user name or password."
         self.NotExistingDatabase = "Database does not exist."
+        self.DatabaseDeleteError = "Failed to delete database, please delete manually: "
+        self.DatabaseTableCreationError = "Failed to create table: "
         
         #Strings for LanguageErrors
         self.LanguageFileLoadingError = "The languagefiles could not be loaded or found, insted the english language will be used." 

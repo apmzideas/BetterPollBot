@@ -113,21 +113,60 @@ class SqlApi(object):
             Cursor.execute(
             "CREATE DATABASE IF NOT EXISTS {0} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName))
         except mysql.connector.Error as err:
-            print("Failed creating database: {0}".format(err))
-            exit(1)
+            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseDeleteError') + " {0}".format(err))
     
-    def CreateTables(self, **TableData):
-        pass
-
+    def DeleteDatabase(self, Cursor, DatabaseName):
+        try:
+            Cursor.execute(
+            "DROP DATABASE {0}".format(DatabaseName))
+        except mysql.connector.Error as err:
+            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseDeleteError') +"{0}".format(err))
+            exit(1)
+            
+    def CreateTables(self, Cursor, TableName, TableData, IfNotExists = True):
+        """A methode to dynamicaly create a table entry to the database
+        
+        HOW TO USE:
+            import collections 
+            TableData = (
+                ('Id', 'INT UNSIGNED NOT NULL AUTO_INCREMENT'),
+                ('PRIMARY KEY', 'ID')
+            )
+            
+            #function call
+            SqlApl.CreateTables('Test', TableDataifNotExists = True,)"""
+        try:
+            Querry = "CREATE TABLE "
+            if IfNotExists:
+                Querry += "IF NOT EXISTS "
+                
+                Querry += TableName + " ("
+                for i in range(len(TableData)):
+                    if ( TableData[i][0].lower() != 'primary key'):
+                        Querry += TableData[i][0] +" " + TableData[i][1] + ", "
+                        #print(TableData[i][0], TableData[i][1])
+                    else: 
+                        Querry += TableData[i][0] +" (" + TableData[i][1] + ")"
+                
+                Querry += ")"
+                
+                Cursor.execute(Querry)
+                print(Querry)
+        except mysql.connector.Error as err:    
+            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseTableCreationError') +"{0}".format(err))
+            
     def Dummy(self):
         print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('NotExistingDatabase'))
 
 if __name__ == "__main__":
     print("online")
     import Main
+    Main.ObjectInitialiser()
     a = SqlApi("root", "Password")
     Cursor = a.CreateCursor()
     a.CreateDatabase(Cursor, "Test")
+    a.CreateTables(Cursor,"Test.TestTable", [['Id', 'INT UNSIGNED NOT NULL AUTO_INCREMENT'], ['PRIMARY KEY', 'ID']], IfNotExists = True)
+    a.DeleteDatabase(Cursor, "Test")
     a.DestroyCursor(Cursor)
     print("offline")
     
