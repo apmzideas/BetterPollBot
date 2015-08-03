@@ -39,7 +39,7 @@ class SqlApi(object):
             PRIMARY KEY (Internal_Poll_Id)
             
         Options
-            Id_Option            Integer                              - contains the id of the qption
+            Id_Option            Integer (auto_increment)             - contains the id of the qption
             Id-Polltable         Integer                              - contains the id of the question (from the polltable)
             Option_Name          Varchar(128)                         - contains the option to be displayed
             
@@ -100,14 +100,24 @@ class SqlApi(object):
             else:
                 print(err)
     
-    def CreateCursor(self):
+    def CreateCursor(self, Buffered = True, Dictionary = True):
         #this methode will ceate the cursor needet for the connection to the server
-        return self.connection.cursor()
+        return self.connection.cursor(buffered = Buffered, dictionary = Dictionary)
     
     def DestroyCursor(self, Cursor):
         #this methode closes the connection opend by the cursor
         return Cursor.close()
     
+    def ExecuteTrueQuery(self, Cursor, Query, Data=None):
+        try:
+            if Data:
+                Cursor.execute(Query, Data)
+            else:
+                Cursor.execute(Query)
+            return Cursor.fetchall()
+        except mysql.connector.Error as err:
+            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseDeleteError') + " {0}".format(err))
+            
     def CreateDatabase(self, Cursor, DatabaseName):
         try:
             Cursor.execute(
@@ -124,7 +134,8 @@ class SqlApi(object):
             exit(1)
             
     def CreateTables(self, Cursor, TableName, TableData, IfNotExists = True):
-        """A methode to dynamicaly create a table entry to the database
+        """
+        A methode to dynamicaly create a table entry to the database
         
         HOW TO USE:
             import collections 
@@ -134,39 +145,63 @@ class SqlApi(object):
             )
             
             #function call
-            SqlApl.CreateTables('Test', TableDataifNotExists = True,)"""
+            SqlApl.CreateTables('Test', TableDataifNotExists = True)
+        """
+            
         try:
             Querry = "CREATE TABLE "
             if IfNotExists:
                 Querry += "IF NOT EXISTS "
                 
-                Querry += TableName + " ("
-                for i in range(len(TableData)):
-                    if ( TableData[i][0].lower() != 'primary key'):
-                        Querry += TableData[i][0] +" " + TableData[i][1] + ", "
-                        #print(TableData[i][0], TableData[i][1])
-                    else: 
-                        Querry += TableData[i][0] +" (" + TableData[i][1] + ")"
+            Querry += TableName + " ("
                 
-                Querry += ")"
+            PrimaryKeyId = None
+            for i in range(len(TableData)):
+                if ( TableData[i][0].lower() != 'primary key'):
+                    Querry += TableData[i][0] +" " + TableData[i][1] + ", "
+                else: 
+                    PrimaryKeyId = i
                 
-                Cursor.execute(Querry)
-                print(Querry)
+            Querry += TableData[PrimaryKeyId][0] +" (" + TableData[PrimaryKeyId][1] + "))"
+                
+            Cursor.execute(Querry)
+            return True
+        
         except mysql.connector.Error as err:    
             print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseTableCreationError') +"{0}".format(err))
-            
-    def Dummy(self):
-        print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('NotExistingDatabase'))
+            return 
+    
+    def SelectEntry(self):
+        pass
+
 
 if __name__ == "__main__":
     print("online")
     import Main
+    import pprint
     Main.ObjectInitialiser()
-    a = SqlApi("root", "Password")
+    a = SqlApi("root", "Password", "TestDatabase")
     Cursor = a.CreateCursor()
-    a.CreateDatabase(Cursor, "Test")
-    a.CreateTables(Cursor,"Test.TestTable", [['Id', 'INT UNSIGNED NOT NULL AUTO_INCREMENT'], ['PRIMARY KEY', 'ID']], IfNotExists = True)
-    a.DeleteDatabase(Cursor, "Test")
+    #a.CreateDatabase(Cursor, "TestDatabase")
+    Query = """
+    SELECT 
+    Membership_Roles.Title,
+    Membership_Rights.NameOfRight 
+    FROM Membership_Options
+    LEFT JOIN Membership_Roles ON Membership_Roles.ID = Membership_Options.IdOfRoles
+    LEFT JOIN Membership_Rights ON Membership_Rights.ID = Membership_Options.IdOfMembers;
+    """
+    temp = a.ExecuteTrueQuery(Cursor, Query)
+    print(temp)
+    pp = pprint.PrettyPrinter(indent=4)
+
+    pp.pprint(temp)
+    for i in temp:
+        t = ""
+        for key in i.keys():
+            t += ("%s, " % (i[key]))
+        print(t)
+    #a.DeleteDatabase(Cursor, "Test")
     a.DestroyCursor(Cursor)
     print("offline")
     
