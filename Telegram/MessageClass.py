@@ -2,7 +2,6 @@
 
 class Message(TelegramObject):
     def __init__(self,
-                 message_id,
                  from_user,
                  date,
                  chat,

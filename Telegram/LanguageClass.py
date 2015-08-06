@@ -34,10 +34,6 @@ class Languages(object):
         try:
             Temp = getattr(self.LanguageObject, StringToSearch) 
         except AttributeError:
-            pass
-        
-        #Try to get the string in the alternative language english    
-        if Temp == None:
             try:
                 Temp = getattr(self.LaodLanguageFile("Language.enGB"), StringToSearch)
             except ErrorClasses.LanguageImportError:
@@ -50,5 +46,5 @@ if __name__ == "__main__":
     print(a.GetString("NotExistingDatabase"))
     
     a = Languages("gerDE")
-    print(a.GetString("NotExistingDatabase"))
+    print(a.GetString("DatabaseTableCreationError"))
     print(a.GetString("TokenError"))

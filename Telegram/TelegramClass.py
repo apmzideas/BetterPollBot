@@ -24,12 +24,11 @@ class TelegramApi(object):
         self.Headers = {
                         'User-agent': (GlobalObjects.__name__ + '/'+  str(GlobalObjects.__version__) +' (' +
                                        '; '.join( platform.system_alias( platform.system(), platform.release(), platform.version() ) ) +
-                                       ') Python-urllib/' + platform.python_version() +' from https://github.com/apmzideas/BetterPollBot'),
+                                       ') Python-urllib/' + str(platform.python_build()) +' from ' + GlobalObjects.__hosted__),
                         "Content-Type":" application/x-www-form-urlencoded;charset=utf-8"
                         }
         self.GetMe()
-            
-    
+          
     def GetMe(self):
         #A methode to confirm the token exists                                                    
         Request = urllib.request.Request(self.url + "/getMe", headers=self.Headers)
@@ -42,8 +41,7 @@ class TelegramApi(object):
             return JSONData
         else:
             raise ErrorClasses.TokenError( LanguageClass.GetString())
-        
-       
+              
     def GetUpdates(self, CommentNumber = None):
         # a Methode to get the Updates as well to confirm the old comments from the Telegram API
         #Notes

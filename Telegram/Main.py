@@ -9,12 +9,19 @@
 
 import GlobalObjects
 import LanguageClass
-import ErrorClasses
+import TelegramClass
 import SqlClass
 
+import ErrorClasses
+
 def ObjectInitialiser():
-    GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('gerDE')
     
+    GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('gerDE')
+    GlobalObjects.ObjectHolder["TelegramClass"] = TelegramClass.TelegramApi('')
+    
+    
+
+
 if __name__ == "__main__":
     ObjectInitialiser()
     a = SqlClass.SqlApi("root", "Password", "test")

@@ -17,5 +17,6 @@ class language(object):
         self.DatabaseDeleteError = "Failed to delete database, please delete manually: "
         self.DatabaseTableCreationError = "Failed to create table: "
         self.DatabaseQuerryError = "The executet querry failed, please contact your administrator: "
+        
         #Strings for LanguageErrors
         self.LanguageFileLoadingError = "The languagefiles could not be loaded or found, insted the english language will be used." 
