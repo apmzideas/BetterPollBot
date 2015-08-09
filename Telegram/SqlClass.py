@@ -19,24 +19,28 @@ class SqlApi(object):
         DatabaseName             String                               - contains the Databasename
     
     DATABASE STRUCTURE:
-        Polltable
+        PollTable
             Internal_Poll_Id     Integer (auto_increment)             - conntains the internal polltable id
-            External_Poll_Id     Binary(16) or Varchar(36)            - contains the UUID for external use
+            External_Poll_Id     Binary(16)                           - contains the MD5 for external use is the Id
             Question             Varchar(999)                         - contains the question that has to be asked to the groupe
-            MasterUser           Integer                              - contains the internal user Id
+            Master_User           Integer                              - contains the internal user Id
             
+            UNIQUE (External_Poll_Id)
             PRIMARY KEY (Internal_Poll_Id)
             
         Options
             Id_Option            Integer (auto_increment)             - contains the id of the qption
-            Id-Polltable         Integer                              - contains the id of the question (from the polltable)
+            Id-PollTable         Integer                              - contains the id of the question (from the polltable)
             Option_Name          Varchar(128)                         - contains the option to be displayed
             
             PRIMARY KEY (Id_Option)
             
         Usertable
             Internal_User_ID     Integer                              - contains the internal user id
-            External_User_ID     Integer Usigned                      - contains the external interger
+            External_User_ID     Integer Usigned                      - contains the external Integer
+            User_Name             Varchar(256)                         - contains the user name if exists
+            First_Name            Varchar(256)                         - contains the first name if exists
+            Last_Name             Varchar(256)                         - contains the last name id exists
             
             PRIMARY KEY (Internal_User_ID)
             
@@ -54,7 +58,7 @@ class SqlApi(object):
             Setting_Id          Integer                                - contains the settings id
             User_Id             Integer                                - contains the internal user id
             String              Varchar(256)                           - contanis the set string value for the setting
-            Interger            Integer                                - contains the set integer value for the setting
+            Integer            Integer                                - contains the set integer value for the setting
             Boolean             Boolean                                - contains the set boolean value for the setting
             
             PRIMARY KEY (User_Setting_Id)
@@ -85,8 +89,8 @@ class SqlApi(object):
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("DatabaseAutentificationError"))
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("NotExistingDatabase"))
-                raise SystemExit
+                print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("NotExistingDatabase") + "{0}".format(err))
+                #raise SystemExit
             else:
                 print(err)
     
@@ -140,44 +144,143 @@ class SqlApi(object):
         except mysql.connector.Error as err:
             print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseDeleteError') + "{0}".format(err))
             
-    def CreateTables(self, Cursor, TableName, TableData, IfNotExists=True):
+    def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True):
         """
         A methode to dynamicaly create a table entry to the database
         
         HOW TO USE:
-            import collections 
+ 
             TableData = (
                 ('Id', 'INT UNSIGNED NOT NULL AUTO_INCREMENT'),
-                ('PRIMARY KEY', 'ID')
+                ('Unique', 'ID'),
+                ('PRIMARY KEY', 'ID'),
+                ('Foreigh Key', 'ID', 'Persons(P_Id)')
             )
             
             #function call
-            SqlApl.CreateTables('Test', TableDataifNotExists = True)
+            SqlApl.CreateTable('Test', TableDataIfNotExists = True)
         """
             
         try:
-            Querry = "CREATE TABLE "
+            Query = "CREATE TABLE "
             if IfNotExists:
-                Querry += "IF NOT EXISTS "
+                Query += "IF NOT EXISTS "
                 
-            Querry += TableName + " ("
+            Query += TableName + " ("
                 
             PrimaryKeyId = None
+            UniqueKeyId = None
+            ForeignKeyId = None
+            
             for i in range(len(TableData)):
-                if (TableData[i][0].lower() != 'primary key'):
-                    Querry += TableData[i][0] + " " + TableData[i][1] + ", "
-                else: 
-                    PrimaryKeyId = i
+                if (TableData[i][0].lower() != 'primary key' and TableData[i][0].lower() != 'unique' and TableData[i][0].lower() != 'foreign key' ):
+                    if i == 0:
+                        Query += TableData[i][0] + " " + TableData[i][1]
+                    else:
+                        Query += ", " +TableData[i][0] + " " + TableData[i][1]
                 
-            Querry += TableData[PrimaryKeyId][0] + " (" + TableData[PrimaryKeyId][1] + "))"
-                
-            Cursor.execute(Querry)
+                else:
+                    if (TableData[i][0].lower() == 'primary key'):
+                        PrimaryKeyId = i
+                    elif TableData[i][0].lower() == 'unique':
+                        UniqueKeyId = i
+                    elif TableData[i][0].lower() == 'foreign key':
+                        ForeignKeyId = i
+            
+            #If a unique key has been added.
+            if UniqueKeyId:
+                if Query[-1] != ",":
+                    Query += ","
+                Query += " " + TableData[UniqueKeyId][0] + " (" + TableData[UniqueKeyId][1] + ")"
+            
+            #If a PrimatyKey has been added.
+            if PrimaryKeyId:
+                if Query[-1] != ",":
+                    Query += ","
+                Query += " " + TableData[PrimaryKeyId][0] + " (" + TableData[PrimaryKeyId][1] + ")"
+           
+            #If a Foreign Key has been added.
+            if ForeignKeyId:
+                if Query[-1] != ",":
+                    Query += ","
+                Query += " " + TableData[ForeignKeyId][0] + " (" + TableData[ForeignKeyId][1] + ") REFERENCES " + TableData[ForeignKeyId][2]              
+            
+            Query += ");"
+            
+            Cursor.execute(Query)
             return True
         
         except mysql.connector.Error as err:    
             print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseTableCreationError') + "{0}".format(err))
             return False
     
+    def CreateTablesForMainDatabase(self, Cursor):
+        #This methode will create all the default tables for the database
+        
+        #UserTable
+        TableData = (
+                     ("Internal_User_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("External_User_Id", "Integer Unsigned"),
+                     ("User_Name", "Varchar(256) DEFAULT NULL"),
+                     ("First_Name", "Varchar(256) DEFAULT NULL"),
+                     ("Last_Name", "Varchar(256) DEFAULT NULL"),
+                     ("PRIMARY KEY", "Internal_User_ID")
+                     )
+        
+        self.CreateTable(Cursor, "User_Table", TableData,) 
+                 
+        #The PollTable
+        TableData = (
+                     ("Internal_Poll_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("External_Poll_Id", "BINARY(16) DEFAULT NULL"),
+                     ("Question", "Varchar(999)"),
+                     ("Master_User_Id", "Integer"),
+                     ("UNIQUE", "External_Poll_Id"),
+                     ("PRIMARY KEY", "Internal_Poll_Id"),
+                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
+                    )
+         
+        self.CreateTable(Cursor, "Poll_Table", TableData,)
+         
+        #Options for the Poll themself
+        TableData = (
+                     ("Id_Option", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Id_Poll_Table", "Integer"),
+                     ("Option_Name", "Varchar(128)"),
+                     ("PRIMARY KEY", "Id_Option"),
+                     ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)")
+                    )
+         
+        self.CreateTable(Cursor, "Options_Table", TableData,)
+         
+        #all settings of the poll
+        TableData = (
+                     ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Setting_Name", "Varchar(128)"),
+                     ("Default_String", "Varchar(256)"),
+                     ("Default_Boolean", "Boolean"),
+                     ("PRIMARY KEY", "Setting_Id")               
+                     )
+         
+        self.CreateTable(Cursor, "Settings_Of_Poll", TableData,)
+         
+        # User set settings for the poll, like custom language
+         
+        TableData = (
+                     ("User_Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Id_Poll_Table", "Integer"),
+                     ("User_Id", "Integer"),
+                     ("User_String", "VARCHAR(256)"),
+                     ("User_Integer", "Integer"),
+                     ("User_Boolean", "Boolean"),
+                     ("Primary key", "User_Setting_Id"),
+                     ("FOREIGN KEY", "Id_Poll_Table", "PollTable(Internal_Poll_Id)"),
+                     ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)")
+                     )
+        self.CreateTable(Cursor, "User_Setting_Of_Poll", TableData,)
+
+        return True
+         
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
         # a simple SQL SELECT builder, this will be replaces by the Querry Class generator
         # 
@@ -271,40 +374,13 @@ class SqlApi(object):
 if __name__ == "__main__":
     print("online")
     import Main
-    import pprint
+    #import pprint
     Main.ObjectInitialiser()
-    a = SqlApi("root", "Password", "BetterPollBotDatabase") 
-    Cursor = a.CreateCursor(Buffered=False, Dictionary=True, )
-    # a.CreateDatabase(Cursor, "TestDatabase")
-    f = a.SelectEntry(Cursor, "Membership_Roles", 
-                  Columns=["Id", "Title" ], 
-                  OrderBy= [ ["Title"]] ,
-                  Amount=1,
-                  Where=[["Id", "=", 1], "and", ["Title", "=", "SuperUser"]],
-                  Distinct=False)
+    Cursor = GlobalObjects.ObjectHolder["SqlClass"].CreateCursor(Buffered=False, Dictionary=True, )
+   
+    GlobalObjects.ObjectHolder["SqlClass"].CreateTablesForMainDatabase(Cursor)
     
-    print(f)
-#     Query = """
-#     SELECT 
-#     Membership_Roles.Title,
-#     Membership_Rights.NameOfRight 
-#     FROM Membership_Options
-#     LEFT JOIN Membership_Roles ON Membership_Roles.ID = Membership_Options.IdOfRoles
-#     LEFT JOIN Membership_Rights ON Membership_Rights.ID = Membership_Options.IdOfMembers;
-#     """
-#     temp = a.ExecuteTrueQuery(Cursor, Query)
-#     pp = pprint.PrettyPrinter(indent=4)
-# 
-#     pp.pprint(temp)
-    
-#     for i in temp:
-#         t = ""
-#         for key in i.keys():
-#             t += ("%s, " % (i[key]))
-#         print(t)
-        
-    #a.DeleteDatabase(Cursor, "Test")
-    a.DestroyCursor(Cursor)
+    GlobalObjects.ObjectHolder["SqlClass"].DestroyCursor(Cursor)
     print("offline")
     
     
