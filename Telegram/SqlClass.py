@@ -4,7 +4,6 @@
 import GlobalObjects
 
 import mysql.connector  # A additional interface needed for the connection to the MySql-Database
-from mysql.connector.cursor import MySQLCursorPrepared
 import LoggingClass
 
 import LanguageClass
@@ -84,9 +83,10 @@ class SqlApi(object):
             return  mysql.connector.connect(**config)
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-                print(GlobalObjects.ObjectHolder.LanguageObject.GetString("DatabaseAutentificationError"))
+                print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("DatabaseAutentificationError"))
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                print(GlobalObjects.ObjectHolder.LanguageObject.GetString("NotExistingDatabase"))
+                print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("NotExistingDatabase"))
+                raise SystemExit
             else:
                 print(err)
     
@@ -273,7 +273,7 @@ if __name__ == "__main__":
     import Main
     import pprint
     Main.ObjectInitialiser()
-    a = SqlApi("root", "Password", "TestDatabase")
+    a = SqlApi("root", "Password", "BetterPollBotDatabase") 
     Cursor = a.CreateCursor(Buffered=False, Dictionary=True, )
     # a.CreateDatabase(Cursor, "TestDatabase")
     f = a.SelectEntry(Cursor, "Membership_Roles", 

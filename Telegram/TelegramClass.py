@@ -18,8 +18,11 @@ import platform
 class TelegramApi(object):
     def __init__(self, token, LoggingObject, LanguageObject):
         self.token = token
-        self.url = "https://api.telegram.org/bot" + self.token
+        self.BotApiUrl = "https://api.telegram.org/bot" + self.token
+        
         self.LoggingObject = LoggingObject  # holds the logging Objekt
+        self.LanguageObject = LanguageObject
+        
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {
                         'User-agent': (GlobalObjects.__name__ + '/'+  str(GlobalObjects.__version__) +' (' +
@@ -31,7 +34,7 @@ class TelegramApi(object):
           
     def GetMe(self):
         #A methode to confirm the token exists                                                    
-        Request = urllib.request.Request(self.url + "/getMe", headers=self.Headers)
+        Request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)
         
         response = urllib.request.urlopen(Request, context = self.SSLEncription).read().decode("utf-8")
         
@@ -58,9 +61,13 @@ class TelegramApi(object):
         
         MessageData = urllib.parse.urlencode({"limit": 1}).encode('utf-8')  # data should be bytes
         
-        response = urllib.request.urlopen(self.url + "/getUpdates", data=MessageData, context=self.SSLEncription).read().decode("utf-8")
+        Request = urllib.request.urlopen(self.BotApiUrl + "/getUpdates",
+                                          data=MessageData, 
+                                          context=self.SSLEncription)
         
-        JSONData = json.loads(response)
+        Response = Request.read().decode("utf-8")
+        
+        JSONData = json.loads(Response)
         
         if JSONData["ok"]:
             return JSONData
@@ -72,7 +79,7 @@ class TelegramApi(object):
         
         MessageData = urllib.parse.urlencode(MessageObject.getMessage()).encode('utf-8') # data should be bytes
     
-        req = urllib.request.Request(self.url + "/sendMessage", data= MessageData, headers=self.Headers)
+        req = urllib.request.Request(self.BotApiUrl + "/sendMessage", data= MessageData, headers=self.Headers)
         
         with urllib.request.urlopen(req) as response:
            the_page = response.read()
@@ -96,7 +103,7 @@ class TelegramApi(object):
         
         MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8') # data should be bytes
     
-        req = urllib.request.Request(self.url + "/sendMessage", data= MessageData, headers=self.Headers)
+        req = urllib.request.Request(self.BotApiUrl + "/sendMessage", data= MessageData, headers=self.Headers)
         
         with urllib.request.urlopen(req) as response:
            the_page = response.read()

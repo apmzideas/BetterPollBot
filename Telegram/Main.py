@@ -8,6 +8,7 @@
 
 
 import GlobalObjects
+import ConfigurationClass
 import LanguageClass
 import TelegramClass
 import SqlClass
@@ -15,15 +16,28 @@ import SqlClass
 import ErrorClasses
 
 def ObjectInitialiser():
-    
+    GlobalObjects.ObjectHolder["ConfigurationClass"] = ConfigurationClass.ConfigurationParser()
+    GlobalObjects.ObjectHolder["ConfigurationClass"].ReadConfigurationFile()
     GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('gerDE')
-    GlobalObjects.ObjectHolder["TelegramClass"] = TelegramClass.TelegramApi('')
+    GlobalObjects.ObjectHolder["SqlClass"] = SqlClass.SqlApi("root", "Password", 
+                                                             GlobalObjects.ObjectHolder["ConfigurationClass"]["MySQL Connection Parameter"]["DatabaseName"]
+                                                             )
+    #GlobalObjects.ObjectHolder["TelegramClass"] = TelegramClass.TelegramApi('80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY')
     
     
 
 
 if __name__ == "__main__":
+    
     ObjectInitialiser()
-    a = SqlClass.SqlApi("root", "Password", "test")
-    a.Dummy()
-    print(GlobalObjects.ObjectHolder)
+
+    Cursor = GlobalObjects.ObjectHolder["SqlClass"].CreateCursor(Buffered=False, Dictionary=True, )
+    # a.CreateDatabase(Cursor, "TestDatabase")
+    f = GlobalObjects.ObjectHolder["SqlClass"].SelectEntry(Cursor, "Membership_Roles", 
+                  Columns=["Id", "Title" ], 
+                  OrderBy= [ ["Title"]] ,
+                  Amount=1,
+                  Where=[["Id", "=", 1], "and", ["Title", "=", "SuperUser"]],
+                  Distinct=False)
+    
+    print(f)
