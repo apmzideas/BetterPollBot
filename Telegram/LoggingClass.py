@@ -3,15 +3,6 @@
 
 ''' a logging tool'''
 
-__author__ = "Adrian Hornung"
-__copyright__ = "Copyright (C) Adrian Hornung 2013-2015"
-__credits__ = ["Adrian Hornung"]
-__license__ = "License GNU General Public License https://www.gnu.org/copyleft/gpl.html"
-__version__ = "0.1"
-__maintainer__ = "Adrian Hornung"
-__email__ = "hornung.adrian@gmial.com"
-__status__ = "Development"
-
 import logging
 import logging.config
 
@@ -27,17 +18,18 @@ class Logger(object):
             if self.log_to_file is True:
                 logging.config.fileConfig(self.config_name)
                 self.logger = logging.getLogger('root')
+
             elif self.log_to_file is not True:
                 logging.config.fileConfig(self.config_name)
                 self.logger = logging.getLogger('Console')
             else:
-                logging.basicConfig(filename='log.txt', format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%d/%M/%Y %H:%M:%S', level=logging.DEBUG)
+                logging.basicConfig(filename='log.txt', format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%d.%m.%Y %H:%M:%S', level=logging.DEBUG)
                 logging.debug('There was an ERROR whit the .ini log to file option, please try again')
         except:
-            logging.basicConfig(filename='log.txt', format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%d/%M/%Y %H:%M:%S', level=logging.DEBUG)
+            logging.basicConfig(filename='log.txt', format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%d.%m.%Y %H:%M:%S', level=logging.DEBUG)
 
     def create_log(self, message, option='info'):
-        getattr(self.logger, option)(message)
+        getattr(self.logger, option.lower())(message)
 
 if __name__ == '__main__':
     #c = conf()

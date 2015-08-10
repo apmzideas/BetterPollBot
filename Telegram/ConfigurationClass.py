@@ -6,7 +6,7 @@ import os
 import collections
 
 
-class ConfigurationParser(configparser.ConfigParser):
+class ConfigurationParser(configparser.RawConfigParser ):
     def __init__(self, FileName = "config.ini", **Configuration ):
         
         #Custom configurable filename
@@ -24,7 +24,7 @@ class ConfigurationParser(configparser.ConfigParser):
         self.Strict = True
         self.EmtyLineInValues = True
         self.DefaultSelection = configparser.DEFAULTSECT
-        self.Interpolation = configparser.BasicInterpolation()
+        self.Interpolation = configparser.ExtendedInterpolation()
         
         
         #the Configuration directory is to be filled with the parameters of the configparser
@@ -97,8 +97,37 @@ class ConfigurationParser(configparser.ConfigParser):
                            }
         
         self["Logging"] = {"LogToFile": True,
-                           "LoggingFileName":'log.txt',
+                           "LoggingFileName":"log.txt",
                            }
+        
+        #some parameters needed for the logger
+        self["loggers"] = {"keys": "root,Console"}
+        self["handlers"] = {"keys": "fileHandler,consoleHandler"}
+        self["formatters"] = {"keys": "simpleFormatter"}
+        self["logger_root"] = {"level": "DEBUG", "handlers": "fileHandler"}
+        self["logger_Console"] = {"level": "DEBUG", 
+                                  "handlers": "consoleHandler", 
+                                  "qualname": "Console",
+                                  "propagate": 0}
+        
+        self["handler_consoleHandler"] = {
+                                          "class": "StreamHandler",
+                                            "level": "DEBUG",
+                                            "formatter": "simpleFormatter",
+                                            "args": "(sys.stdout,)"
+                                        }
+        
+        self["handler_fileHandler"] = {
+                                       "class": "FileHandler",
+                                         "level": "DEBUG",
+                                         "formatter": "simpleFormatter",
+                                         "args": "('log.txt',)"
+                                         }
+        
+        self["formatter_simpleFormatter"] = {
+                                             "format": "%(asctime)s - [%(levelname)s] - %(message)s",
+                                             'datefmt': '[%d.%M.%Y %H:%M:%S]'
+                                            }
        
        #Writes the default configuration in to the correct file 
         with open(self.FileName, "w") as configfile:

@@ -6,22 +6,23 @@ import urllib.request
 import urllib.parse
 import ssl
 import json
+import platform
+
 
 import GlobalObjects
 import LoggingClass
 import ErrorClasses
 import LanguageClass
 
-import platform
 
 
 class TelegramApi(object):
-    def __init__(self, token, LoggingObject, LanguageObject):
+    def __init__(self, token,):
         self.token = token
         self.BotApiUrl = "https://api.telegram.org/bot" + self.token
         
-        self.LoggingObject = LoggingObject  # holds the logging Objekt
-        self.LanguageObject = LanguageObject
+        self.LoggingObject = GlobalObjects.ObjectHolder["LoggingClass"] # holds the logging Objekt
+        self.LanguageObject = GlobalObjects.ObjectHolder["LanguageClass"]
         
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {

@@ -20,9 +20,10 @@ class SqlApi(object):
     
     DATABASE STRUCTURE:
         PollTable
-            Internal_Poll_Id     Integer (auto_increment)             - conntains the internal polltable id
-            External_Poll_Id     Binary(16)                           - contains the MD5 for external use is the Id
-            Question             Varchar(999)                         - contains the question that has to be asked to the groupe
+            Internal_Poll_Id      Integer (auto_increment)             - conntains the internal polltable id
+            External_Poll_Id      Binary(16)                           - contains the MD5 for external use is the Id
+            CreationDat           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            Question              Varchar(999)                         - contains the question that has to be asked to the groupe
             Master_User           Integer                              - contains the internal user Id
             
             UNIQUE (External_Poll_Id)
@@ -36,8 +37,8 @@ class SqlApi(object):
             PRIMARY KEY (Id_Option)
             
         Usertable
-            Internal_User_ID     Integer                              - contains the internal user id
-            External_User_ID     Integer Usigned                      - contains the external Integer
+            Internal_User_ID      Integer (auto_increment)             - contains the internal user id
+            External_User_ID      Integer Usigned                      - contains the external Integer
             User_Name             Varchar(256)                         - contains the user name if exists
             First_Name            Varchar(256)                         - contains the first name if exists
             Last_Name             Varchar(256)                         - contains the last name id exists
@@ -45,7 +46,7 @@ class SqlApi(object):
             PRIMARY KEY (Internal_User_ID)
             
         SettingsOfPoll
-            Setting_Id           Integer                              - contains the internal settings id
+            Setting_Id           Integer (auto_increment)             - contains the internal settings id
             Setting_Name         Varchar(128)                         - contains the name of the setting
             Default_String       Varchar(256)                         - contains the default value for the setting if string
             Default_Integer      Integer                              - contains the default value for the setting if integer
@@ -55,13 +56,23 @@ class SqlApi(object):
             
         UserSettingOfPoll
             User_Setting_Id
-            Setting_Id          Integer                                - contains the settings id
+            Setting_Id          Integer (auto_increment)               - contains the settings id
             User_Id             Integer                                - contains the internal user id
             String              Varchar(256)                           - contanis the set string value for the setting
-            Integer            Integer                                - contains the set integer value for the setting
+            Integer             Integer                                - contains the set integer value for the setting
             Boolean             Boolean                                - contains the set boolean value for the setting
             
             PRIMARY KEY (User_Setting_Id)
+        
+        UserAnswersToPoll
+            Answer_Id         Integer (auto_increment)
+            By_User            Integer
+            Poll_Id            Integer
+            Option_ID          Integer
+            
+            PRIMARY KEY (Answer_Id)
+            
+            
     """
     def __init__(self, User, Password, DatabaseName=None, Host="127.0.0.1", Port="3306"):
 
@@ -214,13 +225,15 @@ class SqlApi(object):
             print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseTableCreationError') + "{0}".format(err))
             return False
     
-    def CreateTablesForMainDatabase(self, Cursor):
-        #This methode will create all the default tables for the database
+    def CreateMainDatabase(self, Cursor):
+        #This methode will create all the default tables and data for the database
         
+        #First all the tables 
         #UserTable
         TableData = (
                      ("Internal_User_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_User_Id", "Integer Unsigned"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("User_Name", "Varchar(256) DEFAULT NULL"),
                      ("First_Name", "Varchar(256) DEFAULT NULL"),
                      ("Last_Name", "Varchar(256) DEFAULT NULL"),
@@ -233,6 +246,7 @@ class SqlApi(object):
         TableData = (
                      ("Internal_Poll_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_Poll_Id", "BINARY(16) DEFAULT NULL"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Question", "Varchar(999)"),
                      ("Master_User_Id", "Integer"),
                      ("UNIQUE", "External_Poll_Id"),
@@ -245,6 +259,7 @@ class SqlApi(object):
         #Options for the Poll themself
         TableData = (
                      ("Id_Option", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Id_Poll_Table", "Integer"),
                      ("Option_Name", "Varchar(128)"),
                      ("PRIMARY KEY", "Id_Option"),
@@ -256,6 +271,7 @@ class SqlApi(object):
         #all settings of the poll
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Setting_Name", "Varchar(128)"),
                      ("Default_String", "Varchar(256)"),
                      ("Default_Boolean", "Boolean"),
@@ -268,6 +284,7 @@ class SqlApi(object):
          
         TableData = (
                      ("User_Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Id_Poll_Table", "Integer"),
                      ("User_Id", "Integer"),
                      ("User_String", "VARCHAR(256)"),
@@ -278,7 +295,30 @@ class SqlApi(object):
                      ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)")
                      )
         self.CreateTable(Cursor, "User_Setting_Of_Poll", TableData,)
-
+        
+        TableData = (
+                     ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+                     ("By_User", "Integer"),
+                     ("Poll_Id", "Integer"),
+                     ("Option_Id", "Integer"),
+                     ("PRIMARY KEY", "Answer_Id"),
+                     ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)"),
+                     ("FOREIGN KEY", "Poll_Id", "PollTable(Internal_Poll_Id)"),
+                     ("FOREIGN KEY", "Option_Id", "Options_Table(Id_Option)")
+                     )
+        self.CreateTable(Cursor, "User_Answers_To_Poll", TableData,)
+        
+        #Second all the inserts
+        
+        #The Settings
+        
+        Columns = {
+                   
+                   }
+        
+        self.InsertEntry(Cursor, "Settings_Of_Poll", Columns)
+            
         return True
          
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
@@ -370,16 +410,46 @@ class SqlApi(object):
             else:
                 Query.append("?") 
         
+    def InsertEntry(self, Cursor, TableName, Columns={}):
+        #This method will insert any type of entry into the system
+        
+        try:   
+            Query = "INSERT INTO "
+             
+            Query += TableName + " ("
+             
+            Query += ', '.join( Columns.keys())     
+            Query += ") VALUES (" 
+            Query += ", ".join(["%("+str(i) + ")s" for i in  Columns.keys() ])
+            
+            Query += ");"
+            
+            Cursor.execute(Query, Columns)
+            
+            # Make sure data is committed to the database
+            self.connection.commit()
+            return True
+        except mysql.connector.Error as err:    
+            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseEntryCreationError') + "{0}".format(err))
+            return False
         
 if __name__ == "__main__":
     print("online")
     import Main
     #import pprint
     Main.ObjectInitialiser()
-    Cursor = GlobalObjects.ObjectHolder["SqlClass"].CreateCursor(Buffered=False, Dictionary=True, )
+    Cursor = GlobalObjects.ObjectHolder["SqlClass"].CreateCursor(Buffered=False, Dictionary=True,)
    
-    GlobalObjects.ObjectHolder["SqlClass"].CreateTablesForMainDatabase(Cursor)
+    GlobalObjects.ObjectHolder["SqlClass"].CreateMainDatabase(Cursor)
     
+    
+    GlobalObjects.ObjectHolder["SqlClass"].InsertEntry(Cursor, "user_table", {
+                                                                              "External_User_Id" : 32301786,
+                                                                              "First_Name" : "Adrian",
+                                                                              "Last_Name" : "Hornung",
+                                                                              "User_Name" : "TheRedFireFox"
+                                                                            }
+                                                       )
     GlobalObjects.ObjectHolder["SqlClass"].DestroyCursor(Cursor)
     print("offline")
     
