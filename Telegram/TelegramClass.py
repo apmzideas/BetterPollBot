@@ -16,74 +16,91 @@ import LanguageClass
 
 # import the _() function!
 import LanguageClassTheSecond
-_ = LanguageClassTheSecond.CreateTranslationObject("de_DE").gettext
+_ = LanguageClassTheSecond.CreateTranslationObject(["en_US"]).gettext
 
 
 class TelegramApi(object):
-    def __init__(self, token,):
-        self.token = token
-        self.BotApiUrl = "https://api.telegram.org/bot" + self.token
+    def __init__(self, ApiToken, LanguageObject, LoggingObject):
+        self.ApiToken = ApiToken
+        self.BotApiUrl = "https://api.telegram.org/bot" + self.ApiToken
         
-        self.LoggingObject = GlobalObjects.ObjectHolder["LoggingClass"] # holds the logging Objekt
-        self.LanguageObject = GlobalObjects.ObjectHolder["LanguageClass"]
+         # holds the logging Objekt
+        self.LoggingObject = LoggingObject
+
         
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {
-                        'User-agent': (GlobalObjects.__AppName__ + '/'+  str(GlobalObjects.__version__) +' (' +
-                                       '; '.join( platform.system_alias( platform.system(), platform.release(), platform.version() ) ) +
-                                       ') Python-urllib/' + str(platform.python_build()) +' from ' + GlobalObjects.__hosted__),
-                        "Content-Type":" application/x-www-form-urlencoded;charset=utf-8"
+                        'User-agent': (
+                                       GlobalObjects.__AppName__ + '/'+ str(GlobalObjects.__version__) 
+                                       +' (' +
+                                       '; '.join( platform.system_alias(
+                                                            platform.system(), 
+                                                            platform.release(),
+                                                            platform.version()
+                                                            ) 
+                                                 ) +
+                                       ') Python-urllib/' +
+                                        str(platform.python_build()) +
+                                        ' from ' + GlobalObjects.__hosted__
+                                        ),
+                        "Content-Type":
+                        "application/x-www-form-urlencoded;charset=utf-8"
                         }
+        
+        self.GetMe() 
+    
+    def SendRequest(self, Request, ExitOnError=True):
         try:
-            self.GetMe()
+            Response = urllib.request.urlopen(Request, context = self.SSLEncription).read().decode("utf-8")
+            return json.loads(Response)
+        
         except urllib.error.HTTPError as Error:
             if Error.code == 400:
-                GlobalObjects.ObjectHolder["LoggingClass"].create_log( _("The webserver returned the HTTPError \"{0}\":").format(Error) + _("The token you are using has not been found in the system. Try later or check the token for spelling errors."), "Error" ) 
+                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " + _("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
             elif Error.code == 401:   
-                GlobalObjects.ObjectHolder["LoggingClass"].create_log( _("The webserver returned the HTTPError \"{0}\":").format(Error) + _("The token you are using has not been found in the system. Try later or check the token for spelling errors."), "Error" ) 
+                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
             elif Error.code == 403:
-                GlobalObjects.ObjectHolder["LoggingClass"].create_log( _("The webserver returned the HTTPError \"{0}\":").format(Error) + _("The adress is forbidden to access, please try later."), "error" )
+                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The adress is forbidden to access, please try later."), "error" )
             elif Error.code == 404:
-                GlobalObjects.ObjectHolder["LoggingClass"].create_log( _("The webserver returned the HTTPError \"{0}\":").format(Error) + _("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links"), "Error")
+                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links"), "Error")
             elif Error.code == 502:
-                GlobalObjects.ObjectHolder["LoggingClass"].create_log( _("The webserver returned the HTTPError \"{0}\":").format(Error) + _("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), "Error" )
+                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), "Error" )
             elif Error.code == 504:
-                GlobalObjects.ObjectHolder["LoggingClass"].create_log( _("The webserver returned the HTTPError \"{0}\":").format(Error) + _("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."), "Error" )
-            exit()     
+                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."), "Error" )
             
+            #For the recursive loop, so that the system can handel itself better
+            if ExitOnError:
+                exit()  
+            else:
+                pass
+    
     def GetMe(self):
-        #A methode to confirm the token exists                                                    
+        #A methode to confirm the ApiToken exists                                                    
         Request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)
         
-        response = urllib.request.urlopen(Request, context = self.SSLEncription).read().decode("utf-8")
-        
-        JSONData = json.loads(response)
-
+        return self.SendRequest(Request,)
              
-              
     def GetUpdates(self, CommentNumber = None):
         # a Methode to get the Updates as well to confirm the old comments from the Telegram API
         #Notes
         #1. This method will not work if an outgoing webhook is set up.
         #2. In order to avoid getting duplicate updates, recalculate offset after each server response.
-        
         DataToBeSend = {
                         "limit": 1,
                         "timeout": 0
                         }
-        
+            
         if CommentNumber:
             DataToBeSend["offset"] = CommentNumber
-        
+            
         MessageData = urllib.parse.urlencode({"limit": 1}).encode('utf-8')  # data should be bytes
+            
+        Request = urllib.request.Request(self.BotApiUrl + "/getUpdates",
+                                              data=MessageData, 
+                                              headers=self.Headers)
         
-        Request = urllib.request.urlopen(self.BotApiUrl + "/getUpdates",
-                                          data=MessageData, 
-                                          context=self.SSLEncription)
-        
-        Response = Request.read().decode("utf-8")
-        
-        JSONData = json.loads(Response)
+        #send Request and get JSONData    
+        JSONData = self.SendRequest(Request)
         
         if JSONData["ok"]:
             return JSONData
@@ -101,7 +118,7 @@ class TelegramApi(object):
            the_page = response.read()
         return True      
      
-    def SendMessageOld(self, Message, SendTo, DisableWebPagePreview = False,ReplyToId = None, ReplyMarkup = None):
+    def SendMessageOld(self, Message, SendTo, DisableWebPagePreview = False, ReplyToId = None, ReplyMarkup = None):
         #a methode to send Messeges to the TelegramApi
         
         DataToBeSend = { 
@@ -133,7 +150,9 @@ if __name__ == "__main__":
     Main.ObjectInitialiser()
     OrgTok = "80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY"
     FalTok = "80578257:AAEt5aH64bD6P3hqumKYFJAyHTGWEgcyEY"
-    a = TelegramApi(FalTok,)
+    a = TelegramApi(OrgTok, 
+                    LanguageClassTheSecond.CreateTranslationObject(),
+                    GlobalObjects.ObjectHolder["LoggingClass"])
     if a:
         pprint.PrettyPrinter(indent=4).pprint((a.GetMe()))
         pprint.PrettyPrinter(indent=4).pprint((a.GetUpdates()))

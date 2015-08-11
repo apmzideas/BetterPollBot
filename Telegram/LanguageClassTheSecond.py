@@ -12,8 +12,11 @@ import gettext
 #  @LOCALE_DIR@/@LANGUAGE@/LC_MESSAGES/@APP_NAME@.mo
 APP_NAME = GlobalObjects.__AppName__
 
-def CreateTranslationObject(Domain="Telegram", localedir='Language', Languages = ["de", "en"]):
-    temp = gettext.translation("Telegram", localedir=localedir, languages=Languages)
+def CreateTranslationObject( Languages = ["de", "en"], localedir='Language',):
+    temp = gettext.translation("Telegram", 
+                               localedir=localedir,
+                               languages=Languages
+                               )
     #temp.install()
     return temp
 

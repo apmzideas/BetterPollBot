@@ -24,7 +24,7 @@ def ObjectInitialiser():
     GlobalObjects.ObjectHolder["SqlClass"] = SqlClass.SqlApi("root", "Password", 
                                                              GlobalObjects.ObjectHolder["ConfigurationClass"]["MySQL Connection Parameter"]["DatabaseName"]
                                                              )
-    GlobalObjects.ObjectHolder["TelegramClass"] = TelegramClass.TelegramApi('80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY')
+    #GlobalObjects.ObjectHolder["TelegramClass"] = TelegramClass.TelegramApi('80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY')
     
     
 
