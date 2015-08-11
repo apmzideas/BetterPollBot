@@ -6,6 +6,7 @@ encoding//Telegram/GlobalObjects.py=utf-8
 encoding//Telegram/Language/enGB.py=utf-8
 encoding//Telegram/Language/gerDE.py=utf-8
 encoding//Telegram/LanguageClass.py=utf-8
+encoding//Telegram/LanguageClassTheSecond.py=utf-8
 encoding//Telegram/LoggingClass.py=utf-8
 encoding//Telegram/Main.py=utf-8
 encoding//Telegram/PollingClass.py=utf-8

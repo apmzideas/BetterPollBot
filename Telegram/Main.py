@@ -19,7 +19,7 @@ import ErrorClasses
 def ObjectInitialiser():
     GlobalObjects.ObjectHolder["ConfigurationClass"] = ConfigurationClass.ConfigurationParser()
     GlobalObjects.ObjectHolder["ConfigurationClass"].ReadConfigurationFile()
-    GlobalObjects.ObjectHolder["LoggingClass"] = LoggingClass.Logger(config_name='config.ini', log_to_file=True)
+    GlobalObjects.ObjectHolder["LoggingClass"] = LoggingClass.Logger(config_name='config.ini', log_to_file=False)
     GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('gerDE')
     GlobalObjects.ObjectHolder["SqlClass"] = SqlClass.SqlApi("root", "Password", 
                                                              GlobalObjects.ObjectHolder["ConfigurationClass"]["MySQL Connection Parameter"]["DatabaseName"]

@@ -8,7 +8,7 @@ class language(object):
     def __init__(self):
         
         #Strings for Connection Errors with Telegram
-        self.TokenError = "The token you are using has not been found in the system ."
+        self.TokenError = "The token you are using has not been found in the system. "
         self.FailedTelegramConnection = "The Connection to the TelegramServer failed, please try again later."
         
         #String for DatabaseErrors

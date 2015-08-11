@@ -14,7 +14,7 @@ __version__ = "0.1"
 __maintainer__ = "Adrian Hornung"
 __email__ = "hornung.adrian@gmail.com"
 __status__ = "Development"
-__name__ = "BetterPollBot"
+__AppName__ = "BetterPollBot"
 __hosted__ = "https://github.com/apmzideas/BetterPollBot"
 
 ObjectHolder = {}
