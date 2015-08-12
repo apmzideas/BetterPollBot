@@ -163,7 +163,7 @@ class SqlApi(object):
             return Temp
         
         except mysql.connector.Error as err:
-            self.LoggingObject.create_log(_("The database returned following error: {Error}").format(Error=err) +" "+ _("The executet querry failed, please contact your administrator."))
+            self.LoggingObject.create_log(_("The database returned following error: {Error}").format(Error=err) +" "+ _("The executet query failed, please contact your administrator."))
             
     def CreateDatabase(self, Cursor, DatabaseName):
         try:
@@ -346,7 +346,7 @@ class SqlApi(object):
         return True
          
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
-        # a simple SQL SELECT builder, this will be replaces by the Querry Class generator
+        # a simple SQL SELECT builder, this will be replaces by the query Class generator
         # 
         # OrderBy example [[column_name, "ASC"],[column_name, ],[column_name, "DESC"]] if emtpy ASC - has to be list
         # Where example [{'column_name': ''}, operator, value], operator, [column_name, operator, value]]
@@ -454,7 +454,7 @@ class SqlApi(object):
             self.connection.commit()
             return True
         except mysql.connector.Error as err:    
-            self.LogggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The exetuted insertion query failed, please contact your administrator") ,"error")
+            self.LogggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The exetuted insertion query failed, please contact your administrator.") ,"error")
             return False
         
 if __name__ == "__main__":

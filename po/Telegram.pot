@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-08-12 21:50+Mitteleuropäische Sommerzeit\n"
+"POT-Creation-Date: 2015-08-12 22:05+Mitteleuropäische Sommerzeit\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgid "The database does not exist, please contact your administrator."
 msgstr ""
 
 #: Telegram\SqlClass.py:166
-msgid "The executet querry failed, please contact your administrator."
+msgid "The executet query failed, please contact your administrator."
 msgstr ""
 
 #: Telegram\SqlClass.py:166 Telegram\SqlClass.py:180
@@ -49,7 +49,7 @@ msgid "The following database table \"{TableName}\" could not be created, please
 msgstr ""
 
 #: Telegram\SqlClass.py:457
-msgid "The exetuted insertion query failed, please contact your administrator"
+msgid "The exetuted insertion query failed, please contact your administrator."
 msgstr ""
 
 #: Telegram\TelegramClass.py:76 Telegram\TelegramClass.py:78
@@ -67,7 +67,7 @@ msgid "The adress is forbidden to access, please try later."
 msgstr ""
 
 #: Telegram\TelegramClass.py:82
-msgid "The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links"
+msgid "The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."
 msgstr ""
 
 #: Telegram\TelegramClass.py:84
