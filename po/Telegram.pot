@@ -1,0 +1,80 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2015-08-12 21:50+Mitteleuropäische Sommerzeit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp1252\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: Telegram\SqlClass.py:125
+msgid "Something is wrong with your user name or password."
+msgstr ""
+
+#: Telegram\SqlClass.py:125 Telegram\SqlClass.py:127 Telegram\SqlClass.py:173
+#: Telegram\SqlClass.py:249 Telegram\SqlClass.py:457
+msgid "The database connector returned following error: {Error}"
+msgstr ""
+
+#: Telegram\SqlClass.py:127
+msgid "The database does not exist, please contact your administrator."
+msgstr ""
+
+#: Telegram\SqlClass.py:166
+msgid "The executet querry failed, please contact your administrator."
+msgstr ""
+
+#: Telegram\SqlClass.py:166 Telegram\SqlClass.py:180
+msgid "The database returned following error: {Error}"
+msgstr ""
+
+#: Telegram\SqlClass.py:173
+msgid "The creation of the following database {DatabaseName} has not succeded, please contact your administrator."
+msgstr ""
+
+#: Telegram\SqlClass.py:180
+msgid "Failed to delete the \"{DatabaseName}\" database, please delete manually."
+msgstr ""
+
+#: Telegram\SqlClass.py:249
+msgid "The following database table \"{TableName}\" could not be created, please contact your administrator."
+msgstr ""
+
+#: Telegram\SqlClass.py:457
+msgid "The exetuted insertion query failed, please contact your administrator"
+msgstr ""
+
+#: Telegram\TelegramClass.py:76 Telegram\TelegramClass.py:78
+msgid "The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."
+msgstr ""
+
+#: Telegram\TelegramClass.py:76 Telegram\TelegramClass.py:78
+#: Telegram\TelegramClass.py:80 Telegram\TelegramClass.py:82
+#: Telegram\TelegramClass.py:84 Telegram\TelegramClass.py:86
+msgid "The webserver returned the HTTPError \"{Error}\"."
+msgstr ""
+
+#: Telegram\TelegramClass.py:80
+msgid "The adress is forbidden to access, please try later."
+msgstr ""
+
+#: Telegram\TelegramClass.py:82
+msgid "The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links"
+msgstr ""
+
+#: Telegram\TelegramClass.py:84
+msgid "The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."
+msgstr ""
+
+#: Telegram\TelegramClass.py:86
+msgid "The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."
+msgstr ""
+

@@ -1,32 +1,45 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
+#python standard library
 import urllib.request
 import urllib.parse
 import ssl
 import json
 import platform
 
-
+#my own babys
 import GlobalObjects
 import LoggingClass
 import ErrorClasses
-import LanguageClass
-
-# import the _() function!
-import LanguageClassTheSecond
-_ = LanguageClassTheSecond.CreateTranslationObject(["en_US"]).gettext
-
+import MessageClass
+import LanguageClass # imports the _() function! (the translation feature.
 
 class TelegramApi(object):
-    def __init__(self, ApiToken, LanguageObject, LoggingObject):
+    #This class is responsable for contacting the telegram servers.
+    def __init__(self, ApiToken, **OptionalObjects):
         self.ApiToken = ApiToken
         self.BotApiUrl = "https://api.telegram.org/bot" + self.ApiToken
         
-         # holds the logging Objekt
-        self.LoggingObject = LoggingObject
+        #Predefining attribute so that it later can be used for evil.
+        self.LanguageObject = None
+        self.LogggingObject = None
+        
+        if "LanguageObject" in OptionalObjects:
+            self.LanguageObject = OptionalObjects["LanguageObject"]
+        else:
+            self.LanguageObject = LanguageClass.CreateTranslationObject()
+        if "LoggingObject" in OptionalObjects:
+            self.LogggingObject = OptionalObjects["LoggingObject"]
+        else:
+            self.LogggingObject = LoggingClass.Logger()
+        
+        #Hier we are initialising the function for the translations 
+        self._ = self.LanguageObject.gettext
 
+#         #creates the language translation object
+#         global _
+#         _ = LanguageObject.gettext
         
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {
@@ -51,34 +64,36 @@ class TelegramApi(object):
     
     def SendRequest(self, Request, ExitOnError=True):
         try:
-            Response = urllib.request.urlopen(Request, context = self.SSLEncription).read().decode("utf-8")
-            return json.loads(Response)
+            #Response = .read().decode("utf-8")
+            
+            TheResponse = ''
+            with urllib.request.urlopen(Request, context = self.SSLEncription) as Request:
+                TheResponse = Request.read()
+            return json.loads(TheResponse.decode("utf-8"))
         
         except urllib.error.HTTPError as Error:
             if Error.code == 400:
-                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " + _("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
             elif Error.code == 401:   
-                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
             elif Error.code == 403:
-                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The adress is forbidden to access, please try later."), "error" )
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The adress is forbidden to access, please try later."), "error" )
             elif Error.code == 404:
-                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links"), "Error")
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."), "Error")
             elif Error.code == 502:
-                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), "Error" )
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), "Error" )
             elif Error.code == 504:
-                self.LoggingObject.create_log( _("The webserver returned the HTTPError \"{0}\":").format(str(Error.code) + " " + Error.reason) +" " +  _("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."), "Error" )
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."), "Error" )
             
             #For the recursive loop, so that the system can handel itself better
             if ExitOnError:
                 exit()  
-            else:
-                pass
-    
+            
     def GetMe(self):
         #A methode to confirm the ApiToken exists                                                    
         Request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)
         
-        return self.SendRequest(Request,)
+        return self.SendRequest(Request)
              
     def GetUpdates(self, CommentNumber = None):
         # a Methode to get the Updates as well to confirm the old comments from the Telegram API
@@ -108,40 +123,19 @@ class TelegramApi(object):
             return None
         
     def SendMessage(self, MessageObject):
-        #a methode to send Messeges to the TelegramApi
+        #a method to send Messeges to the TelegramApi
         
-        MessageData = urllib.parse.urlencode(MessageObject.getMessage()).encode('utf-8') # data should be bytes
+        MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8') # data should be bytes
     
-        req = urllib.request.Request(self.BotApiUrl + "/sendMessage", data= MessageData, headers=self.Headers)
+        Request = urllib.request.Request(self.BotApiUrl + "/sendMessage", 
+                                         data= MessageData,
+                                          headers=self.Headers)
         
-        with urllib.request.urlopen(req) as response:
-           the_page = response.read()
-        return True      
-     
-    def SendMessageOld(self, Message, SendTo, DisableWebPagePreview = False, ReplyToId = None, ReplyMarkup = None):
-        #a methode to send Messeges to the TelegramApi
-        
-        DataToBeSend = { 
-                        "chat_id": SendTo, 
-                        "text": bytes(Message.encode("uft-8")),
-                        }
-        
-        if DisableWebPagePreview:
-            DataToBeSend["disable_web_page_preview"] = True
-        if ReplyToId.isdigit():
-            DataToBeSend["reply_to_message_id"] = ReplyToId
-            
-        if isinstance(ReplyMarkup, dict):
-            DataToBeSend["reply_markup"] = ReplyMarkup
-        
-        MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8') # data should be bytes
-    
-        req = urllib.request.Request(self.BotApiUrl + "/sendMessage", data= MessageData, headers=self.Headers)
-        
-        with urllib.request.urlopen(req) as response:
-           the_page = response.read()
-        return True
-    
+        return self.SendRequest(Request, ExitOnError=False)       
+
+    def ForwardMessage(self, ChatId, FromChatId, MessageId):
+        #A method to forward a message
+        MessageData = {}
     
 if __name__ == "__main__":
     print('online')
@@ -151,11 +145,18 @@ if __name__ == "__main__":
     OrgTok = "80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY"
     FalTok = "80578257:AAEt5aH64bD6P3hqumKYFJAyHTGWEgcyEY"
     a = TelegramApi(OrgTok, 
-                    LanguageClassTheSecond.CreateTranslationObject(),
-                    GlobalObjects.ObjectHolder["LoggingClass"])
-    if a:
-        pprint.PrettyPrinter(indent=4).pprint((a.GetMe()))
-        pprint.PrettyPrinter(indent=4).pprint((a.GetUpdates()))
-    else:
-        print("None")
+                    LanguageObject = LanguageClass.CreateTranslationObject("de"),)
+    
+    Update = a.GetUpdates()
+    #print(Update)
+    #print(Update["result"][0]["message"]["chat"]["id"])
+    
+    MessageObject = MessageClass.MessageToBeSend(Update["result"][len(Update["result"])-1]["message"]["chat"]["id"], 
+                                         "Hier könnte Ihre Werbung stehen.")
+    print(a.SendMessage(MessageObject))
+#     if a:
+#         pprint.PrettyPrinter(indent=4).pprint((a.GetMe()))
+#         pprint.PrettyPrinter(indent=4).pprint((a.GetUpdates()))
+#     else:
+#         print("None")
     print('offline')

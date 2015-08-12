@@ -6,6 +6,7 @@ import GlobalObjects
 import mysql.connector  # A additional interface needed for the connection to the MySql-Database
 import LoggingClass
 
+# import the _() function!
 import LanguageClass
 
 class SqlApi(object):
@@ -74,13 +75,36 @@ class SqlApi(object):
             
             
     """
-    def __init__(self, User, Password, DatabaseName=None, Host="127.0.0.1", Port="3306"):
+    def __init__(self,
+                  User, 
+                  Password, 
+                  DatabaseName=None, 
+                  Host="127.0.0.1", 
+                  Port="3306", 
+                  **OptionalObjects):
 
         self.User = User
         self.Password = Password
         self.Host = Host
         self.DatabaseName = DatabaseName
         self.Port = Port
+        
+        #Predefining attribute so that it later can be used for evil.
+        self.LanguageObject = None
+        self.LogggingObject = None
+        
+        if "LanguageObject" in OptionalObjects:
+            self.LanguageObject = OptionalObjects["LanguageObject"]
+        else:
+            self.LanguageObject = LanguageClass.CreateTranslationObject()
+        if "LoggingObject" in OptionalObjects:
+            self.LogggingObject = OptionalObjects["LoggingObject"]
+        else:
+            self.LogggingObject = LoggingClass.Logger()
+            
+        #This is the language objects only value
+        self._ = self.LanguageObject.gettext
+        
         self.connection = self.CreateConnection()
         
     def CreateConnection(self):
@@ -98,12 +122,12 @@ class SqlApi(object):
             return  mysql.connector.connect(**config)
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-                print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("DatabaseAutentificationError"))
+                self.LogggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."), "Error")
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                print(GlobalObjects.ObjectHolder["LanguageClass"].GetString("NotExistingDatabase") + "{0}".format(err))
-                #raise SystemExit
+                self.LoggignObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."), "Error")
+                raise SystemExit
             else:
-                print(err)
+                self.LoggignObject.create_log(err)
     
     def CreateCursor(self, Buffered=False, Dictionary=True):
         # this methode will ceate the cursor needet for the connection to the server
@@ -139,21 +163,21 @@ class SqlApi(object):
             return Temp
         
         except mysql.connector.Error as err:
-            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseQuerryError') + " {0}".format(err))
+            self.LoggingObject.create_log(_("The database returned following error: {Error}").format(Error=err) +" "+ _("The executet querry failed, please contact your administrator."))
             
     def CreateDatabase(self, Cursor, DatabaseName):
         try:
             Cursor.execute(
             "CREATE DATABASE IF NOT EXISTS {0} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName))
         except mysql.connector.Error as err:
-            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseDeleteError') + " {0}".format(err))
+            self.LogggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The creation of the following database {DatabaseName} has not succeded, please contact your administrator.").format(DatabaseName=DatabaseName) )
     
     def DeleteDatabase(self, Cursor, DatabaseName):
         try:
             Cursor.execute(
-            "DROP DATABASE {0}".format(DatabaseName))
+            "DROP DATABASE {0};".format(DatabaseName))
         except mysql.connector.Error as err:
-            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseDeleteError') + "{0}".format(err))
+            self.LogggingObject.create_log(_("The database returned following error: {Error}").format(Error=err) +" " + _("Failed to delete the \"{DatabaseName}\" database, please delete manually.").format(DatabaseName = DatabaseName))
             
     def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True):
         """
@@ -222,7 +246,7 @@ class SqlApi(object):
             return True
         
         except mysql.connector.Error as err:    
-            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseTableCreationError') + "{0}".format(err))
+            self.LogggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The following database table \"{TableName}\" could not be created, please contact your administrator."), "error")
             return False
     
     def CreateMainDatabase(self, Cursor):
@@ -430,7 +454,7 @@ class SqlApi(object):
             self.connection.commit()
             return True
         except mysql.connector.Error as err:    
-            print(GlobalObjects.ObjectHolder["LanguageClass"].GetString('DatabaseEntryCreationError') + "{0}".format(err))
+            self.LogggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The exetuted insertion query failed, please contact your administrator") ,"error")
             return False
         
 if __name__ == "__main__":

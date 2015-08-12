@@ -3,15 +3,6 @@
 
 ''' Telegram Emoji-Names'''
 
-__author__ = "Adrian Hornung"
-__copyright__ = "Copyright (C) Adrian Hornung 2013-2015"
-__credits__ = ["Adrian Hornung"]
-__license__ = "License GNU General Public License https://www.gnu.org/copyleft/gpl.html"
-__version__ = "0.1"
-__maintainer__ = "Adrian Hornung"
-__email__ = "hornung.adrian@gmial.com"
-__status__ = "Development"
-
 class Emoji(object):
     GRINNING_FACE_WITH_SMILING_EYES = '\xF0\x9F\x98\x81'
     FACE_WITH_TEARS_OF_JOY = '\xF0\x9F\x98\x82'

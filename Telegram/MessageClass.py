@@ -1,7 +1,6 @@
-import ObjectHolder
 import json
 
-class Message(TelegramObject):
+class MessageToBeSend(object):
     
     # A Class to create and configure the message
     
@@ -71,12 +70,12 @@ class Message(TelegramObject):
         #This methode will assemble the message
         DataToBeSend = { 
                         "chat_id": self.ToChatId,
-                        "text": bytes(self.Text.encode("uft-8")),
+                        "text": bytes(self.Text.encode("utf-8")),
                         }
         
         if self.DisableWebPagePreview:
             DataToBeSend["disable_web_page_preview"] = True
-        if self.ReplyToMessageId.isdigit():
+        if self.ReplyToMessageId is not None:
             DataToBeSend["reply_to_message_id"] = self.ReplyToMessageId
         if self.ReplyMarkup != {}:
             DataToBeSend["reply_markup"] = json.JSONEncoder().encode(ReplyMarkup)
