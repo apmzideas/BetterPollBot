@@ -23,23 +23,19 @@ class TelegramApi(object):
         
         #Predefining attribute so that it later can be used for evil.
         self.LanguageObject = None
-        self.LogggingObject = None
+        self.LoggingObject = None
         
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = LanguageClass.CreateTranslationObject()
         if "LoggingObject" in OptionalObjects:
-            self.LogggingObject = OptionalObjects["LoggingObject"]
+            self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
-            self.LogggingObject = LoggingClass.Logger()
+            self.LoggingObject = LoggingClass.Logger()
         
         #Hier we are initialising the function for the translations 
         self._ = self.LanguageObject.gettext
-
-#         #creates the language translation object
-#         global _
-#         _ = LanguageObject.gettext
         
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {
@@ -101,14 +97,14 @@ class TelegramApi(object):
         #1. This method will not work if an outgoing webhook is set up.
         #2. In order to avoid getting duplicate updates, recalculate offset after each server response.
         DataToBeSend = {
-                        "limit": 1,
+                        #"limit": 1,
                         "timeout": 0
                         }
             
         if CommentNumber:
             DataToBeSend["offset"] = CommentNumber
             
-        MessageData = urllib.parse.urlencode({"limit": 1}).encode('utf-8')  # data should be bytes
+        MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8')  # data should be bytes
             
         Request = urllib.request.Request(self.BotApiUrl + "/getUpdates",
                                               data=MessageData, 
@@ -124,7 +120,7 @@ class TelegramApi(object):
         
     def SendMessage(self, MessageObject):
         #a method to send Messeges to the TelegramApi
-        
+        print(MessageObject.GetMessage())
         MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8') # data should be bytes
     
         Request = urllib.request.Request(self.BotApiUrl + "/sendMessage", 
@@ -147,12 +143,21 @@ if __name__ == "__main__":
     a = TelegramApi(OrgTok, 
                     LanguageObject = LanguageClass.CreateTranslationObject("de"),)
     
-    Update = a.GetUpdates()
-    #print(Update)
-    #print(Update["result"][0]["message"]["chat"]["id"])
+    Update = a.GetUpdates(469262104+1)
+    print(Update)
+    print(Update["result"][len(Update["result"])-1]["update_id"])
     
     MessageObject = MessageClass.MessageToBeSend(Update["result"][len(Update["result"])-1]["message"]["chat"]["id"], 
-                                         "Hier könnte Ihre Werbung stehen.")
+                                         "Hier könnte Ihre Werbung nicht stehen.")
+#     MessageObject.ReplyKeyboardMarkup(
+#                                       Keybord = [ [ "Top Left", "Top Right" ], [ "Bottom Left", "Bottom Right" ] ], 
+#                                       ResizeKeyboard = False,
+#                                       OneTimeKeyboard = False,
+#                                       Selective = False
+#                                       )
+#     MessageObject.ForceReply()
+    MessageObject.ReplyKeyboardHide()
+    
     print(a.SendMessage(MessageObject))
 #     if a:
 #         pprint.PrettyPrinter(indent=4).pprint((a.GetMe()))

@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import json
 
 class MessageToBeSend(object):
@@ -27,43 +30,37 @@ class MessageToBeSend(object):
         #A method to create a custom keybord
         #This object represents a custom keyboard with reply options
         
-        self.ReplyMarkup = {}
-        
         self.ReplyMarkup["keyboard"] = Keybord
         if ResizeKeyboard:
-            self.ReplyMarkup["resize_keyboard"] = ResizeKeyboard
+            self.ReplyMarkup["resize_keyboard"] = str(ResizeKeyboard).lower()
         if OneTimeKeyboard:
-            self.ReplyMarkup["one_time_keyboard"] = OneTimeKeyboard
-        if Selective:
-            self.ReplyMarkup = Selective
+            self.ReplyMarkup["one_time_keyboard"] = str(OneTimeKeyboard).lower()
+        if Selective and not "selective"  in self.ReplyMarkup:
+            self.ReplyMarkup["selective"] = str(Selective).lower()
     
-    def ReplyKeyboardHide(self, Selecttiv=False):
+    def ReplyKeyboardHide(self, Selective=False):
         #Upon receiving a message with this object, Telegram clients will hide 
         #the current custom keyboard and display the default letter-keyboard. 
         #By default, custom keyboards are displayed until a new keyboard is 
         #sent by a bot. An exception is made for one-time keyboards that are 
         #hidden immediately after the user presses a button 
         #(see ReplyKeyboardMarkup).
+               
+        self.ReplyMarkup["hide_keyboard"] = True
         
-        self.ReplyMarkup = {}
-        
-        self.ReplyMarkup["HideKeybord"] = True
-        
-        if Selecttiv:
+        if Selective and "selective" not in self.ReplyMarkup:
             self.ReplyMarkup["selective"]
             
-    def ForceReply(self, Selecttiv=False):
+    def ForceReply(self, Selective=False):
         #Upon receiving a message with this object, Telegram clients will 
         #display a reply interface to the user (act as if the user has 
         #selected the bot‘s message and tapped ’Reply'). This can be 
         #extremely useful if you want to create user-friendly step-by-step 
         #interfaces without having to sacrifice privacy mode.
         
-        self.ReplyMarkup = {}
-        
         self.ReplyMarkup["force_reply"] = True
         
-        if Selecttiv:
+        if Selective and "selective" not in self.ReplyMarkup:
            self.ReplyMarkup["selective"] = True
         
     def GetMessage(self):
@@ -78,7 +75,7 @@ class MessageToBeSend(object):
         if self.ReplyToMessageId is not None:
             DataToBeSend["reply_to_message_id"] = self.ReplyToMessageId
         if self.ReplyMarkup != {}:
-            DataToBeSend["reply_markup"] = json.JSONEncoder().encode(ReplyMarkup)
+            DataToBeSend["reply_markup"] = json.JSONEncoder().encode(self.ReplyMarkup)
             
         return DataToBeSend
     

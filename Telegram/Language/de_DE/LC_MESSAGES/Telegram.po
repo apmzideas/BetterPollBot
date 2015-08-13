@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2015-08-11 22:22+0200\n"
-"PO-Revision-Date: 2015-08-12 21:31+0200\n"
+"POT-Creation-Date: 2015-08-12 22:36+0200\n"
+"PO-Revision-Date: 2015-08-13 00:54+0200\n"
 "Last-Translator: Hornung Adrian <hornung.adrian@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -17,38 +17,131 @@ msgstr ""
 "X-Generator: Poedit 1.8.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: Telegram\TelegramClass.py:55 Telegram\TelegramClass.py:67
-#: Telegram\TelegramClass.py:81 Telegram\TelegramClass.py:91
-#: Telegram\TelegramClass.py:93 Telegram\TelegramClass.py:95
-msgid "The webserver returned the HTTPError \"{0}\":"
-msgstr "Der Webserver gab den HTTPError \"{0}\" zurück:"
+#: Telegram\SqlClass.py:125
+msgid "Something is wrong with your user name or password."
+msgstr "Etwas ist falsch mit Ihrem Benutzername oder Passwort."
 
-#: Telegram\TelegramClass.py:59 Telegram\TelegramClass.py:74
-msgid ""
-"The token you are using has not been found in the system. Try later or check "
-"the token for spelling errors."
+#: Telegram\SqlClass.py:125 Telegram\SqlClass.py:127 Telegram\SqlClass.py:173
+#: Telegram\SqlClass.py:249 Telegram\SqlClass.py:457
+msgid "The database connector returned following error: {Error}"
+msgstr "Der Datenbankverbinder hat folgende Fehlermeldung ausgegeben: {Error}"
+
+#: Telegram\SqlClass.py:127
+msgid "The database does not exist, please contact your administrator."
 msgstr ""
+"Die Datenbank existiert nicht, bitte kontaktieren Sie Ihren Administrator."
 
-#: Telegram\TelegramClass.py:86
+#: Telegram\SqlClass.py:166
+msgid "The executet query failed, please contact your administrator."
+msgstr ""
+"Die ausgeführte Anfrage schlug fehl, bitte kontaktieren Sie Ihren "
+"Administrator."
+
+#: Telegram\SqlClass.py:166 Telegram\SqlClass.py:180
+msgid "The database returned following error: {Error}"
+msgstr "Die Datenbank hat folgende Fehlermeldung ausgegeben: {Error}"
+
+#: Telegram\SqlClass.py:173
+msgid ""
+"The creation of the following database {DatabaseName} has not succeded, "
+"please contact your administrator."
+msgstr ""
+"Die Erstellung der Datenbank \"{DatabaseName}\" war nicht erfolgreich, bitte "
+"kontaktieren Sie Ihren Administrator."
+
+#: Telegram\SqlClass.py:180
+msgid ""
+"Failed to delete the \"{DatabaseName}\" database, please delete manually."
+msgstr ""
+"Das Löschen der \"{DatabaseName}\" Datenbank ist fehlgeschlagen, bitte "
+"löschen Sie manuell."
+
+#: Telegram\SqlClass.py:249
+msgid ""
+"The following database table \"{TableName}\" could not be created, please "
+"contact your administrator."
+msgstr ""
+"Der folgende Datenbanktable \"{TableName}\" konnte nicht erstellt werden, "
+"bitte kontaktieren Sie Ihren Administrator."
+
+#: Telegram\SqlClass.py:457
+msgid "The exetuted insertion query failed, please contact your administrator."
+msgstr ""
+"Die ausgeführte Einfügungsabfrage ist fehlgeschlagen, bitte kontaktieren Sie "
+"Ihren Administrator."
+
+#: Telegram\TelegramClass.py:76 Telegram\TelegramClass.py:78
+msgid ""
+"The ApiToken you are using has not been found in the system. Try later or "
+"check the ApiToken for spelling errors."
+msgstr ""
+"Der ApiToken den du nutzt wurde im System nicht gefunden. Probieren Sie "
+"spähter wieder oder überprüfen Sie die Schreibweise."
+
+#: Telegram\TelegramClass.py:76 Telegram\TelegramClass.py:78
+#: Telegram\TelegramClass.py:80 Telegram\TelegramClass.py:82
+#: Telegram\TelegramClass.py:84 Telegram\TelegramClass.py:86
+msgid "The webserver returned the HTTPError \"{Error}\"."
+msgstr "Der Webserver hat den HTTPError \"{Error}\" ausgegeben."
+
+#: Telegram\TelegramClass.py:80
 msgid "The adress is forbidden to access, please try later."
 msgstr ""
+"Der Zugriff der Adresse ist nicht erlaubt, bitte versuchen Sie es spähter "
+"wieder."
 
-#: Telegram\TelegramClass.py:91
+#: Telegram\TelegramClass.py:82
 msgid ""
 "The requested resource was not found. This status code can also be used to "
 "reject a request without closer reason. Links, which refer to those error "
-"pages, also referred to as dead links"
+"pages, also referred to as dead links."
 msgstr ""
+"Die angeforderte Ressource wurde nicht gefunden. Diese Meldung wird auch "
+"verwendet um Anfragen ohne genauen Grund zu verbieten. Hyperlinks, welche "
+"auf diesen Fehler verweisen, verweisen auch auf tote Links."
 
-#: Telegram\TelegramClass.py:93
+#: Telegram\TelegramClass.py:84
 msgid ""
 "The server could not fulfill its function as a gateway or proxy, because it "
 "has itself obtained an invalid response. Please try later."
 msgstr ""
+"Der Server konnte seine Bestimmung als einen Gateway Proxy nicht erfüllen, "
+"weil er selbst eine falsche Antwort erhielt. Bitte probieren Sie spähter "
+"wieder."
 
-#: Telegram\TelegramClass.py:95
+#: Telegram\TelegramClass.py:86
 msgid ""
 "The server could not fulfill its function as a gateway or proxy, because it "
 "has not received a reply from it's servers or services within a specified "
 "period of time."
 msgstr ""
+"Der Server konnte seine Bestimmung als einen Gateway Proxy nicht erfüllen, "
+"weil er innerhalb einer bestimmten Zeit keine Antwort von seinem Server oder "
+"Services erhielt."
+
+#~ msgid "The executet querry failed, please contact your administrator."
+#~ msgstr ""
+#~ "Die ausgeführte Anfrage ist fehlgeschlagen, bitte kontaktieren Sie Ihren "
+#~ "Administrator."
+
+#~ msgid ""
+#~ "The exetuted insertion query failed, please contact your administrator"
+#~ msgstr ""
+#~ "Die ausgeführte Einfügungsabfrage ist fehlgeschlagen, bitte kontaktieren "
+#~ "Sie Ihren Administrator."
+
+#~ msgid ""
+#~ "The requested resource was not found. This status code can also be used "
+#~ "to reject a request without closer reason. Links, which refer to those "
+#~ "error pages, also referred to as dead links"
+#~ msgstr ""
+#~ "Die angeforderte Ressource wurde nicht gefunden. Diese Meldung wird auch "
+#~ "verwendet um Anfragen ohne genauen Grund zu verbieten. Hyperlinks, welche "
+#~ "auf diesen Error verweisen, verweisen auch auf tote Links."
+
+#~ msgid "Database does not exist, please contact your administrator."
+#~ msgstr ""
+#~ "Die Datenbank existiert nicht, bitte kontaktieren Sie Ihren Administrator."
+
+#~ msgid "The webserver returned the HTTPError \"{Error}\":"
+#~ msgstr "Der Webserver hat den HTTPError \"{Error}\" ausgegeben."

@@ -21,9 +21,10 @@ def ObjectInitialiser():
     GlobalObjects.ObjectHolder["ConfigurationClass"] = ConfigurationClass.ConfigurationParser()
     GlobalObjects.ObjectHolder["ConfigurationClass"].ReadConfigurationFile()
     GlobalObjects.ObjectHolder["LoggingClass"] = LoggingClass.Logger(config_name='config.ini', log_to_file=False)
-    #GlobalObjects.ObjectHolder["LanguageClass"] = LanguageClass.Languages('gerDE')
     GlobalObjects.ObjectHolder["SqlClass"] = SqlClass.SqlApi("root", "Password", 
-                                                             GlobalObjects.ObjectHolder["ConfigurationClass"]["MySQL Connection Parameter"]["DatabaseName"]
+                                                             GlobalObjects.ObjectHolder["ConfigurationClass"]["MySQL Connection Parameter"]["DatabaseName"],
+                                                             LoggingObject = GlobalObjects.ObjectHolder["LoggingClass"],
+                                                             LanguageObject = LanguageClass.CreateTranslationObject('de_DE')
                                                              )
     #GlobalObjects.ObjectHolder["TelegramClass"] = TelegramClass.TelegramApi('80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY')
     
