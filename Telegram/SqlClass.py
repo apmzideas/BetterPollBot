@@ -130,10 +130,10 @@ class SqlApi(object):
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."), "Error")
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                self.LoggignObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."), "Error")
+                self.LoggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."), "Error")
                 raise SystemExit
             else:
-                self.LoggignObject.create_log(err)
+                self.LoggingObject.create_log(err)
     
     def CreateCursor(self, Buffered=False, Dictionary=True):
         # this methode will ceate the cursor needet for the connection to the server

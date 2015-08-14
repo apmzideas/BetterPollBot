@@ -143,7 +143,7 @@ if __name__ == "__main__":
     a = TelegramApi(OrgTok, 
                     LanguageObject = LanguageClass.CreateTranslationObject("de"),)
     
-    Update = a.GetUpdates(469262104+1)
+    Update = a.GetUpdates(469262120+1)
     print(Update)
     print(Update["result"][len(Update["result"])-1]["update_id"])
     
@@ -151,12 +151,12 @@ if __name__ == "__main__":
                                          "Hier könnte Ihre Werbung nicht stehen.")
 #     MessageObject.ReplyKeyboardMarkup(
 #                                       Keybord = [ [ "Top Left", "Top Right" ], [ "Bottom Left", "Bottom Right" ] ], 
-#                                       ResizeKeyboard = False,
-#                                       OneTimeKeyboard = False,
+#                                       ResizeKeyboard = True,
+#                                       OneTimeKeyboard = True,
 #                                       Selective = False
 #                                       )
-#     MessageObject.ForceReply()
-    MessageObject.ReplyKeyboardHide()
+    #MessageObject.ForceReply()
+    #MessageObject.ReplyKeyboardHide()
     
     print(a.SendMessage(MessageObject))
 #     if a:

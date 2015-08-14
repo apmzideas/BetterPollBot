@@ -32,11 +32,11 @@ class MessageToBeSend(object):
         
         self.ReplyMarkup["keyboard"] = Keybord
         if ResizeKeyboard:
-            self.ReplyMarkup["resize_keyboard"] = str(ResizeKeyboard).lower()
+            self.ReplyMarkup["resize_keyboard"] = ResizeKeyboard
         if OneTimeKeyboard:
-            self.ReplyMarkup["one_time_keyboard"] = str(OneTimeKeyboard).lower()
+            self.ReplyMarkup["one_time_keyboard"] = OneTimeKeyboard
         if Selective and not "selective"  in self.ReplyMarkup:
-            self.ReplyMarkup["selective"] = str(Selective).lower()
+            self.ReplyMarkup["selective"] = Selective
     
     def ReplyKeyboardHide(self, Selective=False):
         #Upon receiving a message with this object, Telegram clients will hide 
@@ -75,7 +75,7 @@ class MessageToBeSend(object):
         if self.ReplyToMessageId is not None:
             DataToBeSend["reply_to_message_id"] = self.ReplyToMessageId
         if self.ReplyMarkup != {}:
-            DataToBeSend["reply_markup"] = json.JSONEncoder().encode(self.ReplyMarkup)
+            DataToBeSend["reply_markup"] = json.JSONEncoder(separators=(',', ':')).encode(self.ReplyMarkup)
             
         return DataToBeSend
     
