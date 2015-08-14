@@ -6,8 +6,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2015-08-12 22:36+0200\n"
+<<<<<<< HEAD
 "PO-Revision-Date: 2015-08-13 00:54+0200\n"
 "Last-Translator: Hornung Adrian <hornung.adrian@gmail.com>\n"
+=======
+"PO-Revision-Date: 2015-08-12 22:43+0200\n"
+"Last-Translator: \n"
+>>>>>>> origin/master
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
