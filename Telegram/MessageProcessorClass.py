@@ -6,8 +6,9 @@ import LanguageClass # imports the _() function! (the translation feature).
 import LoggingClass
 import SqlClass
 import ErrorClasses
+
 class MessageProcessor(object):
-    def __init__(self, MessageObject, OptionalObjects):
+    def __init__(self, MessageObject, **OptionalObjects):
         
 # The MessageObject will only contains a single message object, so that this class will be thread save 
 #        {
@@ -35,20 +36,11 @@ class MessageProcessor(object):
 #             return False
         
         #Predefining attribute so that it later can be used for evil.
-        self.LanguageObject = None
         self.LoggingObject = None
         
         #SqlObjects
         self.SqlObject = None
         self.SqlCursor = None
-
-        if "LanguageObject" in OptionalObjects:
-            self.LanguageObject = OptionalObjects["LanguageObject"]
-        else:
-            self.LanguageObject = LanguageClass.CreateTranslationObject()
-            
-        #Hier we are initialising the function for the translations 
-        self._ = self.LanguageObject.gettext
         
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
@@ -61,6 +53,9 @@ class MessageProcessor(object):
         else:
             self.LoggingObject.create_log( self._( "The sql obejct is missing, please contact your administrator." ), "Error")
             raise ErrorClasses.MissingArguments(self._( "The sql obejct is missing, please contact your administrator." ) )
+        
+        if "update_id" in MessageObject:
+            self.UpdateId = MessageObject["update_id"]
         
         if "message_id" in MessageObject["message"]:
             self.MessageID = MessageObject["message"]["message_id"]
@@ -82,9 +77,21 @@ class MessageProcessor(object):
         if "id" in MessageObject["message"]["from"]:
             self.UserId = MessageObject["message"]["from"]["id"]
         
+        #print(self.UserExists())
         #Add user to the system if not exists
         if self.UserExists() == False:
             self.AddUser()
+        
+        self.LanguageObject = None
+        if "LanguageObject" in OptionalObjects:
+            self.LanguageObject = OptionalObjects["LanguageObject"]
+        else:
+            self.LanguageObject = LanguageClass.CreateTranslationObject()
+        
+            
+        
+        #Hier we are initialising the function for the translations 
+        self._ = self.LanguageObject.gettext
         
         
         #Get the textmessage with the commands
@@ -149,7 +156,8 @@ class MessageProcessor(object):
 #             self.group_chat_created = Message["group_chat_created"]
 
     def UserExists(self,):
-        print( self.SqlObject.SelectEntry(self.SqlCursor, 
+        
+        temp = self.SqlObject.SelectEntry(self.SqlCursor, 
                                           FromTable="User_Table", 
                                           Columns = (
                                                      "External_User_Id",
@@ -158,11 +166,16 @@ class MessageProcessor(object):
                                                      "First_Name",
                                                      "Last_Name"
                                                      ),
-                                          Where = ["Internal_User_Id", "=", "%s"],
-                                          Data = (),
-                                          Distinct = False,
-                                          ))
-    
+                                          Where = ["External_User_Id", "=", "%s"],
+                                          Data = (self.UserId),
+                                          )
+        #print(temp)
+        if temp == None or temp == []:
+            return False
+        else:
+            return True
+        
+        
     def AddUser(self,):
         #Insert into user
         TableName = "User_Table"
@@ -175,6 +188,11 @@ class MessageProcessor(object):
         
         self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)
         self.SqlObject.Commit(self.SqlCursor)
+    
+    def GetUserSetting(self):
+        #get user settings
+        pass
+        
     
 if __name__ == "__main__":
     import Main
@@ -249,8 +267,19 @@ if __name__ == "__main__":
                       ]
            }
     LanguageObject= LanguageClass.CreateTranslationObject()
-    LoggingObject = LoggingClass.Logger(config_name='config.ini', log_to_file=False) 
-    SqlObject = GlobalObjects.ObjectHolder["SqlClass"]
+    LoggingObject = LoggingClass.Logger(config_name='config.ini', log_to_file=False)
+    
+    import ConfigurationClass
+    Config = ConfigurationClass.ConfigurationParser()
+    Config.ReadConfigurationFile()
+
+    SqlObject =  SqlClass.SqlApi("root", 
+                                 "Password", 
+                                 Config["MySQL Connection Parameter"]["DatabaseName"],
+                                 LoggingObject = LoggingObject,
+                                 
+                                 LanguageObject = LanguageClass.CreateTranslationObject("de_DE")
+                                                              )
     a = MessageProcessor(
                          MessageObject = foo["result"][0],
                          OptionalObjects = {

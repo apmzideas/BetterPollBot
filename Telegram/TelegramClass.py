@@ -120,7 +120,7 @@ class TelegramApi(object):
         
     def SendMessage(self, MessageObject):
         #a method to send Messeges to the TelegramApi
-        print(MessageObject.GetMessage())
+        #print(MessageObject.GetMessage())
         MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8') # data should be bytes
     
         Request = urllib.request.Request(self.BotApiUrl + "/sendMessage", 

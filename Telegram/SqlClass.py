@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import GlobalObjects
 
-import mysql.connector  # A additional interface needed for the connection to the MySql-Database
+import mysql.connector  # A additional interface needed for the DatabaseConnection to the MySql-Database
 import LoggingClass
 
 # import the _() function!
@@ -12,7 +12,7 @@ import LanguageClass
 class SqlApi(object):
     
     """
-    This API enables an easy connection to the mysql driver and to the server with the database 
+    This API enables an easy DatabaseConnection to the mysql driver and to the server with the database 
     
     VARIABLES:
         User                     String                               - contains the Databaseuser
@@ -111,8 +111,8 @@ class SqlApi(object):
             
         #This is the language objects only value
         self._ = self.LanguageObject.gettext
-        
-        self.connection = self.CreateConnection()
+
+        self.DatabaseConnection = self.CreateConnection()
         
     def CreateConnection(self):
         try:
@@ -129,22 +129,24 @@ class SqlApi(object):
             return  mysql.connector.connect(**config)
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-                self.LoggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."), "Error")
+                self.LoggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."), "WARNING")
+                return False
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."), "Error")
                 raise SystemExit
             else:
-                self.LoggingObject.create_log(err)
+                self.LoggingObject.create_log(err, "Error")
+                raise SystemExit
     
     def CreateCursor(self, Buffered=False, Dictionary=True):
-        # this methode will ceate the cursor needet for the connection to the server
-        return self.connection.cursor( buffered=Buffered, dictionary=Dictionary)
+        # this methode will ceate the cursor needet for the DatabaseConnection to the server
+        return self.DatabaseConnection.cursor( buffered=Buffered, dictionary=Dictionary)
     
     def GetLastRowId(self, Cursor):
         return Cursor.lastrowid
     
     def DestroyCursor(self, Cursor):
-        # this methode closes the connection opend by the cursor
+        # this methode closes the DatabaseConnection opend by the cursor
         return Cursor.close()
     
     def ExecuteTrueQuery(self, Cursor, Query, Data=None):
@@ -162,10 +164,14 @@ class SqlApi(object):
         Data = (10, 15)
         """
         try:
-            if Data:
-                if type(Data) != type([]):
+
+            if Data != None:
+                if not isinstance(Data, list):
+                    if isinstance(Data, int):
+                        Data = (Data,)
+                    elif isinstance(Data, str):
+                        Data = (Data,)
                     Data = list(Data)
-                print(True)
                 Cursor.execute(Query, [str(i) for i in Data])
             else:
                 Cursor.execute(Query)
@@ -277,6 +283,35 @@ class SqlApi(object):
                      )
         
         self.CreateTable(Cursor, "User_Table", TableData,) 
+              
+        #Settings 
+        TableData = (
+                     ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+                     ("Setting_Name", "Varchar(128)"),
+                     ("Default_String", "Varchar(256)"),
+                     ("Default_Integer", "Integer"),
+                     ("Default_Boolean", "Boolean"),
+                     ("PRIMARY KEY", "Setting_Id")  
+                     )
+        
+        self.CreateTable(Cursor, "Setting_Table", TableData,)
+                
+        #UserSetSetting
+        TableData = (
+                     ("Settings_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+                     ("Master_Setting_Id", "Integer"), #This settings master entry in 
+                     ("Master_User_Id", "Integer"), #This setting has been set by
+                     ("User_Integer", "Integer"),
+                     ("User_String", "Varchar(256)"),
+                     ("User_Boolean", "Boolean"),
+                     ("PRIMARY KEY", "Setting_Id")
+                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)"),
+                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
+                     )
+        
+        self.CreateTable(Cursor, "User_Setting_Table", TableData,)
         
         #GroupTable
         TableData = (
@@ -322,11 +357,12 @@ class SqlApi(object):
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Setting_Name", "Varchar(128)"),
                      ("Default_String", "Varchar(256)"),
+                     ("Default_Integer", "Integer"),
                      ("Default_Boolean", "Boolean"),
                      ("PRIMARY KEY", "Setting_Id")               
                      )
          
-        self.CreateTable(Cursor, "Settings_Of_Poll", TableData,)
+        self.CreateTable(Cursor, "Settings_Of_Poll_Table", TableData,)
          
         # User set settings for the poll, like custom language
          
@@ -344,7 +380,8 @@ class SqlApi(object):
                      ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)"),
                      ("FOREIGN KEY", "Setting_Id", "Settings_Of_Poll(Setting_Id)")
                      )
-        self.CreateTable(Cursor, "User_Setting_Of_Poll", TableData,)
+        
+        self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData,)
         
         TableData = (
                      ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
@@ -360,7 +397,7 @@ class SqlApi(object):
                      ("FOREIGN KEY", "Option_Id", "Options_Table(Id_Option)")
                      )
         
-        self.CreateTable(Cursor, "User_Answers_To_Poll", TableData,)
+        self.CreateTable(Cursor, "User_Answers_To_Poll_Table", TableData,)
         
         #Second all the inserts
         #The Settings
@@ -370,7 +407,7 @@ class SqlApi(object):
                    "Default_String": "en_US"
                    }
         
-        self.InsertEntry(Cursor, "Settings_Of_Poll", Columns)
+        self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
             
         return True
          
@@ -437,7 +474,7 @@ class SqlApi(object):
         
         Query = ' '.join([str(i) for i in Query])
         
-        print(Query)
+        #print(Query)
         
         if Data == ():
             return (self.ExecuteTrueQuery(Cursor, Query, ))
@@ -484,10 +521,10 @@ class SqlApi(object):
 
     def Commit(self, Cursor):
         try:
-            self.connection.commit()
-        except mysql.connection.Error as Error:
+            self.DatabaseConnection.commit()
+        except mysql.DatabaseConnection.Error as Error:
             self.LoggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err))
-            self.connection.rollback()
+            self.DatabaseConnection.rollback()
             
 if __name__ == "__main__":
     print("online")
