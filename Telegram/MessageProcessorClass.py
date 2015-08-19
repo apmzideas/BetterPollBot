@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import GlobalObjects
 import json
 import LanguageClass # imports the _() function! (the translation feature).
 import LoggingClass
 import SqlClass
-
+import ErrorClasses
 class MessageProcessor(object):
-    def __init__(self, MessageObject, **OptionalObjects):
+    def __init__(self, MessageObject, OptionalObjects):
         
 # The MessageObject will only contains a single message object, so that this class will be thread save 
 #        {
@@ -41,11 +41,15 @@ class MessageProcessor(object):
         #SqlObjects
         self.SqlObject = None
         self.SqlCursor = None
-        
+
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = LanguageClass.CreateTranslationObject()
+            
+        #Hier we are initialising the function for the translations 
+        self._ = self.LanguageObject.gettext
+        
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
@@ -54,10 +58,9 @@ class MessageProcessor(object):
             self.SqlObject= OptionalObjects["SqlObject"]
             
             self.SqlCursor = self.SqlObject.CreateCursor()
-        
-        #Hier we are initialising the function for the translations 
-        self._ = self.LanguageObject.gettext
-        
+        else:
+            self.LoggingObject.create_log( self._( "The sql obejct is missing, please contact your administrator." ), "Error")
+            raise ErrorClasses.MissingArguments(self._( "The sql obejct is missing, please contact your administrator." ) )
         
         if "message_id" in MessageObject["message"]:
             self.MessageID = MessageObject["message"]["message_id"]
@@ -66,12 +69,23 @@ class MessageProcessor(object):
         #get user data from the message
         if "first_name" in MessageObject["message"]["from"]:
             self.UserFirstName = MessageObject["message"]["from"]["first_name"]
+        else:
+            self.UserFirstName = ""
         if "last_name" in MessageObject["message"]["from"]:
             self.UserLastName = MessageObject["message"]["from"]["last_name"]
+        else:
+            self.UserLastName = ""
         if "username" in MessageObject["message"]["from"]:
             self.UserName = MessageObject["message"]["from"]["username"]
+        else:
+            self.UserName = ""
         if "id" in MessageObject["message"]["from"]:
             self.UserId = MessageObject["message"]["from"]["id"]
+        
+        #Add user to the system if not exists
+        if self.UserExists() == False:
+            self.AddUser()
+        
         
         #Get the textmessage with the commands
         if "text" in MessageObject["message"]:
@@ -135,7 +149,7 @@ class MessageProcessor(object):
 #             self.group_chat_created = Message["group_chat_created"]
 
     def UserExists(self,):
-        return self.SqlObject.SelectEntry(self.Cursor, 
+        print( self.SqlObject.SelectEntry(self.SqlCursor, 
                                           FromTable="User_Table", 
                                           Columns = (
                                                      "External_User_Id",
@@ -147,12 +161,24 @@ class MessageProcessor(object):
                                           Where = ["Internal_User_Id", "=", "%s"],
                                           Data = (),
                                           Distinct = False,
-                                          )
+                                          ))
     
     def AddUser(self,):
-        pass
+        #Insert into user
+        TableName = "User_Table"
+        Columns = {
+                   "External_User_Id" : self.UserId,
+                   "User_Name" : self.UserName,
+                   "First_Name": self.UserFirstName,
+                   "Last_Name": self.UserLastName
+                   }
+        
+        self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)
+        self.SqlObject.Commit(self.SqlCursor)
     
 if __name__ == "__main__":
+    import Main
+    Main.ObjectInitialiser()
     MessageObject = {
                      'update_id': 469262050, 
                      'message': {
@@ -169,10 +195,9 @@ if __name__ == "__main__":
                                           }, 
                                  'message_id': 89
                                  }}
-    a = MessageProcessor(MessageObject)
+    #a = MessageProcessor(MessageObject)
     
     import pprint
-    
     foo = {'result': [{'update_id': 469262050, 'message': {'chat': {'first_name': 'Robin', 'id': 105654068}, 'text': '/start', 'date': 1439417521, 'from': {'first_name': 'Robin', 'id': 105654068}, 'message_id': 89}}], 'ok': True}
     #pprint.PrettyPrinter(indent=2).pprint(foo["result"])
     foo = { 
@@ -199,7 +224,7 @@ if __name__ == "__main__":
                        }
                       ]
            }
-    a = MessageProcessor(foo["result"][0]) 
+    #a = MessageProcessor(foo["result"][0], ) 
     foo = {
            'ok': True, 
            'result': [
@@ -223,4 +248,13 @@ if __name__ == "__main__":
                         }
                       ]
            }
-    a = MessageProcessor(foo["result"][0])
+    LanguageObject= LanguageClass.CreateTranslationObject()
+    LoggingObject = LoggingClass.Logger(config_name='config.ini', log_to_file=False) 
+    SqlObject = GlobalObjects.ObjectHolder["SqlClass"]
+    a = MessageProcessor(
+                         MessageObject = foo["result"][0],
+                         OptionalObjects = {
+                         "LanguageObject": LanguageObject,
+                         "LoggingObject" : LanguageObject, 
+                         "SqlObject": SqlObject}
+                         )

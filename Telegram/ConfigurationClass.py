@@ -6,7 +6,7 @@ import os
 import collections
 
 
-class ConfigurationParser(configparser.RawConfigParser ):
+class ConfigurationParser(configparser.RawConfigParser):
     def __init__(self, FileName = "config.ini", **Configuration ):
         
         #Custom configurable filename
@@ -85,49 +85,67 @@ class ConfigurationParser(configparser.RawConfigParser ):
         #a methode to write the default configuration to the .ini file
         
         #The Title of the file 
-        self["Configuration"] = {}
+        self["Configuration".upper()] = collections.OrderedDict(())
         
-        self["MySQL Connection Parameter"] = {"DatabaseName": "BetterPollBotDatabase",                                            
-                                            "DatabaseHost": "127.0.0.1",
-                                            "DatabasePort": 3306,
-                                            }
+        self["Telegram"] = collections.OrderedDict((
+                                                    #This is the value needed for the main loop it states how long we need to wait 
+                                                    #until to state a request the telegram server.
+                                                    #It's in miliseconds
+                                                    ("RequestTimer", 1000),
+                                                    ("DefaultLanguage", "en_US"),
+                                                    ("ApiToken", "")
+                                                    ))
         
-        self["Language"] = {"Language": "enGB",
-                            "Allow language change": True
-                           }
+        self["MySQLConnectionParameter"] = collections.OrderedDict((                        
+                                                                    ("DatabaseName", "BetterPollBotDatabase"),                                            
+                                                                    ("DatabaseHost", "127.0.0.1"),
+                                                                    ("DatabasePort", 3306),
+                                                                    ("DatabaseUser",""),
+                                                                    ("DatabasePassword","")
+                                                                    ))
         
-        self["Logging"] = {"LogToFile": True,
-                           "LoggingFileName":"log.txt",
-                           }
+        self["Logging"] = collections.OrderedDict((
+                                                   ("LogToFile", True),
+                                                   ("LoggingFileName", "log.txt")
+                                                   ))
         
         #some parameters needed for the logger
         self["loggers"] = {"keys": "root,Console"}
+        
         self["handlers"] = {"keys": "fileHandler,consoleHandler"}
+        
         self["formatters"] = {"keys": "simpleFormatter"}
-        self["logger_root"] = {"level": "DEBUG", "handlers": "fileHandler"}
-        self["logger_Console"] = {"level": "DEBUG", 
-                                  "handlers": "consoleHandler", 
-                                  "qualname": "Console",
-                                  "propagate": 0}
         
-        self["handler_consoleHandler"] = {
-                                          "class": "StreamHandler",
-                                            "level": "DEBUG",
-                                            "formatter": "simpleFormatter",
-                                            "args": "(sys.stdout,)"
-                                        }
+        self["logger_root"] = collections.OrderedDict((
+                                                       ("level", "DEBUG"), 
+                                                       ("handlers", "fileHandler")
+                                                       ))
         
-        self["handler_fileHandler"] = {
-                                       "class": "FileHandler",
-                                         "level": "DEBUG",
-                                         "formatter": "simpleFormatter",
-                                         "args": "('log.txt',)"
-                                         }
+        self["logger_Console"] = collections.OrderedDict((
+                                                          ("level", "DEBUG"),
+                                                          ("handlers", "consoleHandler"), 
+                                                          ("qualname", "Console"),
+                                                          ("propagate", 0)
+                                                          ))
         
-        self["formatter_simpleFormatter"] = {
-                                             "format": "%(asctime)s - [%(levelname)s] - %(message)s",
-                                             'datefmt': '[%d.%M.%Y %H:%M:%S]'
-                                            }
+        self["handler_consoleHandler"] = collections.OrderedDict((
+                                                                  ("class", "StreamHandler"),
+                                                                  ("level", "DEBUG"),
+                                                                  ("formatter", "simpleFormatter"),
+                                                                  ("args", "(sys.stdout,)")
+                                                                  ))
+        
+        self["handler_fileHandler"] = collections.OrderedDict((
+                                                               ("class", "FileHandler"),
+                                                               ("level", "DEBUG"),
+                                                               ("formatter", "simpleFormatter"),
+                                                               ("args", "('log.txt',)")
+                                                               ))
+        
+        self["formatter_simpleFormatter"] = collections.OrderedDict((
+                                                                     ("format", "%(asctime)s - [%(levelname)s] - %(message)s"),
+                                                                     ('datefmt', '[%d.%M.%Y %H:%M:%S]')
+                                                                     ))
        
        #Writes the default configuration in to the correct file 
         with open(self.FileName, "w") as configfile:
@@ -143,6 +161,6 @@ if __name__ == "__main__":
     print("Online")
     a = ConfigurationParser(reset_configuration = False)
     a.ReadConfigurationFile()
-    print(type(a["MySQL Connection Parameter"]["DatabaseName"]))
+    print(a["Telegram"]["DefaultLanguage"].split(","))
     print("Offline")
     

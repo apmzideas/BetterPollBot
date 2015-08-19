@@ -7,7 +7,7 @@ class MessageToBeSend(object):
     
     # A Class to create and configure the message
     
-    def __init__(self, ToChatId, Text, DisableWebPagePreview=False,
+    def __init__(self, ToChatId, Text=None, DisableWebPagePreview=False,
                  ReplyToMessageId=None ):
         
         self.ToChatId = ToChatId
@@ -49,7 +49,7 @@ class MessageToBeSend(object):
         self.ReplyMarkup["hide_keyboard"] = True
         
         if Selective and "selective" not in self.ReplyMarkup:
-            self.ReplyMarkup["selective"]
+            self.ReplyMarkup["selective"] = Selective
             
     def ForceReply(self, Selective=False):
         #Upon receiving a message with this object, Telegram clients will 
@@ -61,15 +61,15 @@ class MessageToBeSend(object):
         self.ReplyMarkup["force_reply"] = True
         
         if Selective and "selective" not in self.ReplyMarkup:
-           self.ReplyMarkup["selective"] = True
+           self.ReplyMarkup["selective"] = Selective
         
     def GetMessage(self):
         #This methode will assemble the message
         DataToBeSend = { 
                         "chat_id": self.ToChatId,
-                        "text": bytes(self.Text.encode("utf-8")),
                         }
-        
+        if self.Text != None:
+            DataToBeSend["text"] = bytes(self.Text.encode("utf-8"))
         if self.DisableWebPagePreview:
             DataToBeSend["disable_web_page_preview"] = True
         if self.ReplyToMessageId is not None:

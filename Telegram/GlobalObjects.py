@@ -7,10 +7,11 @@
 '''
 
 __author__ = "Adrian Hornung"
-__copyright__ = "Copyright (C) Adrian Hornung 2013-2015"
-__credits__ = ["Adrian Hornung"]
+__copyright__ = "Copyright © Adrian Hornung 2013-2015"
+__credits__ = ["Jonas Löw","Adrian Hornung"]
 __license__ = "License GNU General Public License https://www.gnu.org/copyleft/gpl.html"
-__version__ = "0.1"
+__version__ = 0.1
+__release__ = 17802015
 __maintainer__ = "Adrian Hornung"
 __email__ = "hornung.adrian@gmail.com"
 __status__ = "Development"

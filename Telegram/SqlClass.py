@@ -8,6 +8,7 @@ import LoggingClass
 # import the _() function!
 import LanguageClass
 
+
 class SqlApi(object):
     
     """
@@ -462,29 +463,32 @@ class SqlApi(object):
             else:
                 Query.append("%s") 
         
-    def InsertEntry(self, Cursor, TableName, Columns={}):
+    def InsertEntry(self, Cursor, TableName, Columns={}, AutoCommit = False):
         #This method will insert any type of entry into the system
-        
-        try:   
-            Query = "INSERT INTO "
+        Query = "INSERT INTO "
              
-            Query += TableName + " ("
+        Query += TableName + " ("
              
-            Query += ', '.join( Columns.keys())     
-            Query += ") VALUES (" 
-            Query += ", ".join(["%("+str(i) + ")s" for i in  Columns.keys() ])
+        Query += ', '.join( Columns.keys())     
+        Query += ") VALUES (" 
+        Query += ", ".join(["%("+str(i) + ")s" for i in  Columns.keys() ])
             
-            Query += ");"
+        Query += ");"
             
-            Cursor.execute(Query, Columns)
+        Cursor.execute(Query, Columns)
             
-            # Make sure data is committed to the database
+        if AutoCommit:
+             # Make sure data is committed to the database
+            self.Commit(Cursor)
+        return True
+
+    def Commit(self, Cursor):
+        try:
             self.connection.commit()
-            return True
-        except mysql.connector.Error as err:    
-            self.LoggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The exetuted insertion query failed, please contact your administrator.") ,"error")
-            return False
-        
+        except mysql.connection.Error as Error:
+            self.LoggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err))
+            self.connection.rollback()
+            
 if __name__ == "__main__":
     print("online")
     import Main
