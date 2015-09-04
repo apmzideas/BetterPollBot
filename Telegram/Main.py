@@ -159,9 +159,9 @@ Copyright:\t\t{Copyright}".format(
     
     #A hidden option to install the Database
     Parser.add_argument(
-                        '--InstallDataseStructure', 
+                        '--InstallDatabaseStructure', 
                         help=argparse.SUPPRESS,
-                        dest="InstallDataseStructure",
+                        dest="InstallDatabaseStructure",
                         action="store_true"                       
                         )
     
@@ -221,9 +221,20 @@ Copyright:\t\t{Copyright}".format(
             NoConnection = False 
     
     if NrTry == 3:
-        MasterLogger.create_log( _("{AppName} has been stoped, because you didn't input the correct user name of password."))
+        MasterLogger.create_log( _("{AppName} has been stoped, because you didn't input the correct user name of password.").format(AppName = GlobalObjects.__AppName__))
         raise SystemExit
     
+    #This will be used if the database will be installed.
+    if ParserArguments.InstallDatabaseStructure == True:
+        InstallDatabase = input( _("Are you sure you want to install the database structure? Yes/No "))
+        if InstallDatabase.lower() == "yes":
+            MasterLogger.create_log( _("{AppName} will now start to install the database structure").format(AppName = GlobalObjects.__AppName__))
+            SqlCursor = SqlObject.CreateCursor()
+            SqlObject.CreateMainDatabase(SqlCursor)
+            MasterLogger.create_log( _("The database has been installed, please restart system.") )
+        elif InstallDatabase.lower() == "no":
+            MasterLogger.create_log( _("Database will not be installed terminating process."))
+        raise SystemExit
     
     #print(ParserArguments)
     

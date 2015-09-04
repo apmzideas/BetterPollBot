@@ -11,8 +11,11 @@ class Poll(object):
         
         self.ExternalUserId = ExternalUserId
         self.PollId = PollId
+    
+    def GetPollName(self):
+        pass
         
-    def CreatePoll(self, Question):
+    def CreateNewPoll(self, Question):
         #This method will create a new poll
         
         #create the poll

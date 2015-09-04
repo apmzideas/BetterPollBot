@@ -5,6 +5,7 @@ import json
 import LanguageClass # imports the _() function! (the translation feature).
 import LoggingClass
 import SqlClass
+import PollingClass
 import ErrorClasses
 
 class MessageProcessor(object):
@@ -156,21 +157,33 @@ class MessageProcessor(object):
 #             self.group_chat_created = Message["group_chat_created"]
 
     def UserExists(self,):
-        
-        temp = self.SqlObject.SelectEntry(self.SqlCursor, 
-                                          FromTable="User_Table", 
-                                          Columns = (
-                                                     "External_User_Id",
-                                                     "Creation_Date",
-                                                     "User_Name",
-                                                     "First_Name",
-                                                     "Last_Name"
-                                                     ),
-                                          Where = ["External_User_Id", "=", "%s"],
-                                          Data = (self.UserId),
-                                          )
-        #print(temp)
-        if temp == None or temp == []:
+       #This methode will detect if the use already exists or not. 
+#         temp = self.SqlObject.SelectEntry(self.SqlCursor, 
+#                                           FromTable="User_Table", 
+#                                           Columns = (
+#                                                      "External_User_Id",
+#                                                      "Creation_Date",
+#                                                      "User_Name",
+#                                                      "First_Name",
+#                                                      "Last_Name"
+#                                                      ),
+#                                           Where = ["External_User_Id", "=", "%s"],
+#                                           Data = (self.UserId),
+#                                           )
+
+
+#  The following query will return 1 if a user with the specified username exists, 0 otherwise.
+# 
+# SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+
+        temp = self.SqlObject.ExecuteTrueQuery(
+                                          self.SqlObject.CreateCursor(Dictionary=False),
+                                          Query="SELECT EXISTS(SELECT 1 FROM User_Table WHERE External_User_Id = %s);",
+                                          Data=self.UserId
+                                          )          
+
+        temp = temp[0][0]
+        if temp == False:
             return False
         else:
             return True
@@ -187,12 +200,28 @@ class MessageProcessor(object):
                    }
         
         self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)
+        
+        #insert default settings
+        
+        TableName
+        
+        self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)
+        
+        
+        
         self.SqlObject.Commit(self.SqlCursor)
     
     def GetUserSetting(self):
         #get user settings
         pass
-        
+    
+    def InterpretMessage(self):
+        #This methode will interpret and the message and do what ever is needed.
+        if self.Text == "/newpoll":
+            
+            Poll = PollingClass.Poll(ExternalUserId=self.UserId, PollId = None,)
+            Poll.GetPollName()
+        pass
     
 if __name__ == "__main__":
     import Main

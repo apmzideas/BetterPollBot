@@ -198,7 +198,7 @@ class SqlApi(object):
         except mysql.connector.Error as err:
             self.LoggingObject.create_log(_("The database returned following error: {Error}").format(Error=err) +" " + _("Failed to delete the \"{DatabaseName}\" database, please delete manually.").format(DatabaseName = DatabaseName))
             
-    def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True):
+    def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True, Engine="InnoDB"):
         """
         A methode to dynamicaly create a table entry to the database
         
@@ -259,12 +259,17 @@ class SqlApi(object):
                     Query += ","
                 Query += " " + TableData[ForeignKeyId][0] + " (" + TableData[ForeignKeyId][1] + ") REFERENCES " + TableData[ForeignKeyId][2]              
             
-            Query += ");"
+            Query += ")" 
+            if Engine != None:
+                Query += "ENGINE="+Engine
+            
+            Query += ";"
             Cursor.execute(Query)
             return True
         
         except mysql.connector.Error as err:    
             self.LoggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The following database table \"{TableName}\" could not be created, please contact your administrator.").format(TableName=TableName), "error")
+            self.DatabaseConnection.rollback()
             return False
     
     def CreateMainDatabase(self, Cursor):
@@ -283,7 +288,15 @@ class SqlApi(object):
                      )
         
         self.CreateTable(Cursor, "User_Table", TableData,) 
-              
+            
+        #SessionHandling saves the last send command 
+        TableData = (
+                     ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Command_By_User", "Integer"), #is the internal id of the user
+                     ("Command", "Varchar(256)"),
+                     ("PRIMARY KEY", "Session_Id") 
+                     )
+        
         #Settings 
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
@@ -299,16 +312,17 @@ class SqlApi(object):
                 
         #UserSetSetting
         TableData = (
-                     ("Settings_Id", "Integer NOT NULL AUTO_INCREMENT"),
+                     ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Master_Setting_Id", "Integer"), #This settings master entry in 
                      ("Master_User_Id", "Integer"), #This setting has been set by
                      ("User_Integer", "Integer"),
                      ("User_String", "Varchar(256)"),
                      ("User_Boolean", "Boolean"),
-                     ("PRIMARY KEY", "Setting_Id")
+                     ("PRIMARY KEY", "Setting_Id"),
+                     ("FOREIGN KEY", "Master_Setting_Id", "Setting_Table(Setting_Id)"),
                      ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)"),
-                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
+
                      )
         
         self.CreateTable(Cursor, "User_Setting_Table", TableData,)
@@ -376,9 +390,9 @@ class SqlApi(object):
                      ("User_Integer", "Integer"),
                      ("User_Boolean", "Boolean"),
                      ("Primary key", "User_Setting_Id"),
-                     ("FOREIGN KEY", "Id_Poll_Table", "PollTable(Internal_Poll_Id)"),
+                     ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)"),
                      ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)"),
-                     ("FOREIGN KEY", "Setting_Id", "Settings_Of_Poll(Setting_Id)")
+                     ("FOREIGN KEY", "Setting_Id", "Settings_Of_Poll_Table(Setting_Id)")
                      )
         
         self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData,)
