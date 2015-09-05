@@ -1,7 +1,7 @@
 @echo off
 cd Telegram
 
-py setup.py py2exe
+py -3.4 setup.py py2exe
 
 cd ../
 pause
