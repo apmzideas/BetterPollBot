@@ -298,6 +298,8 @@ class SqlApi(object):
                      ("PRIMARY KEY", "Session_Id") 
                      )
         
+        self.CreateTable(Cursor, "Session_Table", TableData,)         
+        
         #Settings 
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
@@ -509,7 +511,7 @@ class SqlApi(object):
     def UpdateEntry(self, Cursor, TableName, SetColumnTo=(), Data = (), Where=[]):
         #
         #
-        # SetColumnTo = (('id',), ('Name', 'Max')) # if alone ?
+        # SetColumnTo = (('id',), ('Name', 'Max')) # if single value ?
         
         Query = ["UPDATE"]
         
@@ -525,7 +527,7 @@ class SqlApi(object):
             else:
                 Query.append("%s") 
         
-    def InsertEntry(self, Cursor, TableName, Columns={}, AutoCommit = False):
+    def InsertEntry(self, Cursor, TableName, Columns={}, Duplicate = None, AutoCommit = False):
         #This method will insert any type of entry into the system
         Query = "INSERT INTO "
              
@@ -535,7 +537,16 @@ class SqlApi(object):
         Query += ") VALUES (" 
         Query += ", ".join(["%("+str(i) + ")s" for i in  Columns.keys() ])
             
-        Query += ");"
+        Query += ")"
+        
+        if Duplicate != None:
+            Query +=  "  ON DUPLICATE KEY "
+            for Key in Duplicate.keys():
+                Query += " {Key} = {Value}".format(Key = Key,
+                                                   Value =str(Duplicate[Keys])
+                                                   )
+        
+        Query += ";"
         
         Cursor.execute(Query, Columns)
             

@@ -8,6 +8,7 @@ import SqlClass
 import PollingClass
 import ErrorClasses
 import ConfigurationClass
+import MessageClass
 
 class MessageProcessor(object):
     def __init__(self, MessageObject, **OptionalObjects):
@@ -56,6 +57,8 @@ class MessageProcessor(object):
         if "SqlObject" in OptionalObjects:
             self.SqlObject = OptionalObjects["SqlObject"]
             
+            # The object get's it's own cursor so that there will be no 
+            # problems in the future making the system multi threading safe.
             self.SqlCursor = self.SqlObject.CreateCursor()
         else:
             self.LoggingObject.create_log(self._("The sql obejct is missing, please contact your administrator."), "Error")
@@ -107,8 +110,7 @@ class MessageProcessor(object):
         # create the translator        
         self._ = self.LanguageObject.gettext
         
-        
-        # Get the textmessage with the commands
+        # Get the textmessage with the command
         if "text" in MessageObject["message"]:
             self.Text = MessageObject["message"]["text"]
         
@@ -236,7 +238,7 @@ class MessageProcessor(object):
                  
         Columns = {
                    "Master_Setting_Id": MasterSetting["Setting_Id"],
-                   "Master_User_Id": self.InternalUserId[0]["Internal_User_Id"],
+                   "Master_User_Id": self.GetInternalUserId(),
                    "User_String": MasterSetting["Default_String"]
                    } 
         self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)   
@@ -246,6 +248,7 @@ class MessageProcessor(object):
         return True
     
     def GetInternalUserId(self):
+        # This methode will get the internal user id from the database.
         # first the internal user id
         FromTable = "User_Table"
         Columns = ["Internal_User_Id"]
@@ -259,19 +262,71 @@ class MessageProcessor(object):
                                                          Where=Where,
                                                          Data=Data
                                                          )[0]["Internal_User_Id"]
-        
-        
-    def GetUserSetting(self):
-        # get user settings
-        pass
     
     def InterpretMessage(self):
         # This methode will interpret and the message and do what ever is needed.
-        if self.Text == "/newpoll":
-            
-            Poll = PollingClass.Poll(ExternalUserId=self.UserId, PollId=None,)
-            Poll.GetPollName()
-        pass
+        # This variable is to be used later on
+
+        MessageObject = MessageClass.MessageToBeSend(ToChatId = self.ChatId)
+        
+        # check if message is a command
+        if self.Text.startswith("/"):
+            # register the command in the database for later use
+            if self.Text == "/start":
+                MessageObject.Text = _("Welcome.\n What can I do for you?\n Press /help for all my commands")
+            elif self.Text == "/newpoll":
+
+                Poll = PollingClass.Poll(ExternalUserId=self.UserId, PollId=None,)
+                Poll.GetPollName()
+                
+            elif self.Text == "/addanwser":
+                pass
+            elif self.Text == "/delanswer":
+                pass
+            elif self.Text == "/pollling":
+                pass
+            elif self.Text == "/delpoll":
+                pass
+            elif self.Text == "/help":                
+                MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
+            elif self.Text == "/settings":
+                # This command will sennd the possible setting to the user
+                MessageObject.Text = self._("Please, choose the setting to change:")
+                MessageObject.ReplyKeyboardMarkup(["Language"])
+            elif self.Text == "/language":
+                # This option will change the user language
+                MessageObject.Text = self._("Please choose your preferred language:")
+                MessageObject.ReplyKeyboardMarkup([["English"],["Deutsch"]])
+            else:
+                # send that the command is unnown
+                pass
+        else:
+            # Get the last send command
+            LastCommand = self.GetLastSendCommand()
+        
+        return MessageObject
+
+        
+    def GetLastSendCommand(self):
+        # This methode will get the last used command from the user.
+        # This is needed to understand the text send from the user.
+        LastSendCommand = self.SqlObject.SelectEntry(self.SqlCursor,
+                                                     )
+        
+        
+        if LastSendCommand == "/language":
+            self.ChangeUserLanguage(self.Text)
+        return LastSendCommand
+    
+    def ChangeUserLanguage(self):
+        # Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False,
+        
+        self.SqlObject.UpdateEntry(self.SqlCursor,
+                                   TableName = "",
+                                   SetColumnTo=(""), 
+                                   Data = (  ),
+                                   Where=[""]
+                                   )
     
 if __name__ == "__main__":
     import Main

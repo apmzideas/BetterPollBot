@@ -24,20 +24,22 @@ import MessageProcessorClass
 
 
 def Main():
-    #Create the configuration class and read the configuration class.
+    # Create the configuration class and read the configuration class.
     Configuration = ConfigurationClass.ConfigurationParser()
     Configuration.ReadConfigurationFile()
     
-    #Create the language proccesser
+    # Create the language proccesser
     LanguageMasterObject = LanguageClass.CreateTranslationObject(Configuration["Telegram"]["DefaultLanguage"].split(","))
     
-    #This is the language objects only value
+    # This is the language objects only value
     _ = LanguageMasterObject.gettext
     
-    #init parser
+    # init parser
     Parser = argparse.ArgumentParser(prog=GlobalObjects.__AppName__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description="An in python written telegram bot, called BetterPollBot.", epilog="\
+                                     description="An in python written"
+                                     " telegram bot, called BetterPollBot.",
+                                     epilog="\
 Author:\t\t\t{Author}\n\
 Credits:\t\t{Credits}\n\
 Version:\t\t{Version}\n\
@@ -52,7 +54,7 @@ Copyright:\t\t{Copyright}".format(
                                   Copyright = GlobalObjects.__copyright__)
                                 )
     
-    #adding parser arguments to the system
+    # adding parser arguments to the system
     Parser.add_argument(
                         "-v", 
                         "--version",
@@ -67,7 +69,7 @@ Copyright:\t\t{Copyright}".format(
                         dest="PrintToConsole"
                         )
     
-    #All the telegram related commands are here.
+    # All the telegram related commands are here.
     Parser.add_argument(
                         "-f",
                         #"--FileToLog",
@@ -110,7 +112,7 @@ Copyright:\t\t{Copyright}".format(
                         default=Configuration["Telegram"]["ApiToken"]
                         )
     
-    #All database related commands are listed here.
+    # All database related commands are listed here.
     Parser.add_argument(
                         "-dn", 
                         #"--DatabaseName",
@@ -157,7 +159,7 @@ Copyright:\t\t{Copyright}".format(
                         default=Configuration["MySQLConnectionParameter"]["DatabasePort"]
                         )
     
-    #A hidden option to install the Database
+    # A hidden option to install the Database
     Parser.add_argument(
                         '--InstallDatabaseStructure', 
                         help=argparse.SUPPRESS,
@@ -167,7 +169,7 @@ Copyright:\t\t{Copyright}".format(
     
     ParserArguments = Parser.parse_args()
     
-    #Initialise the rest of the objects.
+    # Initialise the rest of the objects.
     MasterLogger = LoggingClass.Logger(log_to_file=ParserArguments.PrintToConsole)
         
     MasterLogger.create_log(_("{AppName} has been startet.").format(AppName = GlobalObjects.__AppName__))
@@ -181,8 +183,6 @@ Copyright:\t\t{Copyright}".format(
                                                LoggingObject = MasterLogger,
                                                LanguageObject = LanguageMasterObject,
                                                )
-    
-
     
     SqlObject = None
     
@@ -208,6 +208,8 @@ Copyright:\t\t{Copyright}".format(
             ParserArguments.DatabaseUser = ""
             ParserArguments.DatabasePassword = ""
             
+            # If the password has been entered more than tree times
+            # the system will shut down.
             TryAgain = ""
             if NrTry < 3: 
                 TryAgain = _("try again")
@@ -223,7 +225,7 @@ Copyright:\t\t{Copyright}".format(
         MasterLogger.create_log( _("{AppName} has been stoped, because you didn't input the correct user name of password.").format(AppName = GlobalObjects.__AppName__))
         raise SystemExit
     
-    #This will be used if the database will be installed.
+    # This will be used if the database will be installed.
     if ParserArguments.InstallDatabaseStructure == True:
         InstallDatabase = input( _("Are you sure you want to install the database structure? Yes/No "))
         if InstallDatabase.lower() == "yes":
@@ -235,26 +237,26 @@ Copyright:\t\t{Copyright}".format(
             MasterLogger.create_log( _("Database will not be installed terminating process."))
         raise SystemExit
     
-    #print(ParserArguments)
+    # print(ParserArguments)
     
-    #Initialise the main loop (it's a endless loop, it breaks when a key is pressed.)
+    # Initialise the main loop (it's a endless loop, it breaks when a key is pressed.)
     MasterLogger.create_log(_("Exit loop by pressing <Esc>, <q> or <Space>"))
     MasterLogger.create_log( _("Getting updates from the telegram api."))
-    #Add a comment number to the telegram request, so that the old messages will be sorted out.
+    # Add a comment number to the telegram request, so that the old messages will be sorted out.
     CommentNumber = None
     
     while True:
-        #check if a key is pressed by user and stop if pressed.    
+        # check if a key is pressed by user and stop if pressed.    
         if msvcrt.kbhit():
             PressedKey = ord(msvcrt.getch())
             if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
                 MasterLogger.create_log( _("A user shutdown was requested will now shutdown."))
                 break
             
-        #Get the updates from the telegram serves.
+        # Get the updates from the telegram serves.
         Results = TelegramObject.GetUpdates(CommentNumber)
         
-        #Do 
+        # Do 
         if Results != None:
             for i in Results["result"]:
                 MessageProcessor = MessageProcessorClass.MessageProcessor(i,
@@ -264,12 +266,18 @@ Copyright:\t\t{Copyright}".format(
                                                                           ConfigurationObject = Configuration
                                                                           )
                 
-                #Set the CommentNumber to a actual ChatId number, so that the incomming list is allways actuel.
-                #This number has to be 1 bigger than the oldest unit
+                # This command sends the message to the user
+                TelegramObject.SendMessage( MessageProcessor.InterpretMessage())
+                
+                
+                # Set the CommentNumber to a actual ChatId number, 
+                # so that the incomming list is allways actuel.
+                # This number has to be 1 bigger than the oldest unit
                 CommentNumber = MessageProcessor.UpdateId + 1
 
-        #Waites until the next loop should start. 
-        #Sleep need a second to be parsed, so the given value is transformed from miliseconds to seconds.
+        # Waites until the next loop should start. 
+        # Sleep need a second to be parsed, so the given value is transformed
+        # from miliseconds to seconds.
         time.sleep((ParserArguments.Time / 1000.0))
     
 

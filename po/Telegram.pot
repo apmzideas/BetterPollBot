@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-03 20:14+W. Europe Daylight Time\n"
+"POT-Creation-Date: 2015-09-05 21:10+W. Europe Daylight Time\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,60 +75,78 @@ msgstr ""
 msgid "Password:"
 msgstr ""
 
-#: Telegram\Main.py:214
+#: Telegram\Main.py:213
 msgid "try again"
 msgstr ""
 
-#: Telegram\Main.py:216
+#: Telegram\Main.py:215
 msgid "too bad"
 msgstr ""
 
-#: Telegram\Main.py:218
+#: Telegram\Main.py:217
 msgid "You have used {NrTry} of 3 times:"
 msgstr ""
 
-#: Telegram\Main.py:224
+#: Telegram\Main.py:223
 msgid "{AppName} has been stoped, because you didn't input the correct user name of password."
 msgstr ""
 
-#: Telegram\Main.py:229
+#: Telegram\Main.py:228
 msgid "Are you sure you want to install the database structure? Yes/No "
 msgstr ""
 
-#: Telegram\Main.py:231
+#: Telegram\Main.py:230
 msgid "{AppName} will now start to install the database structure"
 msgstr ""
 
-#: Telegram\Main.py:234
+#: Telegram\Main.py:233
 msgid "The database has been installed, please restart system."
 msgstr ""
 
-#: Telegram\Main.py:236
+#: Telegram\Main.py:235
 msgid "Database will not be installed terminating process."
 msgstr ""
 
-#: Telegram\Main.py:242
+#: Telegram\Main.py:241
 msgid "Exit loop by pressing <Esc>, <q> or <Space>"
 msgstr ""
 
-#: Telegram\Main.py:243
+#: Telegram\Main.py:242
 msgid "Getting updates from the telegram api."
 msgstr ""
 
-#: Telegram\Main.py:252
+#: Telegram\Main.py:251
 msgid "A user shutdown was requested will now shutdown."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:55 Telegram\MessageProcessorClass.py:56
+#: Telegram\MessageProcessorClass.py:62 Telegram\MessageProcessorClass.py:63
 msgid "The sql obejct is missing, please contact your administrator."
+msgstr ""
+
+#: Telegram\MessageProcessorClass.py:284
+msgid ""
+"Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
+"\n"
+"general commands\n"
+" /help - display's this message\n"
+" /settings - display's you're own settings\n"
+"\n"
+"poll related commands\n"
+" /newpoll - creates a new poll\n"
+" /delpoll - deletes a selected poll\n"
+" /addanswer - adds a new answer to the selected poll\n"
+" /delanswer - deletes a selected answer\n"
+" /polllink - get's the link to a selected poll\n"
+" /endpoll - ends a poll in a group\n"
+" /pollsettings - display's all the settings for a selected poll"
 msgstr ""
 
 #: Telegram\SqlClass.py:132
 msgid "Something is wrong with your user name or password."
 msgstr ""
 
-#: Telegram\SqlClass.py:132 Telegram\SqlClass.py:135 Telegram\SqlClass.py:192
-#: Telegram\SqlClass.py:271 Telegram\SqlClass.py:540
+#: Telegram\SqlClass.py:132 Telegram\SqlClass.py:135 Telegram\SqlClass.py:193
+#: Telegram\SqlClass.py:272 Telegram\SqlClass.py:551
 msgid "The database connector returned following error: {Error}"
 msgstr ""
 
@@ -140,19 +158,25 @@ msgstr ""
 msgid "The executet query failed, please contact your administrator."
 msgstr ""
 
-#: Telegram\SqlClass.py:185 Telegram\SqlClass.py:199
+#: Telegram\SqlClass.py:185 Telegram\SqlClass.py:200
 msgid "The database returned following error: {Error}"
 msgstr ""
 
-#: Telegram\SqlClass.py:192
+#: Telegram\SqlClass.py:186
+msgid ""
+"The failed query is:\n"
+"{Query}"
+msgstr ""
+
+#: Telegram\SqlClass.py:193
 msgid "The creation of the following database {DatabaseName} has not succeded, please contact your administrator."
 msgstr ""
 
-#: Telegram\SqlClass.py:199
+#: Telegram\SqlClass.py:200
 msgid "Failed to delete the \"{DatabaseName}\" database, please delete manually."
 msgstr ""
 
-#: Telegram\SqlClass.py:271
+#: Telegram\SqlClass.py:272
 msgid "The following database table \"{TableName}\" could not be created, please contact your administrator."
 msgstr ""
 
