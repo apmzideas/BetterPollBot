@@ -92,7 +92,6 @@ class ConfigurationParser(configparser.RawConfigParser):
                                                     #until to state a request the telegram server.
                                                     #It's in miliseconds
                                                     ("RequestTimer", 1000),
-                                                    ("DefaultLanguage", "en_US"),
                                                     ("ApiToken", "")
                                                     ))
         

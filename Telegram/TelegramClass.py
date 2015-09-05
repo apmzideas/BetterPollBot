@@ -112,7 +112,7 @@ class TelegramApi(object):
         
         #send Request and get JSONData    
         JSONData = self.SendRequest(Request)
-        
+        print(JSONData)
         if JSONData["ok"]:
             return JSONData
         else:

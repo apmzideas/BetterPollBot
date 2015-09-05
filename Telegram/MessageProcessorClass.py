@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 import GlobalObjects
 import json
-import LanguageClass # imports the _() function! (the translation feature).
+import LanguageClass  # imports the _() function! (the translation feature).
 import LoggingClass
 import SqlClass
 import PollingClass
 import ErrorClasses
+import ConfigurationClass
 
 class MessageProcessor(object):
     def __init__(self, MessageObject, **OptionalObjects):
@@ -36,10 +37,11 @@ class MessageProcessor(object):
 #         if self.MessageObject["results"] == []:
 #             return False
         
-        #Predefining attribute so that it later can be used for evil.
+        # Predefining attribute so that it later can be used for evil.
         self.LoggingObject = None
+        self.ConfigurationObject = None
         
-        #SqlObjects
+        # SqlObjects
         self.SqlObject = None
         self.SqlCursor = None
         
@@ -47,13 +49,17 @@ class MessageProcessor(object):
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
             self.LoggingObject = LoggingClass.Logger()
+        if "ConfigurationObject" in OptionalObjects:
+            self.ConfigurationObject = OptionalObjects["ConfigurationObject"]
+        else:
+            self.ConfigurationObject = ConfigurationClass.ConfigurationParser()
         if "SqlObject" in OptionalObjects:
-            self.SqlObject= OptionalObjects["SqlObject"]
+            self.SqlObject = OptionalObjects["SqlObject"]
             
             self.SqlCursor = self.SqlObject.CreateCursor()
         else:
-            self.LoggingObject.create_log( self._( "The sql obejct is missing, please contact your administrator." ), "Error")
-            raise ErrorClasses.MissingArguments(self._( "The sql obejct is missing, please contact your administrator." ) )
+            self.LoggingObject.create_log(self._("The sql obejct is missing, please contact your administrator."), "Error")
+            raise ErrorClasses.MissingArguments(self._("The sql obejct is missing, please contact your administrator."))
         
         if "update_id" in MessageObject:
             self.UpdateId = MessageObject["update_id"]
@@ -61,8 +67,8 @@ class MessageProcessor(object):
         if "message_id" in MessageObject["message"]:
             self.MessageID = MessageObject["message"]["message_id"]
 
-        #get the user of the message
-        #get user data from the message
+        # get the user of the message
+        # get user data from the message
         if "first_name" in MessageObject["message"]["from"]:
             self.UserFirstName = MessageObject["message"]["from"]["first_name"]
         else:
@@ -78,29 +84,36 @@ class MessageProcessor(object):
         if "id" in MessageObject["message"]["from"]:
             self.UserId = MessageObject["message"]["from"]["id"]
         
-        #print(self.UserExists())
-        #Add user to the system if not exists
+        
+        # Add user to the system if not exists
         if self.UserExists() == False:
             self.AddUser()
-        
-        self.LanguageObject = None
-        if "LanguageObject" in OptionalObjects:
-            self.LanguageObject = OptionalObjects["LanguageObject"]
-        else:
-            self.LanguageObject = LanguageClass.CreateTranslationObject()
-        
             
+        # Get the Internal user id
+        self.InternalUserId = self.GetInternalUserId()
+        # Hier we are initialising the function for the translations
+        # Get the user settings
+        Query = "SELECT user_setting_table.User_String FROM user_setting_table "\
+                "INNER JOIN setting_table "\
+                "ON user_setting_table.Master_Setting_Id=setting_table.Setting_Id "\
+                "WHERE setting_table.Setting_Name=%s "\
+                "AND user_setting_table.Master_User_Id=%s;"
         
-        #Hier we are initialising the function for the translations 
+        Data = ("Language", self.InternalUserId)
+        
+        self.LanguageName = self.SqlObject.ExecuteTrueQuery(self.SqlCursor, Query, Data)[0]["User_String"]
+        
+        self.LanguageObject = LanguageClass.CreateTranslationObject(Languages=[self.LanguageName])
+        # create the translator        
         self._ = self.LanguageObject.gettext
         
         
-        #Get the textmessage with the commands
+        # Get the textmessage with the commands
         if "text" in MessageObject["message"]:
             self.Text = MessageObject["message"]["text"]
         
-        #where was the message send from the user or the group
-        #Get the chat id
+        # where was the message send from the user or the group
+        # Get the chat id
         if "id" in MessageObject["message"]["chat"]:
             self.ChatId = MessageObject["message"]["chat"]["id"]
         
@@ -157,7 +170,7 @@ class MessageProcessor(object):
 #             self.group_chat_created = Message["group_chat_created"]
 
     def UserExists(self,):
-       #This methode will detect if the use already exists or not. 
+       # This methode will detect if the use already exists or not. 
 #         temp = self.SqlObject.SelectEntry(self.SqlCursor, 
 #                                           FromTable="User_Table", 
 #                                           Columns = (
@@ -188,9 +201,8 @@ class MessageProcessor(object):
         else:
             return True
         
-        
     def AddUser(self,):
-        #Insert into user
+        # Insert into user
         TableName = "User_Table"
         Columns = {
                    "External_User_Id" : self.UserId,
@@ -200,26 +212,64 @@ class MessageProcessor(object):
                    }
         
         self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)
+        self.SqlObject.Commit(self.SqlCursor)
+
+        # insert default settings
+        # get default values
+
         
-        #insert default settings
+        # get the default settigns
+        # get the default language
+        FromTable = "Setting_Table"
+        Columns = ["Setting_Id", "Default_String"]
+        Where = [["Setting_Name", "=", "%s"]]
+        Data = ("Language")
+        MasterSetting = self.SqlObject.SelectEntry(
+                                                   self.SqlCursor,
+                                                   FromTable=FromTable,
+                                                   Columns=Columns,
+                                                   Where=Where,
+                                                   Data=Data
+                                                   )[0]
         
-        TableName
-        
-        self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)
-        
-        
+        TableName = "User_Setting_Table"
+                 
+        Columns = {
+                   "Master_Setting_Id": MasterSetting["Setting_Id"],
+                   "Master_User_Id": self.InternalUserId[0]["Internal_User_Id"],
+                   "User_String": MasterSetting["Default_String"]
+                   } 
+        self.SqlObject.InsertEntry(self.SqlCursor, TableName, Columns)   
         
         self.SqlObject.Commit(self.SqlCursor)
+        
+        return True
     
+    def GetInternalUserId(self):
+        # first the internal user id
+        FromTable = "User_Table"
+        Columns = ["Internal_User_Id"]
+        Where = [["External_User_Id", "=", "%s"]]
+        Data = (self.UserId,)
+        
+        return self.SqlObject.SelectEntry(
+                                                         self.SqlCursor,
+                                                         FromTable=FromTable,
+                                                         Columns=Columns,
+                                                         Where=Where,
+                                                         Data=Data
+                                                         )[0]["Internal_User_Id"]
+        
+        
     def GetUserSetting(self):
-        #get user settings
+        # get user settings
         pass
     
     def InterpretMessage(self):
-        #This methode will interpret and the message and do what ever is needed.
+        # This methode will interpret and the message and do what ever is needed.
         if self.Text == "/newpoll":
             
-            Poll = PollingClass.Poll(ExternalUserId=self.UserId, PollId = None,)
+            Poll = PollingClass.Poll(ExternalUserId=self.UserId, PollId=None,)
             Poll.GetPollName()
         pass
     
@@ -227,26 +277,26 @@ if __name__ == "__main__":
     import Main
     Main.ObjectInitialiser()
     MessageObject = {
-                     'update_id': 469262050, 
+                     'update_id': 469262050,
                      'message': {
                                  'chat': {
-                                          'first_name': 'Robin', 
+                                          'first_name': 'Robin',
                                           'id': 105654068
                                           
-                                          }, 
-                                 'text': '/start', 
+                                          },
+                                 'text': '/start',
                                  'date': 1439417521,
                                  'from': {
                                           'first_name': 'Robin',
                                           'id': 105654068
-                                          }, 
+                                          },
                                  'message_id': 89
                                  }}
-    #a = MessageProcessor(MessageObject)
+    # a = MessageProcessor(MessageObject)
     
     import pprint
     foo = {'result': [{'update_id': 469262050, 'message': {'chat': {'first_name': 'Robin', 'id': 105654068}, 'text': '/start', 'date': 1439417521, 'from': {'first_name': 'Robin', 'id': 105654068}, 'message_id': 89}}], 'ok': True}
-    #pprint.PrettyPrinter(indent=2).pprint(foo["result"])
+    # pprint.PrettyPrinter(indent=2).pprint(foo["result"])
     foo = { 
            'ok': True,
            'result': [
@@ -271,23 +321,23 @@ if __name__ == "__main__":
                        }
                       ]
            }
-    #a = MessageProcessor(foo["result"][0], ) 
+    # a = MessageProcessor(foo["result"][0], ) 
     foo = {
-           'ok': True, 
+           'ok': True,
            'result': [
                       {
                        'message': {
-                                   'date': 1439471738, 
+                                   'date': 1439471738,
                                    'text': '/newpoll',
                                    'from': {
-                                            'id': 32301786, 
-                                            'last_name': 'Hornung', 
-                                            'first_name': 'Adrian', 
+                                            'id': 32301786,
+                                            'last_name': 'Hornung',
+                                            'first_name': 'Adrian',
                                             'username': 'TheRedFireFox'
-                                            }, 
-                                   'message_id': 111, 
+                                            },
+                                   'message_id': 111,
                                    'chat': {
-                                            'id': -7903240, 
+                                            'id':-7903240,
                                             'title': 'Drive'
                                             }
                                    },
@@ -295,24 +345,24 @@ if __name__ == "__main__":
                         }
                       ]
            }
-    LanguageObject= LanguageClass.CreateTranslationObject()
+    LanguageObject = LanguageClass.CreateTranslationObject()
     LoggingObject = LoggingClass.Logger(config_name='config.ini', log_to_file=False)
-    
-    import ConfigurationClass
+
     Config = ConfigurationClass.ConfigurationParser()
     Config.ReadConfigurationFile()
 
-    SqlObject =  SqlClass.SqlApi("root", 
-                                 "Password", 
+    SqlObject = SqlClass.SqlApi("root",
+                                 "Password",
                                  Config["MySQL Connection Parameter"]["DatabaseName"],
-                                 LoggingObject = LoggingObject,
+                                 LoggingObject=LoggingObject,
                                  
-                                 LanguageObject = LanguageClass.CreateTranslationObject("de_DE")
+                                 LanguageObject=LanguageClass.CreateTranslationObject("de_DE")
                                                               )
     a = MessageProcessor(
-                         MessageObject = foo["result"][0],
-                         OptionalObjects = {
+                         MessageObject=foo["result"][0],
+                         OptionalObjects={
                          "LanguageObject": LanguageObject,
-                         "LoggingObject" : LanguageObject, 
-                         "SqlObject": SqlObject}
+                         "LoggingObject" : LanguageObject,
+                         "SqlObject": SqlObject,
+                         "ConfigurationObject": Config}
                          )

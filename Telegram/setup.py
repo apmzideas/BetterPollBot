@@ -6,26 +6,46 @@ import py2exe
 import time
 import os
 import subprocess
+
+
+# Set the compiler time
+DateOfCompiling = time.strftime("%Y%m%d%H%M%S", time.gmtime())
+
+# Modification of the GlobalObjects
+if os.path.isfile("GlobalObjects.py"):
+    os.rename("GlobalObjects.py", "GlobalObjects_old.py")
+with open("GlobalObjects_old.py") as FileInput:
+    with open("GlobalObjects.py", "w") as FileOutPut:
+        for Line in FileInput:
+            if Line.startswith("__release__"):
+                FileOutPut.write("__release__ = {Date}\n".format(Date=DateOfCompiling))
+            else:
+                FileOutPut.write(Line)
+
+if os.path.isfile("GlobalObjects_old.py"):
+    os.remove("GlobalObjects_old.py")
+
+# This Module will be modified befor import
 import GlobalObjects
 
+print("release build: " + str(GlobalObjects.__release__))
 #sets the current directory in to a variable
 DirectoryOfSetup = os.path.abspath("./")
-
+ 
 #creates the path to the Directory of the newest build 
-DirectoryToBuild = os.path.abspath("..\\Build") + "\\{Date}".format(Date=time.strftime("%Y%m%d%H%M%S", time.gmtime()))
+DirectoryToBuild = os.path.abspath("..\\Build") + "\\{Date}".format(Date=DateOfCompiling)
 if not os.path.exists(DirectoryToBuild):
     os.makedirs(DirectoryToBuild, exist_ok = True)
-
-
+ 
 print("Building language files")
-
+ 
 LanguageFilesArray = [i for i in os.listdir(".\\Language") if not i == "__pycache__"]
-
+ 
 #creating the directorys for the language files
 print("creating the directorys for the language files")
 if not os.path.exists(DirectoryToBuild+"\\Language"):
     os.mkdir(DirectoryToBuild+"\\Language")
-
+ 
 for i in LanguageFilesArray:
     DirectoryOfLanguage = DirectoryToBuild+"\\Language\\{NameOfLanguage}".format(NameOfLanguage=i)
     if not os.path.exists(DirectoryOfLanguage):
@@ -34,16 +54,24 @@ for i in LanguageFilesArray:
     if not os.path.exists(DirectoryOfLanguageSub):
         os.mkdir(DirectoryOfLanguageSub)
     
+    #compiling
     subprocess.call(["py", "C:\\Python34\\Tools\\i18n\\msgfmt.py", 
                      "-o", "{OutputFile}".format(OutputFile=DirectoryOfLanguageSub+"\\Telegram.mo"),
-                     "{InputFile}".format(InputFile="{DirectoryOfSetup}\\Language\\{Language}\\LC_MESSAGES\\Telegram.po".format(DirectoryOfSetup=DirectoryOfSetup,
-                                                                                                                                Language=i))
+                     "{InputFile}".format(
+                                          InputFile="{DirectoryOfSetup}\\Language\\"
+                                          "{Language}\\LC_MESSAGES\\Telegram.po".format(
+                                                                                        DirectoryOfSetup=DirectoryOfSetup,
+                                                                                        Language=i)
+                                          )
                      ])
-
+#start compiling the source code
 setup(
       console=[{
-               "script": "Main.py",                    ### Main Python script    
-               "icon_resources": [(0, "icons\\photo_2015-09-03_20-15-23.ico")], ### Icon to embed into the PE file.
+               # Main Python script
+               "script": "Main.py",                      
+               # Icon to embed into the PE file.  
+               "icon_resources": [(0, "icons\\photo_2015-09-03_20-15-23.ico")],
+               # The application name
                "dest_base" : GlobalObjects.__AppName__
                }],
       zipfile = "library.zip",
@@ -59,11 +87,3 @@ setup(
                  }
       )
 
-# cd ./Language
-# echo compiling language files
-# for /d %%s in (*) do (
-#         IF /I NOT %%s==__pycache__ (
-#             msgfmt nl.po --output-file nl.mo
-#         )
-#     )
-# cd ../../

@@ -201,7 +201,6 @@ Copyright:\t\t{Copyright}".format(
                                     ParserArguments.DatabaseUser,
                                     ParserArguments.DatabasePassword,
                                     ParserArguments.DatabaseName,
-                                    LanguageObject = LanguageMasterObject,
                                     LoggingObject = MasterLogger
                                     )
         
@@ -261,7 +260,8 @@ Copyright:\t\t{Copyright}".format(
                 MessageProcessor = MessageProcessorClass.MessageProcessor(i,
                                                                           LanguageObject = LanguageMasterObject,
                                                                           SqlObject = SqlObject,
-                                                                          LoggingObject = MasterLogger
+                                                                          LoggingObject = MasterLogger,
+                                                                          ConfigurationObject = Configuration
                                                                           )
                 
                 #Set the CommentNumber to a actual ChatId number, so that the incomming list is allways actuel.

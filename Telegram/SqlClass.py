@@ -183,6 +183,7 @@ class SqlApi(object):
         
         except mysql.connector.Error as err:
             self.LoggingObject.create_log(self._("The database returned following error: {Error}").format(Error=err) +" "+ self._("The executet query failed, please contact your administrator."))
+            self.LoggingObject.create_log(self._("The failed query is:\n{Query}").format(Query = Query))
             
     def CreateDatabase(self, Cursor, DatabaseName):
         try:
@@ -322,7 +323,6 @@ class SqlApi(object):
                      ("PRIMARY KEY", "Setting_Id"),
                      ("FOREIGN KEY", "Master_Setting_Id", "Setting_Table(Setting_Id)"),
                      ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)"),
-
                      )
         
         self.CreateTable(Cursor, "User_Setting_Table", TableData,)
@@ -397,6 +397,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData,)
         
+        # User anwser to the poll
         TableData = (
                      ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -413,8 +414,8 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Answers_To_Poll_Table", TableData,)
         
-        #Second all the inserts
-        #The Settings
+        # Second all the inserts
+        # The Settings for the default polls
         
         Columns = {
                    "Setting_Name": "Language",
@@ -422,14 +423,24 @@ class SqlApi(object):
                    }
         
         self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
-            
+        
+        # the inserts for the settings 
+        Columns = {
+                   "Setting_Name": "Language",
+                   "Default_String": "en_US"
+                   }
+        self.InsertEntry(Cursor, "Setting_Table", Columns)
+        
+        # commit all the changes
+        self.Commit(Cursor)
+        
         return True
          
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
         # a simple SQL SELECT builder, this will be replaces by the query Class generator
         # 
         # OrderBy example [[column_name, "ASC"],[column_name, ],[column_name, "DESC"]] if emtpy ASC - has to be list
-        # Where example [['column_name', operator, value], operator, [column_name, operator, value]]
+        # Where example [['column_name', operator, value], operator, [column_name, operator, "%s"]]
         
         Query = ["SELECT"]
         
@@ -453,7 +464,7 @@ class SqlApi(object):
                 if type(Where[i]) == type([]):
                     Query.append( Where[i][0] )
                     Query.append( Where[i][1] )
-                    Query.append("'{0}'".format( Where[i][2]) )
+                    Query.append("{0}".format( Where[i][2]) )
                 elif type(Where[i]) == type(""):
                     Query.append(Where[i])   
                 
@@ -525,7 +536,7 @@ class SqlApi(object):
         Query += ", ".join(["%("+str(i) + ")s" for i in  Columns.keys() ])
             
         Query += ");"
-            
+        
         Cursor.execute(Query, Columns)
             
         if AutoCommit:
