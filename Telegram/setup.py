@@ -7,6 +7,15 @@ import time
 import os
 import subprocess
 
+# print nice messages
+
+def LogPrint(Message, Type = "INFO"):
+
+    print("[{DateOfMessage}] - [{TypeOfMessage}] - {Message}".format(
+                                                                   DateOfMessage = time.strftime("%d.%m.%Y %H:%M:%S", time.gmtime()),
+                                                                   TypeOfMessage = Type.upper(),
+                                                                   Message = Message
+                                                                   ))
 
 # Set the compiler time
 DateOfCompiling = time.strftime("%Y%m%d%H%M%S", time.gmtime())
@@ -28,7 +37,7 @@ if os.path.isfile("GlobalObjects_old.py"):
 # This Module will be modified befor import
 import GlobalObjects
 
-print("release build: " + str(GlobalObjects.__release__))
+LogPrint("release build: " + str(GlobalObjects.__release__))
 #sets the current directory in to a variable
 DirectoryOfSetup = os.path.abspath("./")
  
@@ -37,22 +46,28 @@ DirectoryToBuild = os.path.abspath("..\\Build") + "\\{Date}".format(Date=DateOfC
 if not os.path.exists(DirectoryToBuild):
     os.makedirs(DirectoryToBuild, exist_ok = True)
  
-print("Building language files")
- 
+LogPrint("Building language files")
+
+# Get the stupid __pycache__ folder
 LanguageFilesArray = [i for i in os.listdir(".\\Language") if not i == "__pycache__"]
  
 #creating the directorys for the language files
-print("creating the directorys for the language files")
+LogPrint("creating the directorys for the language files")
+
 if not os.path.exists(DirectoryToBuild+"\\Language"):
     os.mkdir(DirectoryToBuild+"\\Language")
  
 for i in LanguageFilesArray:
     DirectoryOfLanguage = DirectoryToBuild+"\\Language\\{NameOfLanguage}".format(NameOfLanguage=i)
+    
     if not os.path.exists(DirectoryOfLanguage):
         os.mkdir(DirectoryOfLanguage)
     DirectoryOfLanguageSub = DirectoryOfLanguage+"\\LC_MESSAGES"
+    
     if not os.path.exists(DirectoryOfLanguageSub):
         os.mkdir(DirectoryOfLanguageSub)
+        
+    LogPrint("Compiling language file {Name}".format(Name = i))
     
     #compiling
     subprocess.call(["py", "C:\\Python34\\Tools\\i18n\\msgfmt.py", 

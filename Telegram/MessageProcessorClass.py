@@ -60,6 +60,7 @@ class MessageProcessor(object):
             # The object get's it's own cursor so that there will be no 
             # problems in the future making the system multi threading safe.
             self.SqlCursor = self.SqlObject.CreateCursor()
+
         else:
             self.LoggingObject.create_log(self._("The sql obejct is missing, please contact your administrator."), "Error")
             raise ErrorClasses.MissingArguments(self._("The sql obejct is missing, please contact your administrator."))
@@ -94,6 +95,7 @@ class MessageProcessor(object):
             
         # Get the Internal user id
         self.InternalUserId = self.GetInternalUserId()
+        
         # Hier we are initialising the function for the translations
         # Get the user settings
         Query = "SELECT user_setting_table.User_String FROM user_setting_table "\
@@ -172,32 +174,17 @@ class MessageProcessor(object):
 #             self.group_chat_created = Message["group_chat_created"]
 
     def UserExists(self,):
-       # This methode will detect if the use already exists or not. 
-#         temp = self.SqlObject.SelectEntry(self.SqlCursor, 
-#                                           FromTable="User_Table", 
-#                                           Columns = (
-#                                                      "External_User_Id",
-#                                                      "Creation_Date",
-#                                                      "User_Name",
-#                                                      "First_Name",
-#                                                      "Last_Name"
-#                                                      ),
-#                                           Where = ["External_User_Id", "=", "%s"],
-#                                           Data = (self.UserId),
-#                                           )
-
-
-#  The following query will return 1 if a user with the specified username exists, 0 otherwise.
-# 
-# SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+        # This methode will detect if the use already exists or not. 
+        #  The following query will return 1 if a user with the specified username exists, 0 otherwise.
+        # 
+        # SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
 
         temp = self.SqlObject.ExecuteTrueQuery(
                                           self.SqlObject.CreateCursor(Dictionary=False),
                                           Query="SELECT EXISTS(SELECT 1 FROM User_Table WHERE External_User_Id = %s);",
                                           Data=self.UserId
-                                          )          
+                                          )[0][0]    
 
-        temp = temp[0][0]
         if temp == False:
             return False
         else:
@@ -291,10 +278,16 @@ class MessageProcessor(object):
                 MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
             elif self.Text == "/settings":
                 # This command will sennd the possible setting to the user
+                self.SetLastSendCommand("/settings")
                 MessageObject.Text = self._("Please, choose the setting to change:")
-                MessageObject.ReplyKeyboardMarkup(["Language"])
+                MessageObject.ReplyKeyboardMarkup([["/language"],["/comming soon"]], 
+                                                  OneTimeKeyboard=True)
             elif self.Text == "/language":
                 # This option will change the user language
+                # Set the last send command
+                
+                self.SetLastSendCommand("/language")
+                
                 MessageObject.Text = self._("Please choose your preferred language:")
                 MessageObject.ReplyKeyboardMarkup([["English"],["Deutsch"]])
             else:
@@ -303,31 +296,69 @@ class MessageProcessor(object):
         else:
             # Get the last send command
             LastCommand = self.GetLastSendCommand()
-        
+            
+            if LastCommand == "/language":
+                self.ChangeUserLanguage(self.Text)
+                MessageObject.Text = self._("Language changed successfully.")
+                MessageObject.ReplyKeyboardHide()
         return MessageObject
 
+    
+    def SetLastSendCommand(self, Command):
+        # This methode will save the last send command into the database.
         
+        TableName = "Session_Table"
+        Columns = {
+                   "Command_By_User": self.InternalUserId, 
+                   "Command": Command
+                   }
+        
+        Duplicate = {"Command": Command}
+        SetLastSendCommand = self.SqlObject.InsertEntry(
+                                                        self.SqlCursor,
+                                                        TableName = TableName, 
+                                                        Columns=Columns,
+                                                        Duplicate = Duplicate)
+        self.SqlObject.Commit(self.SqlCursor)
+        return True
+    
     def GetLastSendCommand(self):
         # This methode will get the last used command from the user.
         # This is needed to understand the text send from the user.
+        
+        FromTable = "Session_Table"
+        Columns = ["Command"]
+        Where = [["Command_By_User", "=", "%s"]]
+        Data = (self.InternalUserId)
         LastSendCommand = self.SqlObject.SelectEntry(self.SqlCursor,
+                                                     FromTable = FromTable, 
+                                                     Columns = Columns, 
+                                                     Where = Where, 
+                                                     Data = Data
                                                      )
+        if len(LastSendCommand)>0:
+            return LastSendCommand[0]["Command"]
+        else:
+            return None
         
-        
-        if LastSendCommand == "/language":
-            self.ChangeUserLanguage(self.Text)
-        return LastSendCommand
-    
-    def ChangeUserLanguage(self):
+    def ChangeUserLanguage(self, Language):
         # Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False,
-        
-        self.SqlObject.UpdateEntry(self.SqlCursor,
-                                   TableName = "",
-                                   SetColumnTo=(""), 
-                                   Data = (  ),
-                                   Where=[""]
+        if Language == "English":
+            Language = "en_US"
+        elif Language == "Deutsch":
+            Language = "de_De"
+
+        self.SqlObject.UpdateEntry(
+                                   Cursor=self.SqlCursor,
+                                   TableName = "User_Setting_Table",
+                                   Columns = {"User_String": Language},
+                                   Where = [["Master_User_Id", self.InternalUserId]],
+                                   Autocommit = True
                                    )
-    
+        self.LanguageName = Language
+        self.LanguageObject = LanguageClass.CreateTranslationObject(Language)
+        self._ = self.LanguageObject.gettext
+        
 if __name__ == "__main__":
     import Main
     Main.ObjectInitialiser()

@@ -104,17 +104,22 @@ class SqlApi(object):
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = LanguageClass.CreateTranslationObject()
+            
+        # This is the language objects only value. 
+        # It enables the translation of the texts. 
+        self._ = self.LanguageObject.gettext
+        
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
             self.LoggingObject = LoggingClass.Logger()
             
-        #This is the language objects only value
-        self._ = self.LanguageObject.gettext
-
+        # Create the connection to the database. 
         self.DatabaseConnection = self.CreateConnection()
         
     def CreateConnection(self):
+        # This methode will create the connetion object for the mysql database. 
+        # If if failes it will raise a 
         try:
             config = {
                       'user': self.User,
@@ -130,7 +135,7 @@ class SqlApi(object):
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.create_log(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."), "WARNING")
-                return False
+                raise SystemError
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.create_log( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."), "Error")
                 raise SystemExit
@@ -166,13 +171,16 @@ class SqlApi(object):
         try:
 
             if Data != None:
-                if not isinstance(Data, list):
-                    if isinstance(Data, int):
-                        Data = (Data,)
-                    elif isinstance(Data, str):
-                        Data = (Data,)
-                    Data = list(Data)
-                Cursor.execute(Query, [str(i) for i in Data])
+                if not isinstance(Data, dict):
+                    if not isinstance(Data, list):
+                        if isinstance(Data, int):
+                            Data = (Data,)
+                        elif isinstance(Data, str):
+                            Data = (Data,)
+                        Data = list(Data)
+                    Cursor.execute(Query, [str(i) for i in Data])
+                else:
+                    Cursor.execute(Query, Data)
             else:
                 Cursor.execute(Query)
 
@@ -295,7 +303,8 @@ class SqlApi(object):
                      ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Command_By_User", "Integer"), #is the internal id of the user
                      ("Command", "Varchar(256)"),
-                     ("PRIMARY KEY", "Session_Id") 
+                     ("PRIMARY KEY", "Session_Id"),
+                     ("UNIQUE", "Command_By_User"),
                      )
         
         self.CreateTable(Cursor, "Session_Table", TableData,)         
@@ -372,8 +381,8 @@ class SqlApi(object):
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Setting_Name", "Varchar(128)"),
-                     ("Default_String", "Varchar(256)"),
                      ("Default_Integer", "Integer"),
+                     ("Default_String", "Varchar(256)"),
                      ("Default_Boolean", "Boolean"),
                      ("PRIMARY KEY", "Setting_Id")               
                      )
@@ -508,24 +517,62 @@ class SqlApi(object):
         else:
             return (self.ExecuteTrueQuery(Cursor, Query, Data))
 
-    def UpdateEntry(self, Cursor, TableName, SetColumnTo=(), Data = (), Where=[]):
-        #
-        #
-        # SetColumnTo = (('id',), ('Name', 'Max')) # if single value ?
+    def UpdateEntry(self, Cursor, TableName, Columns, Where=[], Autocommit = False):
+        # This Methode will update a record in the database
+        # This methode will return something like this:
+        # UPDATE table_name
+        # SET column1=value1,column2=value2,...
+        # WHERE some_column=some_value;
+        # If autocommit is true the methode will automatically commit to the database.
+        # Columns = { 'id' : id,
+        #            'Name': 'Max'}
+        # Where = [["Id", "=", 2], "AND", "(", ["as", "65"], "OR",  ")",]
+
+    
+        Query = "UPDATE "
+            
+        Query += TableName
+            
+        Query += " SET "
+    
+        # Create the key value pair 
+        temp = []
+        for Key in Columns.keys():
+            temp.append("{Key}=%({Key})s".format(Key = str(Key)))
         
-        Query = ["UPDATE"]
+        Query += ', '.join(temp)
+    
+        if Where != []:
+            
+            Query += " WHERE "
+            
+            for i in range(len(Where)):
+                if type(Where[i]) == type([]):
+                    Where[i] = [str(i) for i in Where[i]]
+                    Query += str(Where[i][0])
+                    if Where[i][1].upper() in ("=", "<", ">", "<>", "!=", ">=", "<=", "BETWEEN", "LIKE", "IN"):
+                        Query += Where[i][1]
+                        Query += "%({Where})s".format( Where = Where[i][0] + "Where") 
+                        Columns[Where[i][0] + "Where"] = Where[i][2]
+                    else:
+                        Query += "=%({Where})s".format(Where = Where[i][0]+"Where")
+                        Columns[Where[i][0] + "Where"] = Where[i][1]
+                    
+                elif type(Where[i]) == type(""):
+                    if Where[i].upper() in ("(", ")", "AND", "OR"):
+                        Query += " {} ".format(Where[i])
+                    else:
+                        raise ValueError( self._("The where type in your query is not in the list of valid types. {Error}").format(Error = Where[i]))
+        Query += ";"
+        #print(Query)
+        #print(Columns)
+#         print(Query % Columns)
         
-        Query.append(TableName)
-        
-        Query.append("SET")
-        
-        for i in range(len(SetColumnTo)):
-            Query.append(SetColumnTo[i][0])
-            Query.append("=")
-            if len(SetColumnTo) == 1:
-                Query.append(SetColumnTo[1])
-            else:
-                Query.append("%s") 
+        self.ExecuteTrueQuery(Cursor, Query, Columns)
+        if Autocommit == True:
+            # Autocommit the update to the server
+            self.Commit(Cursor)
+        return True
         
     def InsertEntry(self, Cursor, TableName, Columns={}, Duplicate = None, AutoCommit = False):
         #This method will insert any type of entry into the system
@@ -540,13 +587,18 @@ class SqlApi(object):
         Query += ")"
         
         if Duplicate != None:
-            Query +=  "  ON DUPLICATE KEY "
+            Query +=  " ON DUPLICATE KEY UPDATE "
+            Duplicates = []
             for Key in Duplicate.keys():
-                Query += " {Key} = {Value}".format(Key = Key,
-                                                   Value =str(Duplicate[Keys])
+                Duplicates.append("{Key} = %({Value})s".format(Key = str(Key),
+                                                   Value = str(Key)
                                                    )
-        
+                                  )
+                
+            Query += ', '.join(Duplicates)
         Query += ";"
+        
+        #print(Query)
         
         Cursor.execute(Query, Columns)
             

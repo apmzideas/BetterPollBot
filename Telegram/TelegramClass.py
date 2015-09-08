@@ -24,6 +24,7 @@ class TelegramApi(object):
         #Predefining attribute so that it later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
+        self.ExitOnError = False
         
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
@@ -33,6 +34,8 @@ class TelegramApi(object):
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
             self.LoggingObject = LoggingClass.Logger()
+        if "ExitOnError" in OptionalObjects:
+            self.ExitOnError = OptionalObjects["ExitOnError"]
         
         #Hier we are initialising the function for the translations 
         self._ = self.LanguageObject.gettext
@@ -56,12 +59,15 @@ class TelegramApi(object):
                         "application/x-www-form-urlencoded;charset=utf-8"
                         }
         
+        self.LoggingObject.create_log(self._("Starting self check"))
         self.GetMe() 
-    
-    def SendRequest(self, Request, ExitOnError=True):
+        
+        
+        
+    def SendRequest(self, Request):
+        # This methode will send the prepared request to the telegram server.
+        # And in the end get the response.
         try:
-            #Response = .read().decode("utf-8")
-            
             TheResponse = ''
             with urllib.request.urlopen(Request, context = self.SSLEncription) as Request:
                 TheResponse = Request.read()
@@ -69,7 +75,7 @@ class TelegramApi(object):
         
         except urllib.error.HTTPError as Error:
             if Error.code == 400:
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
+                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."), "Error" ) 
             elif Error.code == 401:   
                 self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
             elif Error.code == 403:
@@ -82,7 +88,8 @@ class TelegramApi(object):
                 self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."), "Error" )
             
             #For the recursive loop, so that the system can handel itself better
-            if ExitOnError:
+            if self.ExitOnError:
+                self.LoggingObject.create_log(self._("Exiting the system!"))
                 exit()  
             
     def GetMe(self):
@@ -93,9 +100,9 @@ class TelegramApi(object):
              
     def GetUpdates(self, CommentNumber = None):
         # a Methode to get the Updates as well to confirm the old comments from the Telegram API
-        #Notes
-        #1. This method will not work if an outgoing webhook is set up.
-        #2. In order to avoid getting duplicate updates, recalculate offset after each server response.
+        # Notes
+        # 1. This method will not work if an outgoing webhook is set up.
+        # 2. In order to avoid getting duplicate updates, recalculate offset after each server response.
         DataToBeSend = {
                         #"limit": 1,
                         "timeout": 0
@@ -111,23 +118,27 @@ class TelegramApi(object):
                                               headers=self.Headers)
         
         #send Request and get JSONData    
-        JSONData = self.SendRequest(Request)
-        print(JSONData)
-        if JSONData["ok"]:
-            return JSONData
-        else:
-            return None
+        JSONData = self.SendRequest(Request,)
+        
+        # print(JSONData)
+        
+        if not JSONData is None:
+            if JSONData["ok"]:
+                return JSONData
+        
+        return None
         
     def SendMessage(self, MessageObject):
-        #a method to send Messeges to the TelegramApi
+        # A method to send Messeges to the TelegramApi
         #print(MessageObject.GetMessage())
         MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8') # data should be bytes
     
         Request = urllib.request.Request(self.BotApiUrl + "/sendMessage", 
                                          data= MessageData,
-                                          headers=self.Headers)
+                                         headers=self.Headers
+                                         )
         
-        return self.SendRequest(Request, ExitOnError=False)       
+        return self.SendRequest(Request,)       
 
     def ForwardMessage(self, ChatId, FromChatId, MessageId):
         #A method to forward a message

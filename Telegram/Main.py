@@ -182,6 +182,7 @@ Copyright:\t\t{Copyright}".format(
                                                ApiToken = ParserArguments.ApiToken,
                                                LoggingObject = MasterLogger,
                                                LanguageObject = LanguageMasterObject,
+                                               ExitOnError = False
                                                )
     
     SqlObject = None
