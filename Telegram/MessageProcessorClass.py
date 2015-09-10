@@ -4,7 +4,7 @@ import GlobalObjects
 import json
 import LanguageClass  # imports the _() function! (the translation feature).
 import LoggingClass
-import SqlClass
+import Sql.SqlClass
 import PollingClass
 import ErrorClasses
 import ConfigurationClass
@@ -34,10 +34,6 @@ class MessageProcessor(object):
 #                         }
         
         
-#         #check if any updates came in
-#         if self.MessageObject["results"] == []:
-#             return False
-        
         # Predefining attribute so that it later can be used for evil.
         self.LoggingObject = None
         self.ConfigurationObject = None
@@ -62,7 +58,7 @@ class MessageProcessor(object):
             self.SqlCursor = self.SqlObject.CreateCursor()
 
         else:
-            self.LoggingObject.create_log(self._("The sql obejct is missing, please contact your administrator."), "Error")
+            self.LoggingObject.error(self._("The sql obejct is missing, please contact your administrator."))
             raise ErrorClasses.MissingArguments(self._("The sql obejct is missing, please contact your administrator."))
         
         if "update_id" in MessageObject:
@@ -95,6 +91,7 @@ class MessageProcessor(object):
             
         # Get the Internal user id
         self.InternalUserId = self.GetInternalUserId()
+#         print(self.InternalUserId)
         
         # Hier we are initialising the function for the translations
         # Get the user settings
@@ -254,33 +251,43 @@ class MessageProcessor(object):
         # This methode will interpret and the message and do what ever is needed.
         # This variable is to be used later on
 
-        MessageObject = MessageClass.MessageToBeSend(ToChatId = self.ChatId)
-        
+        MessageObject = MessageClass.MessageToBeSend(ToChatId=self.ChatId)
+        MessageObject.Text = self._("Sorry, but this command could not be interpreted.")
         # check if message is a command
         if self.Text.startswith("/"):
             # register the command in the database for later use
             if self.Text == "/start":
-                MessageObject.Text = _("Welcome.\n What can I do for you?\n Press /help for all my commands")
+                MessageObject.Text = self._("Welcome.\nWhat can I do for you?\nPress /help for all my commands")
             elif self.Text == "/newpoll":
+                self.SetLastSendCommand("/newpoll")
+                # Check if user has already a poll
+                temp = self.SqlObject.ExecuteTrueQuery(
+                                                       self.SqlObject.CreateCursor(Dictionary=False),
+                                                       Query="SELECT EXISTS(SELECT 1 FROM poll_table WHERE Master_User_Id = %s)",
+                                          Data=self.InternalUserId
+                                          )[0][0] 
+                if temp == False:
+                    MessageObject.Text = self._("Welcome to the poll creation, please follow the following steps.\n") + self._("Please enter the name of the new poll.")
+                else:
+                    MessageObject.Text = self._("Please enter the name of the new poll.")
 
-                Poll = PollingClass.Poll(ExternalUserId=self.UserId, PollId=None,)
-                Poll.GetPollName()
-                
             elif self.Text == "/addanwser":
                 pass
             elif self.Text == "/delanswer":
                 pass
-            elif self.Text == "/pollling":
+            elif self.Text == "/listpoll":
                 pass
             elif self.Text == "/delpoll":
                 pass
+            elif self.Text == "/pollling":
+                pass
             elif self.Text == "/help":                
-                MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
+                MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /listpoll - see all your polls\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
             elif self.Text == "/settings":
                 # This command will sennd the possible setting to the user
                 self.SetLastSendCommand("/settings")
                 MessageObject.Text = self._("Please, choose the setting to change:")
-                MessageObject.ReplyKeyboardMarkup([["/language"],["/comming soon"]], 
+                MessageObject.ReplyKeyboardMarkup([["/language"], ["/comming soon"]],
                                                   OneTimeKeyboard=True)
             elif self.Text == "/language":
                 # This option will change the user language
@@ -289,36 +296,58 @@ class MessageProcessor(object):
                 self.SetLastSendCommand("/language")
                 
                 MessageObject.Text = self._("Please choose your preferred language:")
-                MessageObject.ReplyKeyboardMarkup([["English"],["Deutsch"]])
+                MessageObject.ReplyKeyboardMarkup([["English"],
+                                                   ["Deutsch"],
+                                                   ["Français"]
+                                                   ]
+                                                  )
             else:
                 # send that the command is unnown
                 pass
         else:
             # Get the last send command
             LastCommand = self.GetLastSendCommand()
-            
+
             if LastCommand == "/language":
                 self.ChangeUserLanguage(self.Text)
                 MessageObject.Text = self._("Language changed successfully.")
                 MessageObject.ReplyKeyboardHide()
+                self.ClearLastCommand()
+            elif LastCommand.startswith("/newpoll"):
+                if LastCommand == "/newpoll":
+                    Id = self.AddPoll()
+                    MessageObject.Text = self._("The poll \"{PollName}\" has been created, please enter the question to the poll.").format(PollName=self.Text)
+                    self.SetLastSendCommand("/newpoll question {Id}".format(Id=str(Id)))
+                elif LastCommand.startswith("/newpoll question"):
+                    PollId = int(LastCommand.split(" ")[2])
+                    self.InternalUserId
+                    Poll = PollingClass.Poll(
+                                             InternalUserId=self.InternalUserId,
+                                             InternalPollId=PollId,
+                                             LoggingObject=self.LanguageObject,
+                                             SqlObject=self.SqlObject
+                                             )
+                    if Poll.UpdateQuestion(self.Text):
+                        MessageObject.Text = self._("The question has been added.")
+                    self.ClearLastCommand() 
+            
         return MessageObject
 
-    
     def SetLastSendCommand(self, Command):
         # This methode will save the last send command into the database.
         
         TableName = "Session_Table"
         Columns = {
-                   "Command_By_User": self.InternalUserId, 
+                   "Command_By_User": self.InternalUserId,
                    "Command": Command
                    }
         
         Duplicate = {"Command": Command}
         SetLastSendCommand = self.SqlObject.InsertEntry(
                                                         self.SqlCursor,
-                                                        TableName = TableName, 
+                                                        TableName=TableName,
                                                         Columns=Columns,
-                                                        Duplicate = Duplicate)
+                                                        Duplicate=Duplicate)
         self.SqlObject.Commit(self.SqlCursor)
         return True
     
@@ -331,17 +360,30 @@ class MessageProcessor(object):
         Where = [["Command_By_User", "=", "%s"]]
         Data = (self.InternalUserId)
         LastSendCommand = self.SqlObject.SelectEntry(self.SqlCursor,
-                                                     FromTable = FromTable, 
-                                                     Columns = Columns, 
-                                                     Where = Where, 
-                                                     Data = Data
+                                                     FromTable=FromTable,
+                                                     Columns=Columns,
+                                                     Where=Where,
+                                                     Data=Data
                                                      )
-        if len(LastSendCommand)>0:
+        if len(LastSendCommand) > 0:
             return LastSendCommand[0]["Command"]
-        else:
-            return None
         
+        return None
+    
+    def ClearLastCommand(self):
+        # This methode will cleare the last set command, if the process is finished.
+        self.SqlObject.UpdateEntry(
+                                   Cursor=self.SqlCursor,
+                                   TableName="Session_Table",
+                                   Columns={"Command": "0"},
+                                   Where=[["Command_By_User", self.InternalUserId]],
+                                   Autocommit=True
+                                   )
+        return True
+    
     def ChangeUserLanguage(self, Language):
+        # This method is responsible for initialising the language change, 
+        # as well as activating the new language.
         # Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False,
         if Language == "English":
             Language = "en_US"
@@ -350,105 +392,45 @@ class MessageProcessor(object):
 
         self.SqlObject.UpdateEntry(
                                    Cursor=self.SqlCursor,
-                                   TableName = "User_Setting_Table",
-                                   Columns = {"User_String": Language},
-                                   Where = [["Master_User_Id", self.InternalUserId]],
-                                   Autocommit = True
+                                   TableName="User_Setting_Table",
+                                   Columns={"User_String": Language},
+                                   Where=[["Master_User_Id", self.InternalUserId]],
+                                   Autocommit=True
                                    )
+        
         self.LanguageName = Language
         self.LanguageObject = LanguageClass.CreateTranslationObject(Language)
         self._ = self.LanguageObject.gettext
         
-if __name__ == "__main__":
-    import Main
-    Main.ObjectInitialiser()
-    MessageObject = {
-                     'update_id': 469262050,
-                     'message': {
-                                 'chat': {
-                                          'first_name': 'Robin',
-                                          'id': 105654068
-                                          
-                                          },
-                                 'text': '/start',
-                                 'date': 1439417521,
-                                 'from': {
-                                          'first_name': 'Robin',
-                                          'id': 105654068
-                                          },
-                                 'message_id': 89
-                                 }}
-    # a = MessageProcessor(MessageObject)
+        return True
     
-    import pprint
-    foo = {'result': [{'update_id': 469262050, 'message': {'chat': {'first_name': 'Robin', 'id': 105654068}, 'text': '/start', 'date': 1439417521, 'from': {'first_name': 'Robin', 'id': 105654068}, 'message_id': 89}}], 'ok': True}
-    # pprint.PrettyPrinter(indent=2).pprint(foo["result"])
-    foo = { 
-           'ok': True,
-           'result': [
-                      { 'message': { 
-                                    'chat': { 
-                                             'first_name': 'Jonas',
-                                             'id': 10620786,
-                                             'last_name': 'Löw',
-                                             'username': 'kiritjom'
-                                             },
-                                    'date': 1439412135,
-                                    'from': { 
-                                             'first_name': 'Jonas',
-                                             'id': 10620786,
-                                             'last_name': 'Löw',
-                                             'username': 'kiritjom'
-                                             },
-                                    'message_id': 55,
-                                    'text': 'yep'
-                                    },
-                       'update_id': 469262035
-                       }
-                      ]
-           }
-    # a = MessageProcessor(foo["result"][0], ) 
-    foo = {
-           'ok': True,
-           'result': [
-                      {
-                       'message': {
-                                   'date': 1439471738,
-                                   'text': '/newpoll',
-                                   'from': {
-                                            'id': 32301786,
-                                            'last_name': 'Hornung',
-                                            'first_name': 'Adrian',
-                                            'username': 'TheRedFireFox'
+    def AddPoll(self,):
+        import hashlib
+        self.SqlObject.InsertEntry(
+                                   self.SqlCursor,
+                                   TableName="Poll_Table",
+                                   Columns={
+                                            "Poll_Name":self.Text,
+                                            "Master_User_Id": self.InternalUserId
                                             },
-                                   'message_id': 111,
-                                   'chat': {
-                                            'id':-7903240,
-                                            'title': 'Drive'
-                                            }
-                                   },
-                        'update_id': 469262057
-                        }
-                      ]
-           }
-    LanguageObject = LanguageClass.CreateTranslationObject()
-    LoggingObject = LoggingClass.Logger(config_name='config.ini', log_to_file=False)
+                                   AutoCommit=False)
+        # self.SqlObject.Commit(self.SqlCursor)
+        Id = self.SqlObject.GetLastRowId(self.SqlCursor)
+        # print(self.SqlCursor.lastrowid)
+        # get last Id for the md5-hash needed for the talk
+        Hash = hashlib.md5()
+        Hash.update(str(Id).encode(encoding='utf_8', errors='strict'))
+        Hash = Hash.hexdigest().encode("utf-8")
 
-    Config = ConfigurationClass.ConfigurationParser()
-    Config.ReadConfigurationFile()
-
-    SqlObject = SqlClass.SqlApi("root",
-                                 "Password",
-                                 Config["MySQL Connection Parameter"]["DatabaseName"],
-                                 LoggingObject=LoggingObject,
-                                 
-                                 LanguageObject=LanguageClass.CreateTranslationObject("de_DE")
-                                                              )
-    a = MessageProcessor(
-                         MessageObject=foo["result"][0],
-                         OptionalObjects={
-                         "LanguageObject": LanguageObject,
-                         "LoggingObject" : LanguageObject,
-                         "SqlObject": SqlObject,
-                         "ConfigurationObject": Config}
-                         )
+        self.SqlObject.UpdateEntry(
+                              self.SqlCursor,
+                              TableName="Poll_Table",
+                              Columns={
+                                         "External_Poll_Id": Hash,
+                                         },
+                              Where=[["Internal_Poll_Id", Id]],
+                              Autocommit=False
+                              )
+        
+        self.SqlObject.Commit(self.SqlCursor)
+        return Id

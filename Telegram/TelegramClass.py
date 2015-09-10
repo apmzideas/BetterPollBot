@@ -59,7 +59,7 @@ class TelegramApi(object):
                         "application/x-www-form-urlencoded;charset=utf-8"
                         }
         
-        self.LoggingObject.create_log(self._("Starting self check"))
+        self.LoggingObject.info(self._("Starting self check"))
         self.GetMe() 
         
         
@@ -75,21 +75,21 @@ class TelegramApi(object):
         
         except urllib.error.HTTPError as Error:
             if Error.code == 400:
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."), "Error" ) 
+                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."), ) 
             elif Error.code == 401:   
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), "Error" ) 
+                self.LoggingObject.critical( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), ) 
             elif Error.code == 403:
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The adress is forbidden to access, please try later."), "error" )
+                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The adress is forbidden to access, please try later."), )
             elif Error.code == 404:
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."), "Error")
+                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."),)
             elif Error.code == 502:
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), "Error" )
+                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), )
             elif Error.code == 504:
-                self.LoggingObject.create_log( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."), "Error" )
+                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time.") )
             
             #For the recursive loop, so that the system can handel itself better
             if self.ExitOnError:
-                self.LoggingObject.create_log(self._("Exiting the system!"))
+                self.LoggingObject.info(self._("Exiting the system!"))
                 exit()  
             
     def GetMe(self):

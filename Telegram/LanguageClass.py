@@ -3,8 +3,6 @@
 
 import GlobalObjects
 
-import os, sys
-import locale
 import gettext
  
 

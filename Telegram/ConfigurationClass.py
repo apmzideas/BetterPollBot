@@ -77,8 +77,9 @@ class ConfigurationParser(configparser.RawConfigParser):
             #raise SystemExit
         elif self.ResetConfigurationFile is True:
             self.WriteDefaultConfigurationFile()
-        else:
-            self.read(self.FileName)
+        
+        #  Read the configuration from the init
+        self.ReadConfigurationFile()
             
             
     def WriteDefaultConfigurationFile(self):
@@ -104,47 +105,49 @@ class ConfigurationParser(configparser.RawConfigParser):
                                                                     ))
         
         self["Logging"] = collections.OrderedDict((
-                                                   ("LogToFile", True),
-                                                   ("LoggingFileName", "log.txt")
+                                                   ("LogToConsole", True),
+                                                   ("LoggingFileName", "log.txt"),
+                                                   ("LoggingFormat", "[%(asctime)s] - [%(levelname)s] - %(message)s"),
+                                                   ("Dateformat", "%d.%M.%Y %H:%M:%S")
                                                    ))
         
-        #some parameters needed for the logger
-        self["loggers"] = {"keys": "root,Console"}
-        
-        self["handlers"] = {"keys": "fileHandler,consoleHandler"}
-        
-        self["formatters"] = {"keys": "simpleFormatter"}
-        
-        self["logger_root"] = collections.OrderedDict((
-                                                       ("level", "DEBUG"), 
-                                                       ("handlers", "fileHandler")
-                                                       ))
-        
-        self["logger_Console"] = collections.OrderedDict((
-                                                          ("level", "DEBUG"),
-                                                          ("handlers", "consoleHandler"), 
-                                                          ("qualname", "Console"),
-                                                          ("propagate", 0)
-                                                          ))
-        
-        self["handler_consoleHandler"] = collections.OrderedDict((
-                                                                  ("class", "StreamHandler"),
-                                                                  ("level", "DEBUG"),
-                                                                  ("formatter", "simpleFormatter"),
-                                                                  ("args", "(sys.stdout,)")
-                                                                  ))
-        
-        self["handler_fileHandler"] = collections.OrderedDict((
-                                                               ("class", "FileHandler"),
-                                                               ("level", "DEBUG"),
-                                                               ("formatter", "simpleFormatter"),
-                                                               ("args", "('log.txt',)")
-                                                               ))
-        
-        self["formatter_simpleFormatter"] = collections.OrderedDict((
-                                                                     ("format", "%(asctime)s - [%(levelname)s] - %(message)s"),
-                                                                     ('datefmt', '[%d.%M.%Y %H:%M:%S]')
-                                                                     ))
+#         #some parameters needed for the logger
+#         self["loggers"] = {"keys": "root,Console"}
+#         
+#         self["handlers"] = {"keys": "fileHandler,consoleHandler"}
+#         
+#         self["formatters"] = {"keys": "simpleFormatter"}
+#         
+#         self["logger_root"] = collections.OrderedDict((
+#                                                        ("level", "DEBUG"), 
+#                                                        ("handlers", "fileHandler")
+#                                                        ))
+#         
+#         self["logger_Console"] = collections.OrderedDict((
+#                                                           ("level", "DEBUG"),
+#                                                           ("handlers", "consoleHandler"), 
+#                                                           ("qualname", "Console"),
+#                                                           ("propagate", 0)
+#                                                           ))
+#         
+#         self["handler_consoleHandler"] = collections.OrderedDict((
+#                                                                   ("class", "StreamHandler"),
+#                                                                   ("level", "DEBUG"),
+#                                                                   ("formatter", "simpleFormatter"),
+#                                                                   ("args", "(sys.stdout,)")
+#                                                                   ))
+#         
+#         self["handler_fileHandler"] = collections.OrderedDict((
+#                                                                ("class", "FileHandler"),
+#                                                                ("level", "DEBUG"),
+#                                                                ("formatter", "simpleFormatter"),
+#                                                                ("args", "('log.txt',)")
+#                                                                ))
+#         
+#         self["formatter_simpleFormatter"] = collections.OrderedDict((
+#                                                                      ("format", "%(asctime)s - [%(levelname)s] - %(message)s"),
+#                                                                      ('datefmt', '[%d.%M.%Y %H:%M:%S]')
+#                                                                      ))
        
        #Writes the default configuration in to the correct file 
         with open(self.FileName, "w") as configfile:
