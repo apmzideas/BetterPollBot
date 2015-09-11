@@ -1,30 +1,35 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-#python standard library
+# python standard library
 import urllib.request
 import urllib.parse
 import ssl
 import json
 import platform
 
-#my own babys
+# my own babys
 import GlobalObjects
 import LoggingClass
 import ErrorClasses
 import MessageClass
-import LanguageClass # imports the _() function! (the translation feature.
+import LanguageClass  # imports the _() function! (the translation feature.
 
 class TelegramApi(object):
-    #This class is responsable for contacting the telegram servers.
-    def __init__(self, ApiToken, **OptionalObjects):
+    # This class is responsable for contacting the telegram servers.
+    def __init__(self, ApiToken, RequestTimer, **OptionalObjects):
         self.ApiToken = ApiToken
         self.BotApiUrl = "https://api.telegram.org/bot" + self.ApiToken
         
-        #Predefining attribute so that it later can be used for evil.
+        # Predefining attribute so that it later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
         self.ExitOnError = False
+        
+        # This timer is needed to see if ther is a problem with the telegram server
+        # if so the intervall should be bigger (1 min insted given time 1 sec)
+        self.RequestTimer = RequestTimer
+        self.GivenRequestTimer = RequestTimer
         
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
@@ -37,22 +42,22 @@ class TelegramApi(object):
         if "ExitOnError" in OptionalObjects:
             self.ExitOnError = OptionalObjects["ExitOnError"]
         
-        #Hier we are initialising the function for the translations 
+        # Hier we are initialising the function for the translations 
         self._ = self.LanguageObject.gettext
         
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
         self.Headers = {
                         'User-agent': (
-                                       GlobalObjects.__AppName__ + '/'+ str(GlobalObjects.__version__) 
-                                       +' (' +
-                                       '; '.join( platform.system_alias(
-                                                            platform.system(), 
+                                       GlobalObjects.__AppName__ + '/' + str(GlobalObjects.__version__) 
+                                       + ' (' + 
+                                       '; '.join(platform.system_alias(
+                                                            platform.system(),
                                                             platform.release(),
                                                             platform.version()
                                                             ) 
-                                                 ) +
-                                       ') Python-urllib/' +
-                                        str(platform.python_build()) +
+                                                 ) + 
+                                       ') Python-urllib/' + 
+                                        str(platform.python_build()) + 
                                         ' from ' + GlobalObjects.__hosted__
                                         ),
                         "Content-Type":
@@ -60,51 +65,60 @@ class TelegramApi(object):
                         }
         
         self.LoggingObject.info(self._("Starting self check"))
-        self.GetMe() 
+        self.BotName = self.GetMe()
         
         
+        
+    def GetBotName(self):
+        return self.BotName
         
     def SendRequest(self, Request):
         # This methode will send the prepared request to the telegram server.
         # And in the end get the response.
+        
+        # Reset the request timer if needed.
+        if self.RequestTimer != self.GivenRequestTimer:
+            self.RequestTimer = self.GivenRequestTimer
+            
         try:
             TheResponse = ''
-            with urllib.request.urlopen(Request, context = self.SSLEncription) as Request:
+            with urllib.request.urlopen(Request, context=self.SSLEncription) as Request:
                 TheResponse = Request.read()
             return json.loads(TheResponse.decode("utf-8"))
         
         except urllib.error.HTTPError as Error:
             if Error.code == 400:
-                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."), ) 
+                self.LoggingObject.error(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."),) 
             elif Error.code == 401:   
-                self.LoggingObject.critical( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."), ) 
+                self.LoggingObject.critical(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."),) 
             elif Error.code == 403:
-                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The adress is forbidden to access, please try later."), )
+                self.LoggingObject.error(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The adress is forbidden to access, please try later."),)
             elif Error.code == 404:
-                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."),)
+                self.LoggingObject.error(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."),)
             elif Error.code == 502:
-                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " +  self._("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."), )
+                self.LoggingObject.error(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."),)
+                self.RequestTimer = 60000.0
             elif Error.code == 504:
-                self.LoggingObject.error( self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) +" " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time.") )
+                self.LoggingObject.error(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."))
             
-            #For the recursive loop, so that the system can handel itself better
+            # For the recursive loop, so that the system can handel itself better
             if self.ExitOnError:
                 self.LoggingObject.info(self._("Exiting the system!"))
                 exit()  
             
     def GetMe(self):
-        #A methode to confirm the ApiToken exists                                                    
+        # A methode to confirm the ApiToken exists                                                    
         Request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)
         
         return self.SendRequest(Request)
              
-    def GetUpdates(self, CommentNumber = None):
+    def GetUpdates(self, CommentNumber=None):
         # a Methode to get the Updates as well to confirm the old comments from the Telegram API
         # Notes
         # 1. This method will not work if an outgoing webhook is set up.
         # 2. In order to avoid getting duplicate updates, recalculate offset after each server response.
         DataToBeSend = {
-                        #"limit": 1,
+                        # "limit": 1,
                         "timeout": 0
                         }
             
@@ -114,13 +128,14 @@ class TelegramApi(object):
         MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8')  # data should be bytes
             
         Request = urllib.request.Request(self.BotApiUrl + "/getUpdates",
-                                              data=MessageData, 
+                                              data=MessageData,
                                               headers=self.Headers)
         
-        #send Request and get JSONData    
+        # send Request and get JSONData    
         JSONData = self.SendRequest(Request,)
         
-        # print(JSONData)
+#         import pprint
+#         pprint.PrettyPrinter(indent=4).pprint(JSONData)
         
         if not JSONData is None:
             if JSONData["ok"]:
@@ -130,18 +145,18 @@ class TelegramApi(object):
         
     def SendMessage(self, MessageObject):
         # A method to send Messeges to the TelegramApi
-        #print(MessageObject.GetMessage())
-        MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8') # data should be bytes
+        # print(MessageObject.GetMessage())
+        MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8')  # data should be bytes
     
-        Request = urllib.request.Request(self.BotApiUrl + "/sendMessage", 
-                                         data= MessageData,
+        Request = urllib.request.Request(self.BotApiUrl + "/sendMessage",
+                                         data=MessageData,
                                          headers=self.Headers
                                          )
         
         return self.SendRequest(Request,)       
 
     def ForwardMessage(self, ChatId, FromChatId, MessageId):
-        #A method to forward a message
+        # A method to forward a message
         MessageData = {}
     
 if __name__ == "__main__":
@@ -151,23 +166,23 @@ if __name__ == "__main__":
     Main.ObjectInitialiser()
     OrgTok = "80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY"
     FalTok = "80578257:AAEt5aH64bD6P3hqumKYFJAyHTGWEgcyEY"
-    a = TelegramApi(OrgTok, 
-                    LanguageObject = LanguageClass.CreateTranslationObject("de"),)
+    a = TelegramApi(OrgTok,
+                    LanguageObject=LanguageClass.CreateTranslationObject("de"),)
     
-    Update = a.GetUpdates(469262129+1)
+    Update = a.GetUpdates(469262129 + 1)
     print(Update)
-    print(Update["result"][len(Update["result"])-1]["update_id"])
+    print(Update["result"][len(Update["result"]) - 1]["update_id"])
     
-    MessageObject = MessageClass.MessageToBeSend(Update["result"][len(Update["result"])-1]["message"]["chat"]["id"], "1"
+    MessageObject = MessageClass.MessageToBeSend(Update["result"][len(Update["result"]) - 1]["message"]["chat"]["id"], "1"
                                          )
     MessageObject.ReplyKeyboardMarkup(
-                                      Keybord = [ [ "Top Left", "Top Right" ], [ "Bottom Left", "Bottom Right" ] ], 
-                                      ResizeKeyboard = True,
-                                      OneTimeKeyboard = True,
-                                      Selective = False
+                                      Keybord=[ [ "Top Left", "Top Right" ], [ "Bottom Left", "Bottom Right" ] ],
+                                      ResizeKeyboard=True,
+                                      OneTimeKeyboard=True,
+                                      Selective=False
                                       )
-    #MessageObject.ForceReply()
-    MessageObject.ReplyKeyboardHide(Selective = True)
+    # MessageObject.ForceReply()
+    MessageObject.ReplyKeyboardHide(Selective=True)
     
     print(a.SendMessage(MessageObject))
 #     if a:

@@ -94,6 +94,7 @@ setup(
                  "py2exe":{
                            "dist_dir":DirectoryToBuild,
                            "optimize":0,
+                           #"includes": ["Sql.SqlClass"],
                            "compressed":False,
                            "xref":True,
                            "bundle_files":3,

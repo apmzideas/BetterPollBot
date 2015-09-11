@@ -15,6 +15,7 @@ import getpass
 import time
 import msvcrt
 import threading
+import sys
 
 # personal imports
 import ParserClass
@@ -26,10 +27,6 @@ import Sql.SqlClass
 import ErrorClasses
 import MessageProcessorClass
 
-def Processrequest():
-    
-    return CommentNumber
-    pass
 
 def Main():
     # Create the configuration class and read the configuration class.
@@ -65,10 +62,12 @@ def Main():
     
     TelegramObject = TelegramClass.TelegramApi(
                                                ApiToken = ParserArguments.ApiToken,
+                                               RequestTimer = ParserArguments.Time,
                                                LoggingObject = MasterLogger,
                                                LanguageObject = LanguageMasterObject,
                                                ExitOnError = False
                                                )
+    BotName = TelegramObject.GetBotName()
     
     SqlObject = None
     
@@ -125,6 +124,8 @@ def Main():
     
     # print(ParserArguments)
     
+    ParserArguments.Time = ParserArguments.Time / 1000.0
+    
     # Initialise the main loop (it's a endless loop, it breaks when a key is pressed.)
     MasterLogger.info(_("Exit loop by pressing <Esc>, <q> or <Space>"))
     MasterLogger.info( _("Getting updates from the telegram api."))
@@ -151,11 +152,14 @@ def Main():
                                                                           LanguageObject = LanguageMasterObject,
                                                                           SqlObject = SqlObject,
                                                                           LoggingObject = MasterLogger,
-                                                                          ConfigurationObject = Configuration
+                                                                          ConfigurationObject = Configuration,
+                                                                          BotName = BotName
                                                                           )
                 
                 # This command sends the message to the user
-                TelegramObject.SendMessage( MessageProcessor.InterpretMessage())
+                InterpretedMessage = MessageProcessor.InterpretMessage()
+                if InterpretedMessage != None:
+                    TelegramObject.SendMessage(InterpretedMessage)
                 
                 
                 # Set the CommentNumber to a actual ChatId number, 
@@ -166,7 +170,10 @@ def Main():
         # Waites until the next loop should start. 
         # Sleep need a second to be parsed, so the given value is transformed
         # from miliseconds to seconds.
-        time.sleep((ParserArguments.Time / 1000.0))
+        if TelegramObject.RequestTimer == ParserArguments.Time:
+            time.sleep((ParserArguments.Time))
+        else:
+            time.sleep((TelegramObject.RequestTimer / 1000))
     
 
 

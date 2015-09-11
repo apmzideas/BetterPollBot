@@ -309,6 +309,7 @@ class SqlApi(object):
                      ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Command_By_User", "Integer"), #is the internal id of the user
                      ("Command", "Varchar(256)"),
+                     ("Last_Used_Id", "Integer DEFAULT NULL"),
                      ("PRIMARY KEY", "Session_Id"),
                      ("UNIQUE", "Command_By_User"),
                      )
@@ -377,8 +378,10 @@ class SqlApi(object):
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
                      ("Id_Poll_Table", "Integer"),
                      ("Option_Name", "Varchar(128)"),
+                     ("Master_User_Id", "Integer"),
                      ("PRIMARY KEY", "Id_Option"),
-                     ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)")
+                     ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)"),
+                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
                     )
          
         self.CreateTable(Cursor, "Options_Table", TableData,)

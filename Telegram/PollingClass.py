@@ -33,9 +33,9 @@ class Poll(object):
             # The object get's it's own cursor so that there will be no 
             # problems in the future making the system multi threading safe.
             self.SqlCursor = self.SqlObject.CreateCursor()
-
         
     def UpdateQuestion(self, Question):
+        # This method is the same as add question to the poll.
         self.SqlObject.UpdateEntry(
                                    self.SqlCursor,
                                    TableName = "poll_table",
@@ -51,10 +51,22 @@ class Poll(object):
     
     def GetPollName(self):
         pass     
-
     
-    def AddQuestion(self, Question):
+    def AddAnwser(self, Anwser):
+        # This method adds an anwser to the poll.
+        self.SqlObject.InserEntry(
+                                  self.SqlCursor,
+                                  TableName = "Options_Table",
+                                  Columns = {
+                                             "Option_Name": Anwser,
+                                             "Id_Poll_Table": self.InternalPollId
+                                             }
+                                  )
+        
         pass
+    
+#     def AddQuestion(self, Question):
+#         pass
     
 
 def GetPollByExternalId(ExternalId):
