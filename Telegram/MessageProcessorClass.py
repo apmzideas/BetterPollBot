@@ -62,7 +62,8 @@ class MessageProcessor(object):
             raise ErrorClasses.MissingArguments(self._("The sql obejct is missing, please contact your administrator."))
         
         if "BotName" in OptionalObjects:
-            self.BotName = OptionalObjects["BotName"]
+            self.BotName = OptionalObjects["BotName"]["result"]["username"]
+            #print(self.BotName, type(self.BotName))
         else:
             self.BotName = GlobalObjects.__AppName__
         
@@ -134,7 +135,7 @@ class MessageProcessor(object):
             if self.GroupExists() == False:
                 self.AddGroup()
             self.InternalGroupId = self.GetInternalGroupId()
-            
+
 #        if "from_user" in MessageObject:
 #             self.FromUser = Message["from_user"]
 #         if "date" in Message:
@@ -315,6 +316,9 @@ class MessageProcessor(object):
             # delete the annoying bot command from the text to analyse
             BotName = "@{BotName}".format(BotName = self.BotName)
             # Analyse the text and do your stuf.
+            
+            # If the name of the bot is used in the 
+            # command delete the @NameOfBot
             if BotName in self.Text:
                 self.Text = self.Text.replace(BotName, "")
             if self.Text.startswith("/"):
@@ -344,22 +348,9 @@ class MessageProcessor(object):
 
         elif self.Text == "/addanwser":
              # Get the polls
+            Polls = self.GetUserPolls()
             pass
-#                 Polls = self.SqlObject.SelectEntry(
-#                                            self.SqlCursor,
-#                                            FromTable = "", 
-#                                            Columns, 
-#                                            OrderBy = [None], 
-#                                            Amount = None, 
-#                                            Where = [], 
-#                                            Data = ()
-#                                            )
-#                 
-#                 MessageObject.Text = self._("Where do you want to add your awnser to.")
-#                 MessageObject.ReplyKeyboardMarkup(
-#                                                    
-#                                                   OneTimeKeyboard=True
-#                                                   )
+
         elif self.Text == "/delanswer":
             pass
         elif self.Text == "/listpoll":
@@ -368,6 +359,20 @@ class MessageProcessor(object):
             pass
         elif self.Text == "/polllink":
             pass
+        elif self.Text == "/done":
+            LastSendCommand = self.GetLastSendCommand()
+            LastUsedId = LastSendCommand["Last_Used_Id"]
+            LastCommand = LastSendCommand["Command"]
+            if LastCommmand == "/addanwser awnser":
+                MessageObject.Text = self._("Thank you very much for adding the commands.\nDo you wnat to add this poll to a group?")
+                MessageObject.ReplyKeyboardMarkup(
+                                                  [
+                                                   ["1. YES"],
+                                                   ["2. NO"]
+                                                   ],
+                                                  OneTimeKeyboard=True
+                                                  )
+                self.SetLastSendCommand("/addtogroup", LastUsedId)
         elif self.Text == "/help":                
             MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /listpoll - see all your polls\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
         elif self.Text == "/settings":
@@ -413,21 +418,21 @@ class MessageProcessor(object):
                 MessageObject.ReplyKeyboardHide()
                 self.ClearLastCommand()
             elif LastCommand.startswith("/addanwser"):
-                pass
-#                 Poll = PollingClass.Poll(
-#                                          InternalUserId=self.InternalUserId,
-#                                          InternalPollId=PollId,
-#                                          LoggingObject=self.LanguageObject,
-#                                          SqlObject=self.SqlObject
-#                                         )
-#                 Poll.AddAnwser(self.Text)
-
+                if LastCommand == "addawnser awnser":
+                    Poll = PollingClass.Poll(
+                                             InternalUserId=self.InternalUserId,
+                                             InternalPollId=PollId,
+                                             LoggingObject=self.LanguageObject,
+                                             SqlObject=self.SqlObject
+                                            )
+                    Poll.AddAnwser(self.Text)
+                #elif LastCommand.startswith()
             elif LastCommand.startswith("/newpoll"):
                 if LastCommand == "/newpoll":
                     Id = self.AddPoll()
                     if Id != False:
                         MessageObject.Text = self._("The poll \"{PollName}\" has been created, please enter the question to the poll.").format(PollName=self.Text)
-                        self.SetLastSendCommand("/newpoll question {Id}".format(Id=str(Id)))
+                        self.SetLastSendCommand("/newpoll question", Id)
                     else:
                         MessageObject.Text = self._("The poll {PollName} allready exists.\nPress /list and on the poll to modify it.")
                 elif LastCommand.startswith("/newpoll question"):
@@ -438,8 +443,9 @@ class MessageProcessor(object):
                                              LoggingObject=self.LanguageObject,
                                              SqlObject=self.SqlObject
                                              )
+
                     if Poll.UpdateQuestion(self.Text):
-                        MessageObject.Text = self._("The question has been added.|nDo you want to add some anwsers to the question?")
+                        MessageObject.Text = self._("The question has been added.\nDo you want to add some anwsers to the question?")
                         MessageObject.ReplyKeyboardMarkup(
                                                           [
                                                            ["1. " + self._("YES")], 
@@ -449,10 +455,10 @@ class MessageProcessor(object):
                                                           )
                         self.SetLastSendCommand("/newpoll anwser", LastUsedId)
                 elif LastCommand.startswith("/newpoll anwser"):
-                    if self.TEXT.startswith("1."):
+                    if self.Text.startswith("1."):
                         MessageObject.Text = self._("Please enter your first possible awnser to the question.")
                         MessageObject.ReplyKeyboardHide()
-                        self.SetLastSendCommand("/addawnser", LastUsedId)
+                        self.SetLastSendCommand("/addawnser awnser", LastUsedId)
                     elif self.Text.startswith("2. "):
                         MessageObject.Text = self._("You can add an awnser later via the /addawnser command.")
                         MessageObject.ReplyKeyboardHide()
@@ -567,7 +573,7 @@ class MessageProcessor(object):
                                        AutoCommit=False)
             # self.SqlObject.Commit(self.SqlCursor)
             Id = self.SqlObject.GetLastRowId(self.SqlCursor)
-            # print(self.SqlCursor.lastrowid)
+
             # get last Id for the md5-hash needed for the talk
             Hash = hashlib.md5()
             Hash.update(str(Id).encode(encoding='utf_8', errors='strict'))
@@ -592,7 +598,10 @@ class MessageProcessor(object):
         # This methode will get all the polls a user has and will return them in a list.
         Polls = self.SqlObject.SelectEntry(
                                    self.SqlCursor,
-                                   TableName
+                                   FromTable = "Poll_Table",
+                                   Columns = ("Poll_Name",), 
+                                   OrderBy = [["Poll_Name"]],
+                                   Where = [["Master_User_Id", "=", "%s"]], 
+                                   Data = (self.InternalUserId),
                                    )
-        
         return Polls

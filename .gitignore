@@ -62,3 +62,5 @@ Telegram/config.ini
 # Logs
 Telegram/logs.txt
 Telegram/log.txt
+Telegram/Log/*
+Telegram/Logs/*

@@ -93,6 +93,7 @@ class ConfigurationParser(configparser.RawConfigParser):
                                                     #until to state a request the telegram server.
                                                     #It's in miliseconds
                                                     ("RequestTimer", 1000),
+                                                    ("DefaultLanguage","en_US"),
                                                     ("ApiToken", "")
                                                     ))
         
@@ -107,6 +108,7 @@ class ConfigurationParser(configparser.RawConfigParser):
         self["Logging"] = collections.OrderedDict((
                                                    ("LogToConsole", True),
                                                    ("LoggingFileName", "log.txt"),
+                                                   ("MaxLogs", 20),
                                                    ("LoggingFormat", "[%(asctime)s] - [%(levelname)s] - %(message)s"),
                                                    ("Dateformat", "%d.%M.%Y %H:%M:%S")
                                                    ))

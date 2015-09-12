@@ -143,6 +143,8 @@ class SqlApi(object):
             else:
                 self.LoggingObject.error(err, "Error")
                 raise SystemExit
+        except:
+            self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = "[WinError 10061] No connection could be made because the target machine actively refused it") + " " + self._("The database server seems to be offline, please contact your administrator.")) 
     
     def CreateCursor(self, Buffered=False, Dictionary=True):
         # this methode will ceate the cursor needet for the DatabaseConnection to the server
@@ -574,9 +576,9 @@ class SqlApi(object):
                     else:
                         raise ValueError( self._("The where type in your query is not in the list of valid types. {Error}").format(Error = Where[i]))
         Query += ";"
-        #print(Query)
-        #print(Columns)
-        #print(Query % Columns)
+#         print(Query)
+#         print(Columns)
+#         print(Query % Columns)
         
         self.ExecuteTrueQuery(Cursor, Query, Columns)
         if Autocommit == True:

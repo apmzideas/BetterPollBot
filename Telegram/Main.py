@@ -50,6 +50,7 @@ def Main():
     MasterLogger = LoggingClass.Logger(
                                            LogToConsole=ParserArguments.PrintToConsole,
                                            FileName = Configuration["Logging"]["LoggingFileName"],
+                                           MaxLogs = Configuration["Logging"]["MaxLogs"],
                                            LoggingFormat = Configuration["Logging"]["LoggingFormat"],
                                            Dateformat = Configuration["Logging"]["Dateformat"],
                                            LoggingLevel = "debug")

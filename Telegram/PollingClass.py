@@ -36,9 +36,10 @@ class Poll(object):
         
     def UpdateQuestion(self, Question):
         # This method is the same as add question to the poll.
+
         self.SqlObject.UpdateEntry(
                                    self.SqlCursor,
-                                   TableName = "poll_table",
+                                   TableName = "Poll_Table",
                                    Columns = {"Question": Question},
                                    Where = [
                                             ["Internal_Poll_Id", self.InternalPollId],
