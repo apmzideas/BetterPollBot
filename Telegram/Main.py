@@ -18,29 +18,29 @@ import threading
 import sys
 
 # personal imports
-import ParserClass
-import ConfigurationClass
+import Parsers.ParserClass
+import Parsers.ConfigurationClass
 import LoggingClass
-import LanguageClass
+import Language.LanguageClass
 import TelegramClass
 import Sql.SqlClass
 import ErrorClasses
-import MessageProcessorClass
+import Messages.MessageProcessorClass
 
 
 def Main():
     # Create the configuration class and read the configuration class.
-    Configuration = ConfigurationClass.ConfigurationParser()
+    Configuration = Parsers.ConfigurationClass.ConfigurationParser()
 
     # Create the language proccesser
-    LanguageMasterObject = LanguageClass.CreateTranslationObject(Configuration["Telegram"]["DefaultLanguage"].split(","))
+    LanguageMasterObject = Language.LanguageClass.CreateTranslationObject(Configuration["Telegram"]["DefaultLanguage"].split(","))
     
     # This is the language objects only value
     _ = LanguageMasterObject.gettext
     
 #     # init parser
    
-    Parser = ParserClass.Parser(ConfigurationObject = Configuration, 
+    Parser = Parsers.ParserClass.Parser(ConfigurationObject = Configuration, 
                                 LanguageObject = LanguageMasterObject
                                 )
     Parser.RunParser()
@@ -149,7 +149,7 @@ def Main():
         # Do 
         if Results != None:
             for i in Results["result"]:
-                MessageProcessor = MessageProcessorClass.MessageProcessor(i,
+                MessageProcessor = Messages.MessageProcessorClass.MessageProcessor(i,
                                                                           LanguageObject = LanguageMasterObject,
                                                                           SqlObject = SqlObject,
                                                                           LoggingObject = MasterLogger,

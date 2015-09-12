@@ -6,7 +6,7 @@ import mysql.connector  # A additional interface needed for the DatabaseConnecti
 import LoggingClass
 
 # import the _() function!
-import LanguageClass
+import Language.LanguageClass
 
 
 class SqlApi(object):
@@ -104,7 +104,7 @@ class SqlApi(object):
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
-            self.LanguageObject = LanguageClass.CreateTranslationObject()
+            self.LanguageObject = Language.LanguageClass.CreateTranslationObject()
             
         # This is the language objects only value. 
         # It enables the translation of the texts. 

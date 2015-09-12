@@ -34,7 +34,7 @@ with open("GlobalObjects_old.py") as FileInput:
 if os.path.isfile("GlobalObjects_old.py"):
     os.remove("GlobalObjects_old.py")
 
-# This Module will be modified befor import
+# This Module will be modified befor the import.
 import GlobalObjects
 
 LogPrint("release build: " + str(GlobalObjects.__release__))
@@ -49,8 +49,8 @@ if not os.path.exists(DirectoryToBuild):
 LogPrint("Building language files")
 
 # Get the stupid __pycache__ folder
-LanguageFilesArray = [i for i in os.listdir(".\\Language") if not i == "__pycache__"]
- 
+LanguageFilesArray = [i for i in os.listdir(".\\Language") if i != "__pycache__" and i != "LanguageClass.py" and i != "__init__.py"]
+print(LanguageFilesArray)
 #creating the directorys for the language files
 LogPrint("creating the directorys for the language files")
 

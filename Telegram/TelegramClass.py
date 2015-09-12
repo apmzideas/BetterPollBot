@@ -12,8 +12,8 @@ import platform
 import GlobalObjects
 import LoggingClass
 import ErrorClasses
-import MessageClass
-import LanguageClass  # imports the _() function! (the translation feature.
+import Messages.MessageClass
+import Language.LanguageClass  # imports the _() function! (the translation feature.
 
 class TelegramApi(object):
     # This class is responsable for contacting the telegram servers.
@@ -34,7 +34,7 @@ class TelegramApi(object):
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
-            self.LanguageObject = LanguageClass.CreateTranslationObject()
+            self.LanguageObject = Language.LanguageClass.CreateTranslationObject()
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     print(Update)
     print(Update["result"][len(Update["result"]) - 1]["update_id"])
     
-    MessageObject = MessageClass.MessageToBeSend(Update["result"][len(Update["result"]) - 1]["message"]["chat"]["id"], "1"
+    MessageObject = Messages.MessageClass.MessageToBeSend(Update["result"][len(Update["result"]) - 1]["message"]["chat"]["id"], "1"
                                          )
     MessageObject.ReplyKeyboardMarkup(
                                       Keybord=[ [ "Top Left", "Top Right" ], [ "Bottom Left", "Bottom Right" ] ],

@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 import GlobalObjects
 import argparse
-import LanguageClass
+import Language.LanguageClass
 #import ConfigurationClass
 
 class Parser(argparse.ArgumentParser):
-        
-    # init parser
+    # This module it a preconfigured version of the Argparser.
+    # From the documentation.
+    # The argparse module makes it easy to write user-friendly command-line 
+    # interfaces. The program defines what arguments it requires, 
+    # and argparse will figure out how to parse those out of sys.argv. 
+    # The argparse module also automatically generates help and usage 
+    # messages and issues errors when users give the program invalid arguments.  
+
     def __init__(self, **OptionalObjects):
         super().__init__(
                          prog=GlobalObjects.__AppName__,
@@ -45,7 +51,8 @@ class Parser(argparse.ArgumentParser):
                             "-c",
                             "--console", 
                             help=self._("Toggles the type of logging from the set settings in the config.ini."),                
-                            action=("store_false" if self.Configuration.getboolean("Logging","LogToConsole" ) else "store_true"),
+                            action=("store_false" if self.Configuration.getboolean("Logging","LogToConsole" ) 
+                                    else "store_true"),
                             dest="PrintToConsole"
                             )
         
@@ -106,7 +113,8 @@ class Parser(argparse.ArgumentParser):
         self.add_argument(
                             "-du",
                             #"--DatabaseUser",
-                            help=self._("Set the database user, needed to connect to the database.") +" " + self._("Attention use this option insted of the config.ini!"),
+                            help=self._("Set the database user, needed to connect to the database.") +" " 
+                                + self._("Attention use this option insted of the config.ini!"),
                             action="store",
                             #metavar="\b",
                             dest="DatabaseUser",
@@ -116,7 +124,8 @@ class Parser(argparse.ArgumentParser):
         self.add_argument(
                             "-dp",
                             #"--DatabasePassword",
-                            help=self._("Set the databse password, needed to connect to the database.") + " " + self._("Attention use this option insted of the config.ini!"),
+                            help=self._("Set the databse password, needed to connect to the database.") + " " 
+                                + self._("Attention use this option insted of the config.ini!"),
                             action="store",
                             dest="DatabasePassword",
                             default=self.Configuration["MySQLConnectionParameter"]["DatabasePassword"]

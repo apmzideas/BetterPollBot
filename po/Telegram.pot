@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-11 23:28+W. Europe Daylight Time\n"
+"POT-Creation-Date: 2015-09-12 19:59+W. Europe Daylight Time\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,91 +15,39 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: Telegram\Main.py:57
-msgid "{AppName} has been startet."
-msgstr ""
-
-#: Telegram\Main.py:60
-msgid "No telegram token has been added to the system!"
-msgstr ""
-
-#: Telegram\Main.py:81
-msgid "User:"
-msgstr ""
-
-#: Telegram\Main.py:83
-msgid "Password:"
-msgstr ""
-
-#: Telegram\Main.py:100
-msgid "try again"
-msgstr ""
-
-#: Telegram\Main.py:102
-msgid "too bad"
-msgstr ""
-
-#: Telegram\Main.py:104
-msgid "You have used {NrTry} of 3 times:"
-msgstr ""
-
-#: Telegram\Main.py:110
-msgid "{AppName} has been stoped, because you didn't input the correct user name of password."
-msgstr ""
-
-#: Telegram\Main.py:115
-msgid "Are you sure you want to install the database structure?"
-msgstr ""
-
-#: Telegram\Main.py:117
-msgid "{AppName} will now start to install the database structure"
-msgstr ""
-
-#: Telegram\Main.py:120
-msgid "The database has been installed, please restart system."
-msgstr ""
-
-#: Telegram\Main.py:122
-msgid "Database will not be installed terminating process."
-msgstr ""
-
-#: Telegram\Main.py:130
-msgid "Exit loop by pressing <Esc>, <q> or <Space>"
-msgstr ""
-
-#: Telegram\Main.py:131
-msgid "Getting updates from the telegram api."
-msgstr ""
-
-#: Telegram\Main.py:140
-msgid "A user shutdown was requested will now shutdown."
-msgstr ""
-
-#: Telegram\MessageProcessorClass.py:61 Telegram\MessageProcessorClass.py:62
+#: Telegram/Messages\MessageProcessorClass.py:65
+#: Telegram/Messages\MessageProcessorClass.py:66
 msgid "The sql obejct is missing, please contact your administrator."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:312
+#: Telegram/Messages\MessageProcessorClass.py:317
 msgid "Sorry, but this command could not be interpreted."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:331
+#: Telegram/Messages\MessageProcessorClass.py:339
 msgid ""
 "Welcome.\n"
 "What can I do for you?\n"
 "Press /help for all my commands"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:341
+#: Telegram/Messages\MessageProcessorClass.py:349
 msgid ""
 "Welcome to the poll creation, please follow the following steps.\n"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:341 Telegram\MessageProcessorClass.py:343
+#: Telegram/Messages\MessageProcessorClass.py:349
+#: Telegram/Messages\MessageProcessorClass.py:351
 msgid "Please enter the name of the new poll."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:372
+#: Telegram/Messages\MessageProcessorClass.py:371
+msgid ""
+"Thank you very much for adding the commands.\n"
+"Do you wnat to add this poll to a group?"
+msgstr ""
+
+#: Telegram/Messages\MessageProcessorClass.py:381
 msgid ""
 "Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
 "\n"
@@ -118,90 +66,201 @@ msgid ""
 " /pollsettings - display's all the settings for a selected poll"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:376
+#: Telegram/Messages\MessageProcessorClass.py:385
 msgid "Please, choose the setting to change:"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:390
+#: Telegram/Messages\MessageProcessorClass.py:399
 msgid "Please choose your preferred language:"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:412
+#: Telegram/Messages\MessageProcessorClass.py:421
 msgid "Language changed successfully."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:429
+#: Telegram/Messages\MessageProcessorClass.py:438
 msgid "The poll \"{PollName}\" has been created, please enter the question to the poll."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:432
+#: Telegram/Messages\MessageProcessorClass.py:441
 msgid ""
 "The poll {PollName} allready exists.\n"
 "Press /list and on the poll to modify it."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:442
-msgid "The question has been added.|nDo you want to add some anwsers to the question?"
+#: Telegram/Messages\MessageProcessorClass.py:452
+msgid ""
+"The question has been added.\n"
+"Do you want to add some anwsers to the question?"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:445
+#: Telegram/Messages\MessageProcessorClass.py:455
 msgid "YES"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:446
+#: Telegram/Messages\MessageProcessorClass.py:456
 msgid "NO"
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:453
+#: Telegram/Messages\MessageProcessorClass.py:463
 msgid "Please enter your first possible awnser to the question."
 msgstr ""
 
-#: Telegram\MessageProcessorClass.py:457
+#: Telegram/Messages\MessageProcessorClass.py:467
 msgid "You can add an awnser later via the /addawnser command."
 msgstr ""
 
-#: Telegram\ParserClass.py:47
+#: Telegram/Parsers\ParserClass.py:53
 msgid "Toggles the type of logging from the set settings in the config.ini."
 msgstr ""
 
-#: Telegram\ParserClass.py:56
+#: Telegram/Parsers\ParserClass.py:63
 msgid "Set the file to log into temporary to the set destination."
 msgstr ""
 
-#: Telegram\ParserClass.py:66
+#: Telegram/Parsers\ParserClass.py:73
 msgid "Change the language settings temporary"
 msgstr ""
 
-#: Telegram\ParserClass.py:77
+#: Telegram/Parsers\ParserClass.py:84
 msgid "Set's the time for the main loop to wait until the next request."
 msgstr ""
 
-#: Telegram\ParserClass.py:88
+#: Telegram/Parsers\ParserClass.py:95
 msgid "Sets the telegram api token temporary."
 msgstr ""
 
-#: Telegram\ParserClass.py:99
+#: Telegram/Parsers\ParserClass.py:106
 msgid "Changes the database name to connect to."
 msgstr ""
 
-#: Telegram\ParserClass.py:109
+#: Telegram/Parsers\ParserClass.py:116
 msgid "Set the database user, needed to connect to the database."
 msgstr ""
 
-#: Telegram\ParserClass.py:109 Telegram\ParserClass.py:119
+#: Telegram/Parsers\ParserClass.py:117 Telegram/Parsers\ParserClass.py:128
 msgid "Attention use this option insted of the config.ini!"
 msgstr ""
 
-#: Telegram\ParserClass.py:119
+#: Telegram/Parsers\ParserClass.py:127
 msgid "Set the databse password, needed to connect to the database."
 msgstr ""
 
-#: Telegram\ParserClass.py:128
+#: Telegram/Parsers\ParserClass.py:137
 msgid "Set the database host, needed to connect to the database."
 msgstr ""
 
-#: Telegram\ParserClass.py:137
+#: Telegram/Parsers\ParserClass.py:146
 msgid "Set the database port, needed to connect to the database."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:138
+msgid "Something is wrong with your user name or password."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:138 Telegram/Sql\SqlClass.py:141
+#: Telegram/Sql\SqlClass.py:147 Telegram/Sql\SqlClass.py:209
+#: Telegram/Sql\SqlClass.py:288 Telegram/Sql\SqlClass.py:626
+msgid "The database connector returned following error: {Error}"
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:141
+msgid "The database does not exist, please contact your administrator."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:147
+msgid "The database server seems to be offline, please contact your administrator."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:196
+msgid "The executet query failed, please contact your administrator."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:196 Telegram/Sql\SqlClass.py:216
+msgid "The database returned following error: {Error}"
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:201
+msgid ""
+"The failed query is:\n"
+"{Query}\n"
+"{Data}"
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:209
+msgid "The creation of the following database {DatabaseName} has not succeded, please contact your administrator."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:216
+msgid "Failed to delete the \"{DatabaseName}\" database, please delete manually."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:288
+msgid "The following database table \"{TableName}\" could not be created, please contact your administrator."
+msgstr ""
+
+#: Telegram/Sql\SqlClass.py:577
+msgid "The where type in your query is not in the list of valid types. {Error}"
+msgstr ""
+
+#: Telegram\Main.py:58
+msgid "{AppName} has been startet."
+msgstr ""
+
+#: Telegram\Main.py:61
+msgid "No telegram token has been added to the system!"
+msgstr ""
+
+#: Telegram\Main.py:82
+msgid "User:"
+msgstr ""
+
+#: Telegram\Main.py:84
+msgid "Password:"
+msgstr ""
+
+#: Telegram\Main.py:101
+msgid "try again"
+msgstr ""
+
+#: Telegram\Main.py:103
+msgid "too bad"
+msgstr ""
+
+#: Telegram\Main.py:105
+msgid "You have used {NrTry} of 3 times:"
+msgstr ""
+
+#: Telegram\Main.py:111
+msgid "{AppName} has been stoped, because you didn't input the correct user name of password."
+msgstr ""
+
+#: Telegram\Main.py:116
+msgid "Are you sure you want to install the database structure?"
+msgstr ""
+
+#: Telegram\Main.py:118
+msgid "{AppName} will now start to install the database structure"
+msgstr ""
+
+#: Telegram\Main.py:121
+msgid "The database has been installed, please restart system."
+msgstr ""
+
+#: Telegram\Main.py:123
+msgid "Database will not be installed terminating process."
+msgstr ""
+
+#: Telegram\Main.py:131
+msgid "Exit loop by pressing <Esc>, <q> or <Space>"
+msgstr ""
+
+#: Telegram\Main.py:132
+msgid "Getting updates from the telegram api."
+msgstr ""
+
+#: Telegram\Main.py:141
+msgid "A user shutdown was requested will now shutdown."
 msgstr ""
 
 #: Telegram\TelegramClass.py:67

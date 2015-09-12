@@ -1,14 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import GlobalObjects
+
 import json
-import LanguageClass  # imports the _() function! (the translation feature).
+
+import Language.LanguageClass  # imports the _() function! (the translation feature).
 import LoggingClass
 import Sql.SqlClass
-import PollingClass
 import ErrorClasses
-import ConfigurationClass
-import MessageClass
+import Parsers.ConfigurationClass
+
+import Messages.PollingClass
+import Messages.MessageClass
 
 class MessageProcessor(object):
     def __init__(self, MessageObject, **OptionalObjects):
@@ -49,7 +52,8 @@ class MessageProcessor(object):
         if "ConfigurationObject" in OptionalObjects:
             self.ConfigurationObject = OptionalObjects["ConfigurationObject"]
         else:
-            self.ConfigurationObject = ConfigurationClass.ConfigurationParser()
+            self.ConfigurationObject = Parsers.ConfigurationClass.ConfigurationParser()
+            
         if "SqlObject" in OptionalObjects:
             self.SqlObject = OptionalObjects["SqlObject"]
             
@@ -111,7 +115,7 @@ class MessageProcessor(object):
         
         self.LanguageName = self.SqlObject.ExecuteTrueQuery(self.SqlCursor, Query, Data)[0]["User_String"]
         
-        self.LanguageObject = LanguageClass.CreateTranslationObject(Languages=[self.LanguageName])
+        self.LanguageObject = Language.LanguageClass.CreateTranslationObject(Languages=[self.LanguageName])
         # create the translator        
         self._ = self.LanguageObject.gettext
         
@@ -309,7 +313,7 @@ class MessageProcessor(object):
         # This methode will interpret and the message and do what ever is needed.
         # This variable is to be used later on
 
-        MessageObject = MessageClass.MessageToBeSend(ToChatId=self.ChatId)
+        MessageObject = Messages.MessageClass.MessageToBeSend(ToChatId=self.ChatId)
         MessageObject.Text = self._("Sorry, but this command could not be interpreted.")
         # check if message is a command
         if self.Text != None:
@@ -419,7 +423,7 @@ class MessageProcessor(object):
                 self.ClearLastCommand()
             elif LastCommand.startswith("/addanwser"):
                 if LastCommand == "addawnser awnser":
-                    Poll = PollingClass.Poll(
+                    Poll = Messages.PollingClass.Poll(
                                              InternalUserId=self.InternalUserId,
                                              InternalPollId=PollId,
                                              LoggingObject=self.LanguageObject,
@@ -437,7 +441,7 @@ class MessageProcessor(object):
                         MessageObject.Text = self._("The poll {PollName} allready exists.\nPress /list and on the poll to modify it.")
                 elif LastCommand.startswith("/newpoll question"):
 
-                    Poll = PollingClass.Poll(
+                    Poll = Messages.PollingClass.Poll(
                                              InternalUserId=self.InternalUserId,
                                              InternalPollId=LastUsedId,
                                              LoggingObject=self.LanguageObject,
@@ -544,7 +548,7 @@ class MessageProcessor(object):
                                    )
         
         self.LanguageName = Language
-        self.LanguageObject = LanguageClass.CreateTranslationObject(Language)
+        self.LanguageObject = Language.LanguageClass.CreateTranslationObject(Language)
         self._ = self.LanguageObject.gettext
         
         return True
