@@ -12,6 +12,7 @@ import Parsers.ConfigurationClass
 
 import Messages.PollingClass
 import Messages.MessageClass
+import Messages.Emojiclass
 
 class MessageProcessor(object):
     def __init__(self, MessageObject, **OptionalObjects):
