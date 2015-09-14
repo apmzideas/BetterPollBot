@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import GlobalObjects
-
 import gettext
  
 
 def CreateTranslationObject( Languages = ["de", "en"], localedir='language',):
-    
+    """
+    This function returns a gettext object.
+    """
     if type(Languages) == type('str'):
         Languages = [Languages]
     
@@ -15,6 +15,12 @@ def CreateTranslationObject( Languages = ["de", "en"], localedir='language',):
                                localedir=localedir,
                                languages=Languages
                                )
+    print(temp.info())
+    print(temp.output_charset())
+    print(temp.charset())
     #temp.install()
     return temp
+
+if __name__ == "__main__":
+    i = CreateTranslationObject(localedir="../language")
 

@@ -50,6 +50,7 @@ class MessageProcessor(object):
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
             self.LoggingObject = LoggingClass.Logger()
+            
         if "ConfigurationObject" in OptionalObjects:
             self.ConfigurationObject = OptionalObjects["ConfigurationObject"]
         else:
@@ -66,6 +67,13 @@ class MessageProcessor(object):
             self.LoggingObject.error(self._("The sql obejct is missing, please contact your administrator."))
             raise ErrorClasses.MissingArguments(self._("The sql obejct is missing, please contact your administrator."))
         
+        # This variable is needed for the logger so that the log end up 
+        # getting printed in the correct language.
+        if "LanguageObeject"  in OptionalObjects:
+            self.M_ = OptionalObjects["LanguageObject"].gettext
+        else:
+            self.M_ = language.LanguageClass.CreateTranslationObject()
+            
         if "BotName" in OptionalObjects:
             self.BotName = OptionalObjects["BotName"]["result"]["username"]
             #print(self.BotName, type(self.BotName))
@@ -140,6 +148,7 @@ class MessageProcessor(object):
             if self.GroupExists() == False:
                 self.AddGroup()
             self.InternalGroupId = self.GetInternalGroupId()
+        
 
 #        if "from_user" in MessageObject:
 #             self.FromUser = Message["from_user"]
@@ -354,8 +363,13 @@ class MessageProcessor(object):
         elif self.Text == "/addanwser":
              # Get the polls
             Polls = self.GetUserPolls()
-            pass
-
+            MessageObject.Text = self._("Please choose the poll to add the poll to:")
+            MessageObject.ReplyKeyboardMarkup(
+                                              [Polls],
+                                              OneTimeKeyboard=True
+                                              )
+            self.SetLastSendCommand("/addanwser NoPoll", None)
+            
         elif self.Text == "/delanswer":
             pass
         elif self.Text == "/listpoll":
@@ -411,6 +425,18 @@ class MessageProcessor(object):
         return MessageObject
               
     def InterpresNonCommand(self, MessageObject):
+        """
+        This method interprets the non commands user text.
+        
+        This method is used as an interpreter of the system set 
+        commands and the user send text. It returns the MessageObject
+        after modifying it.
+        
+        Variables:
+            MessageObejct - is the message obejct that has to be 
+                modified
+        """
+        
         # Get the last send command and the last used id
         LastSendCommand = self.GetLastSendCommand()
         LastUsedId = LastSendCommand["Last_Used_Id"]
@@ -472,7 +498,19 @@ class MessageProcessor(object):
         return MessageObject
                
     def SetLastSendCommand(self, Command, LastUsedId = None):
-        # This methode will save the last send command into the database.
+        """
+        This method will save the last user command into the database.
+        
+        The commands used can be set manuely from the programmer 
+        so that it can be user for flow controll.
+        
+        Example:
+            /Command option
+        Variables:
+            Command - this is the used command with the option
+            LastUsedId - This is the last used id, it can be
+                every id, depending the situation.
+        """
         
         TableName = "Session_Table"
         Columns = {
@@ -496,11 +534,23 @@ class MessageProcessor(object):
                                                         Columns=Columns,
                                                         Duplicate=Duplicate)
         self.SqlObject.Commit(self.SqlCursor)
-        return True
     
     def GetLastSendCommand(self):
-        # This methode will get the last used command from the user.
-        # This is needed to understand the text send from the user.
+        """
+        This method will get the last user command.
+        
+        This method will get the last user command from the database,
+        so that the last command can be used for flow controll. 
+        The command are mostly set by the system and not by the user,
+        at least not direct.
+        
+        Example:
+            /command option
+            
+        Variables:
+            -
+        """
+
         
         FromTable = "Session_Table"
         Columns = ["Command", "Last_Used_Id"]
@@ -518,7 +568,13 @@ class MessageProcessor(object):
         return None
     
     def ClearLastCommand(self):
-        # This methode will cleare the last set command, if the process is finished.
+        """
+        This method clears the last set command if the process finished.
+        
+        Variables:
+            -
+        """
+
         self.SqlObject.UpdateEntry(
                                    Cursor=self.SqlCursor,
                                    TableName="Session_Table",
@@ -529,12 +585,20 @@ class MessageProcessor(object):
                                    Where=[["Command_By_User", self.InternalUserId]],
                                    Autocommit=True
                                    )
-        return True
-    
+
     def ChangeUserLanguage(self, Language):
-        # This method is responsible for initialising the language change, 
-        # as well as activating the new language.
-        # Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False,
+        """
+        This method changes the user language.
+        
+        This method is responsible for initialising the language change, 
+        as well as activating the new language. It will return True
+        if the new language could be initialied and False if there has 
+        been an error.
+        
+        Variables:
+            Language - should be a string with the new language file
+        """
+        
         if Language == "English":
             Language = "en_US"
         elif Language == "Deutsch":
@@ -547,17 +611,31 @@ class MessageProcessor(object):
                                    Where=[["Master_User_Id", self.InternalUserId]],
                                    Autocommit=True
                                    )
-        
-        self.LanguageName = Language
-        self.LanguageObject = language.LanguageClass.CreateTranslationObject(Language)
-        self._ = self.LanguageObject.gettext
-        
-        return True
+        try:
+            self.LanguageName = Language
+            self.LanguageObject = language.LanguageClass.CreateTranslationObject(Language)
+            self._ = self.LanguageObject.gettext
+            if self.LanguageObject.info()["language"]!= Language:
+                raise ErrorClasses.LanguageImportError("")
+            return True
+        except ErrorClasses.LanguageImportError as Error:
+            self.LoggingObject.error(self.M_("There has been an error with the changing of the language class, this error has been returned: {Error}").format(Error = Error)
+                                     + " " + self.M_("Please, contact your administrator."))
+            return False
     
     def AddPoll(self,):
-        # This method adds the new poll to the system.
+        """ 
+        This method adds the new poll to the system.
         
-        # first check if that poll exists, a poll name can only be used once.
+        First check if that poll exists, a poll name can only be 
+        used once per person so that will be no confusion between 
+        multiple poll per person. It will return the new internal poll
+        id, if the process has been a success and the poll name is 
+        unique otherwise it returns a False.
+        
+        Variables:
+            -
+        """
         IfExists = self.SqlObject.ExecuteTrueQuery(
                                                    self.SqlObject.CreateCursor(Dictionary=False),
                                                    Query="SELECT EXISTS(SELECT 1 FROM Poll_Table WHERE `Poll_Name` = %(PollName)s AND `Master_User_Id` = %(UserID)s);",
@@ -600,13 +678,30 @@ class MessageProcessor(object):
             return False
         
     def GetUserPolls(self):
-        # This methode will get all the polls a user has and will return them in a list.
+        """ 
+        Get all user polls and return them in a list.
+        
+        This method will get all the allready created polls and 
+        will return them, if the user has no polls the system will
+        return a False.
+        
+        Variables:
+            -
+        """
         Polls = self.SqlObject.SelectEntry(
                                    self.SqlCursor,
                                    FromTable = "Poll_Table",
                                    Columns = ("Poll_Name",), 
-                                   OrderBy = [["Poll_Name"]],
                                    Where = [["Master_User_Id", "=", "%s"]], 
                                    Data = (self.InternalUserId),
                                    )
-        return Polls
+        temp = []
+        for Index in Polls: 
+            for Key in Index.keys():
+                temp.append(Index[Key])
+        Polls = sorted(temp)
+        
+        if len(Polls)>0:
+            return Polls
+        else: 
+            return False

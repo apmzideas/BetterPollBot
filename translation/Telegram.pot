@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-14 16:04+W. Europe Daylight Time\n"
+"POT-Creation-Date: 2015-09-14 19:36+W. Europe Daylight Time\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,39 +15,43 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: src/messages\MessageProcessorClass.py:66
 #: src/messages\MessageProcessorClass.py:67
+#: src/messages\MessageProcessorClass.py:68
 msgid "The sql obejct is missing, please contact your administrator."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:318
+#: src/messages\MessageProcessorClass.py:327
 msgid "Sorry, but this command could not be interpreted."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:340
+#: src/messages\MessageProcessorClass.py:349
 msgid ""
 "Welcome.\n"
 "What can I do for you?\n"
 "Press /help for all my commands"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:350
+#: src/messages\MessageProcessorClass.py:359
 msgid ""
 "Welcome to the poll creation, please follow the following steps.\n"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:350
-#: src/messages\MessageProcessorClass.py:352
+#: src/messages\MessageProcessorClass.py:359
+#: src/messages\MessageProcessorClass.py:361
 msgid "Please enter the name of the new poll."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:372
+#: src/messages\MessageProcessorClass.py:366
+msgid "Please choose the poll to add the poll to:"
+msgstr ""
+
+#: src/messages\MessageProcessorClass.py:386
 msgid ""
 "Thank you very much for adding the commands.\n"
 "Do you wnat to add this poll to a group?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:382
+#: src/messages\MessageProcessorClass.py:396
 msgid ""
 "Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
 "\n"
@@ -66,47 +70,47 @@ msgid ""
 " /pollsettings - display's all the settings for a selected poll"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:386
+#: src/messages\MessageProcessorClass.py:400
 msgid "Please, choose the setting to change:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:400
+#: src/messages\MessageProcessorClass.py:414
 msgid "Please choose your preferred language:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:422
+#: src/messages\MessageProcessorClass.py:436
 msgid "Language changed successfully."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:439
+#: src/messages\MessageProcessorClass.py:453
 msgid "The poll \"{PollName}\" has been created, please enter the question to the poll."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:442
+#: src/messages\MessageProcessorClass.py:456
 msgid ""
 "The poll {PollName} allready exists.\n"
 "Press /list and on the poll to modify it."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:453
+#: src/messages\MessageProcessorClass.py:467
 msgid ""
 "The question has been added.\n"
 "Do you want to add some anwsers to the question?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:456
+#: src/messages\MessageProcessorClass.py:470
 msgid "YES"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:457
+#: src/messages\MessageProcessorClass.py:471
 msgid "NO"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:464
+#: src/messages\MessageProcessorClass.py:478
 msgid "Please enter your first possible awnser to the question."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:468
+#: src/messages\MessageProcessorClass.py:482
 msgid "You can add an awnser later via the /addawnser command."
 msgstr ""
 
