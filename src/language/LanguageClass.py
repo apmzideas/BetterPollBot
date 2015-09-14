@@ -3,23 +3,28 @@
 
 import gettext
  
-
-def CreateTranslationObject( Languages = ["de", "en"], localedir='language',):
+def CreateTranslationObject( 
+                            Languages = ["de", "en"], 
+                            Localedir='language',
+                            ):
     """
     This function returns a gettext object.
+    
+    Variables:
+        Languages            array of string
+            contains the language string
+        Localedir            string
+            contains the Language location 
     """
     if type(Languages) == type('str'):
         Languages = [Languages]
     
-    temp = gettext.translation("Telegram", 
-                               localedir=localedir,
+    LanguageObject = gettext.translation("Telegram", 
+                               localedir=Localedir,
                                languages=Languages
                                )
-    print(temp.info())
-    print(temp.output_charset())
-    print(temp.charset())
-    #temp.install()
-    return temp
+
+    return LanguageObject
 
 if __name__ == "__main__":
     i = CreateTranslationObject(localedir="../language")

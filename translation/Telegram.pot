@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-14 19:36+W. Europe Daylight Time\n"
+"POT-Creation-Date: 2015-09-14 22:30+W. Europe Daylight Time\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,43 +15,43 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: src/messages\MessageProcessorClass.py:67
-#: src/messages\MessageProcessorClass.py:68
+#: src/messages\MessageProcessorClass.py:91
+#: src/messages\MessageProcessorClass.py:92
 msgid "The sql obejct is missing, please contact your administrator."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:327
+#: src/messages\MessageProcessorClass.py:402
 msgid "Sorry, but this command could not be interpreted."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:349
+#: src/messages\MessageProcessorClass.py:436
 msgid ""
 "Welcome.\n"
 "What can I do for you?\n"
 "Press /help for all my commands"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:359
+#: src/messages\MessageProcessorClass.py:446
 msgid ""
 "Welcome to the poll creation, please follow the following steps.\n"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:359
-#: src/messages\MessageProcessorClass.py:361
+#: src/messages\MessageProcessorClass.py:446
+#: src/messages\MessageProcessorClass.py:448
 msgid "Please enter the name of the new poll."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:366
+#: src/messages\MessageProcessorClass.py:453
 msgid "Please choose the poll to add the poll to:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:386
+#: src/messages\MessageProcessorClass.py:473
 msgid ""
 "Thank you very much for adding the commands.\n"
 "Do you wnat to add this poll to a group?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:396
+#: src/messages\MessageProcessorClass.py:483
 msgid ""
 "Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
 "\n"
@@ -70,47 +70,47 @@ msgid ""
 " /pollsettings - display's all the settings for a selected poll"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:400
+#: src/messages\MessageProcessorClass.py:487
 msgid "Please, choose the setting to change:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:414
+#: src/messages\MessageProcessorClass.py:501
 msgid "Please choose your preferred language:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:436
+#: src/messages\MessageProcessorClass.py:535
 msgid "Language changed successfully."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:453
+#: src/messages\MessageProcessorClass.py:552
 msgid "The poll \"{PollName}\" has been created, please enter the question to the poll."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:456
+#: src/messages\MessageProcessorClass.py:555
 msgid ""
 "The poll {PollName} allready exists.\n"
 "Press /list and on the poll to modify it."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:467
+#: src/messages\MessageProcessorClass.py:566
 msgid ""
 "The question has been added.\n"
 "Do you want to add some anwsers to the question?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:470
+#: src/messages\MessageProcessorClass.py:569
 msgid "YES"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:471
+#: src/messages\MessageProcessorClass.py:570
 msgid "NO"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:478
+#: src/messages\MessageProcessorClass.py:577
 msgid "Please enter your first possible awnser to the question."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:482
+#: src/messages\MessageProcessorClass.py:581
 msgid "You can add an awnser later via the /addawnser command."
 msgstr ""
 
@@ -158,51 +158,51 @@ msgstr ""
 msgid "Set the database port, needed to connect to the database."
 msgstr ""
 
-#: src/sql\SqlClass.py:138
+#: src/sql\SqlClass.py:228
 msgid "Something is wrong with your user name or password."
 msgstr ""
 
-#: src/sql\SqlClass.py:138 src/sql\SqlClass.py:141 src/sql\SqlClass.py:147
-#: src/sql\SqlClass.py:209 src/sql\SqlClass.py:288 src/sql\SqlClass.py:626
+#: src/sql\SqlClass.py:228 src/sql\SqlClass.py:231 src/sql\SqlClass.py:237
+#: src/sql\SqlClass.py:333 src/sql\SqlClass.py:412 src/sql\SqlClass.py:750
 msgid "The database connector returned following error: {Error}"
 msgstr ""
 
-#: src/sql\SqlClass.py:141
+#: src/sql\SqlClass.py:231
 msgid "The database does not exist, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:147
+#: src/sql\SqlClass.py:237
 msgid "The database server seems to be offline, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:196
+#: src/sql\SqlClass.py:320
 msgid "The executet query failed, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:196 src/sql\SqlClass.py:216
+#: src/sql\SqlClass.py:320 src/sql\SqlClass.py:340
 msgid "The database returned following error: {Error}"
 msgstr ""
 
-#: src/sql\SqlClass.py:201
+#: src/sql\SqlClass.py:325
 msgid ""
 "The failed query is:\n"
 "{Query}\n"
 "{Data}"
 msgstr ""
 
-#: src/sql\SqlClass.py:209
+#: src/sql\SqlClass.py:333
 msgid "The creation of the following database {DatabaseName} has not succeded, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:216
+#: src/sql\SqlClass.py:340
 msgid "Failed to delete the \"{DatabaseName}\" database, please delete manually."
 msgstr ""
 
-#: src/sql\SqlClass.py:288
+#: src/sql\SqlClass.py:412
 msgid "The following database table \"{TableName}\" could not be created, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:577
+#: src/sql\SqlClass.py:701
 msgid "The where type in your query is not in the list of valid types. {Error}"
 msgstr ""
 

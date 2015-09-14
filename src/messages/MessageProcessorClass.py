@@ -1,13 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import GlobalObjects
 
+# The standard library modules
 import json
 
-import language.LanguageClass  # imports the _() function! (the translation feature).
+# The custom modules
+import GlobalObjects
+import ErrorClasses
 import LoggingClass
 import sql.SqlClass
-import ErrorClasses
+# imports the _() function! (the translation feature).
+import language.LanguageClass
 import parsers.ConfigurationClass
 
 import messages.PollingClass
@@ -15,27 +18,48 @@ import messages.MessageClass
 import messages.EmojiClass
 
 class MessageProcessor(object):
+    """
+    This class is used as the user message analysor.
+    
+    The MessageObject will only contains a single message object, 
+    so that this class will be thread save and so that we can run
+    multiple instances per unit.    
+    
+    The message object will contain all the following parts.
+        {
+                       'message': {
+                                   'date': 1439471738, 
+                                   'text': '/newpoll',
+                                   'from': {
+                                            'id': 32301786, 
+                                            'last_name': 'Hornung', 
+                                            'first_name': 'Adrian', 
+                                            'username': 'TheRedFireFox'
+                                            }, 
+                                   'message_id': 111, 
+                                   'chat': {
+                                            'id': -7903240, 
+                                            'title': 'Drive'
+                                            }
+                                   },
+                        'update_id': 469262057
+                        }
+        }
+    
+    """
     def __init__(self, MessageObject, **OptionalObjects):
-        
-# The MessageObject will only contains a single message object, so that this class will be thread save 
-#        {
-#                        'message': {
-#                                    'date': 1439471738, 
-#                                    'text': '/newpoll',
-#                                    'from': {
-#                                             'id': 32301786, 
-#                                             'last_name': 'Hornung', 
-#                                             'first_name': 'Adrian', 
-#                                             'username': 'TheRedFireFox'
-#                                             }, 
-#                                    'message_id': 111, 
-#                                    'chat': {
-#                                             'id': -7903240, 
-#                                             'title': 'Drive'
-#                                             }
-#                                    },
-#                         'update_id': 469262057
-#                         }
+        """
+        Just a init here nothing special.
+                        
+        Vairables:
+            MessageObject - the to be analysed message
+            OptialObejects - just some optional objects
+                for example the logging object, the configuration
+                object, the sql object with the connection 
+                commands and the master language object, that is used
+                for the logging in the correct language.
+        """
+
         
         
         # Predefining attribute so that it later can be used for evil.
@@ -198,10 +222,19 @@ class MessageProcessor(object):
 #             self.group_chat_created = Message["group_chat_created"]
 
     def UserExists(self,):
-        # This methode will detect if the use already exists or not. 
-        #  The following query will return 1 if a user with the specified username exists, 0 otherwise.
-        # 
-        # SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+        """
+        This methode will detect if the use already exists or not.
+        
+        The following query will return 1 if a user with the specified 
+        username exists a 0 otherwise.
+         
+        SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+        
+        It will return a True if the database retuns a 1 and a False
+        if the databse a 0.
+        Variables:
+            -
+        """
 
         Exists = self.SqlObject.ExecuteTrueQuery(
                                           self.SqlObject.CreateCursor(Dictionary=False),
@@ -260,10 +293,16 @@ class MessageProcessor(object):
         
         self.SqlObject.Commit(self.SqlCursor)
 
-        return True
     
     def GetInternalUserId(self):
-        # This methode will get the internal user id from the database.
+        """
+        This methode will get the internal user id from the database.
+        
+        This methode will return the internal user id directly.
+        
+        Veriables:
+            -
+        """
         # first the internal user id
         FromTable = "User_Table"
         Columns = ["Internal_User_Id"]
@@ -279,10 +318,22 @@ class MessageProcessor(object):
                                           )[0]["Internal_User_Id"]
     
     def GroupExists(self):
+        """
+        This method checks if the group exists or not.
+        
+        The following query will return a 1 if a user with the 
+        specified username exists a 0 otherwise. From that on
+        the system will return True if the group exists and if it
+        doens't False.
+        
+        SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+        
+        Variables:
+            -
+        """
+        
         # This method checks in the database if the group (if it is one) exists.
-        #  The following query will return 1 if a user with the specified username exists, 0 otherwise.
-        # 
-        # SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+
 
         Exists = self.SqlObject.ExecuteTrueQuery(
                                           self.SqlObject.CreateCursor(Dictionary=False),
@@ -296,6 +347,12 @@ class MessageProcessor(object):
             return False
             
     def AddGroup(self):
+        """
+        This method will add an not existing group to the database.
+        
+        Variables:
+            -
+        """
         # This method will add the group if it doen't exit.
         self.SqlObject.InsertEntry(
                                    self.SqlCursor,
@@ -308,9 +365,16 @@ class MessageProcessor(object):
         self.SqlObject.Commit(self.SqlCursor)
     
     def GetInternalGroupId(self):
-        # This method will get the internal group id from the database so that
-        # it can be used for evil.
+        """
+        This method will get the user internal group id.
         
+        This method will return the the internal group id directly from
+        the database.
+        Variables:
+            -
+        
+        """
+
         return self.SqlObject.SelectEntry(
                                           self.SqlCursor,
                                           FromTable = "Group_Table",
@@ -320,6 +384,17 @@ class MessageProcessor(object):
                                           )
     
     def InterpretMessage(self, ):
+        """
+        This method interprets the user text.
+        
+        This method is used as an preinterpreter of the user send text. 
+        It premarly chooses if the user send text is a command or not.
+        It will choose the correct interpretation system.
+        It returns the MessageObject after letting it get modified.
+        
+        Variables:
+            -
+        """
         # This methode will interpret and the message and do what ever is needed.
         # This variable is to be used later on
 
@@ -344,6 +419,18 @@ class MessageProcessor(object):
         return MessageObject
 
     def InterpretCommand(self, MessageObject):
+        """
+        This method interprets the commands form the user text.
+        
+        This method is used as an interpreter of the user send 
+        commands. It returns the MessageObject
+        after analysing and modifying the MessageObject to respond
+        the user Text.
+        
+        Variables:
+            MessageObejct - is the message obejct that has to be 
+                modified
+        """
          # register the command in the database for later use
         if self.Text == "/start":
             MessageObject.Text = self._("Welcome.\nWhat can I do for you?\nPress /help for all my commands")

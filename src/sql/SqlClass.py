@@ -1,88 +1,149 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+# A additional interface needed for the DatabaseConnection to the
+# MySql-Database. It's a third party software.
+import sql.mysql.connector
+
+# The custom modules
 import GlobalObjects
-
-import sql.mysql.connector  # A additional interface needed for the DatabaseConnection to the MySql-Database
 import LoggingClass
-
 # import the _() function!
 import language.LanguageClass
 
 
 class SqlApi(object):
-    
     """
-    This API enables an easy DatabaseConnection to the mysql driver and to the server with the database 
+    This class is user a mysql interface.
     
-    VARIABLES:
-        User                     String                               - contains the Databaseuser
-        Password                 String                               - contains the Databaseuserpassword
-        DatabaseName             String                               - contains the Databasename
+    It is a interface between the mysql connector that talks with 
+    the database and the python code. As well dynamicaly creates 
+    the queries that have to be executed.
     
     DATABASE STRUCTURE:
-        PollTable
-            Internal_Poll_Id      Integer (auto_increment)             - conntains the internal polltable id
-            External_Poll_Id      Binary(16)                           - contains the MD5 for external use is the Id
-            CreationDat           TIMESTAMP CURRENT_TIMESTAMP
-            PollName              Varchar(255)                         - contains the pollname like poll 1
-            Question              Varchar(999)                         - contains the question that has to be asked to the groupe
-            Master_User           Integer                              - contains the internal user Id
+        Poll_Table
+            Internal_Poll_Id      Integer (auto_increment)             
+                conntains the internal polltable id
+            
+            External_Poll_Id      Binary(16)                           
+                contains the MD5 for external use is the Id
+            
+            CreationDate          TIMESTAMP CURRENT_TIMESTAMP
+                contains the creation date of the poll
+            
+            Poll_Name              Varchar(255)                         
+                contains the pollname like poll 1
+                
+            Question              Varchar(999)                         
+                contains the question that has to be asked to the group
+                
+            Master_User           Integer                              
+                contains the internal user Id
             
             UNIQUE (External_Poll_Id)
+            
             PRIMARY KEY (Internal_Poll_Id)
             
-        Options
-            Id_Option            Integer (auto_increment)             - contains the id of the qption
-            Id-PollTable         Integer                              - contains the id of the question (from the polltable)
-            Option_Name          Varchar(128)                         - contains the option to be displayed
+        Options_Table
+            Id_Option            Integer (auto_increment)             
+                contains the id of the question
+                
+            Id-PollTable         Integer                              
+                contains the id of the question (from the polltable)
+                
+            Option_Name          Varchar(128)                         
+                contains the option to be displayed
             
             PRIMARY KEY (Id_Option)
             
-        UserTable
-            Internal_User_ID      Integer (auto_increment)             - contains the internal user id
-            External_User_ID      Integer                              - contains the external Integer
-            User_Name             Varchar(max)                         - contains the user name if exists
-            First_Name            Varchar(max)                         - contains the first name if exists
-            Last_Name             Varchar(max)                         - contains the last name id exists
+        User_Table
+            Internal_User_ID      Integer (auto_increment)             
+                contains the internal user id
+                
+            External_User_ID      Integer                              
+                contains the external id
+                
+            User_Name             TEXT                         
+                contains the user name if exists
+                
+            First_Name            TEXT                        
+                contains the first name if exists
+                
+            Last_Name             TEXT                       
+                contains the last name id exists
+                
             PRIMARY KEY (Internal_User_ID)
             
-        GroupTable
-            Internal_Id          Integer (auto_increment)             - contains the internal group id
-            External_Id          Integer                              - contains the external group id
-            Group                Varchar(255)                         - contains the group name
-            UNIQUE (External_Poll_Id)            
+        Group_Table
+            Internal_Id          Integer (auto_increment)             
+                contains the internal group id
+                
+            External_Id          Integer                              
+                contains the external group id
+                
+            Group                Varchar(255)                          
+                contains the group name
+                
+            UNIQUE (External_Poll_Id)
+                      
             PRIMARY KEY (Internal_Id)
             
-        SettingsOfPoll
-            Setting_Id           Integer (auto_increment)             - contains the internal settings id
-            Setting_Name         Varchar(128)                         - contains the name of the setting
-            Default_String       Varchar(256)                         - contains the default value for the setting if string
-            Default_Integer      Integer                              - contains the default value for the setting if integer
-            Default_Boolean      Boolean                              - contains the default value for the setting if boolean
+        Settings_Of_Poll_Table
+            Setting_Id           Integer (auto_increment)             
+                contains the internal settings id
+                
+            Setting_Name         Varchar(128)                         
+                contains the name of the setting
+                
+            Default_String       Varchar(256)                         
+                contains the default value for the setting if string
+                
+            Default_Integer      Integer                              
+                contains the default value for the setting if integer
+                
+            Default_Boolean      Boolean                              
+                contains the default value for the setting if boolean
             
             PRIMARY KEY (Setting_Id)
             
-        UserSettingOfPoll
+        User_Setting_Of_Poll_Table
             User_Setting_Id
-            Setting_Id          Integer (auto_increment)               - contains the settings id
-            User_Id             Integer                                - contains the internal user id
-            String              Varchar(256)                           - contanis the set string value for the setting
-            Integer             Integer                                - contains the set integer value for the setting
-            Boolean             Boolean                                - contains the set boolean value for the setting
+            Setting_Id          Integer (auto_increment)               
+                contains the settings id
+            User_Id             Integer                                
+                contains the internal user id
+            String              Varchar(256)                           
+                contanis the set string value for the setting
+            Integer             Integer                                
+                contains the set integer value for the setting
+            Boolean             Boolean                                
+                contains the set boolean value for the setting
             
             PRIMARY KEY (User_Setting_Id)
         
-        UserAnswersToPoll
+        User_Answers_To_Poll
             Answer_Id           Integer (auto_increment)
+                contains the answer id
+                
             By_User             Integer
+                contains the user the anwser has been submitted from
+                
             By_Group            Integer 
+                contains the group in that the answer has been 
+                submitted from
+                
             Poll_Id             Integer
+                contains the poll for that the anwser has been 
+                submitted for
+                
             Option_ID           Integer
+                contains the id of thr id
             
             PRIMARY KEY (Answer_Id)
             
-            
     """
+    
+
     def __init__(self,
                   User, 
                   Password, 
@@ -90,7 +151,27 @@ class SqlApi(object):
                   Host="127.0.0.1", 
                   Port="3306", 
                   **OptionalObjects):
-
+            
+        """
+        This API enables an easy DatabaseConnection to the mysql driver 
+        and to the server with the database .
+    
+        VARIABLES:
+            User                     string                               
+                contains the databaseuser
+            Password                 string                               
+                contains the databaseuserpassword
+            DatabaseName             string                               
+                contains the databasename
+            Host                     string
+                contains the databasehost ip
+            Port                     string
+                contains the database port 
+            OptionalObjects          dictionary
+                contains optional objects like the language object, 
+                the logging object or else
+        """
+        
         self.User = User
         self.Password = Password
         self.Host = Host
@@ -119,8 +200,17 @@ class SqlApi(object):
         self.DatabaseConnection = self.CreateConnection()
         
     def CreateConnection(self):
-        # This methode will create the connetion object for the mysql database. 
-        # If if failes it will raise a 
+        """
+        This methode creates the mysql connection database.
+        
+        This methode will return a mysql connection object if the
+        connection could be created successesfully. If not it will 
+        catch the error and make a log entry. 
+        
+        Variables:
+            -
+        """ 
+
         try:
             config = {
                       'user': self.User,
@@ -145,22 +235,57 @@ class SqlApi(object):
                 raise SystemExit
         except:
             self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = "[WinError 10061] No connection could be made because the target machine actively refused it") + " " + self._("The database server seems to be offline, please contact your administrator.")) 
-    
+            raise SystemExit
+        
     def CreateCursor(self, Buffered=False, Dictionary=True):
-        # this methode will ceate the cursor needet for the DatabaseConnection to the server
-        return self.DatabaseConnection.cursor( buffered=Buffered, dictionary=Dictionary)
+        """
+        This methode creates the connection cursor
+        
+        It returns the connection cursor.
+        
+        Varibles:
+            Buffered            Boolean
+                if the cursor is bufferd or not default False
+           Dictionary           Boolean
+               if the cursor should return a dictionary or not.
+        """
+        return self.DatabaseConnection.cursor(
+                                              buffered=Buffered, 
+                                              dictionary=Dictionary
+                                              )
     
     def GetLastRowId(self, Cursor):
+        """
+        This methode returns the last used row id of the cursor.
+        
+        Variables:
+            Cursor                Object
+                cursor object.
+        """
         return Cursor.lastrowid
     
     def DestroyCursor(self, Cursor):
-        # this methode closes the DatabaseConnection opend by the cursor
+        """
+        This method closes the cursor.
+        """
         return Cursor.close()
     
     def ExecuteTrueQuery(self, Cursor, Query, Data=None):
         """
         A methode to execute the query statements.
         
+        All the query will be passed over this method so that the 
+        exceptions can be catched at one central place. This methode
+        will return the results from the database.
+        
+        Variables:
+            Cursor                object
+                contains the cursor object
+            Query                 string
+                contains the query that has to be executed
+            Data                  list
+                contains the data to be send to the databse
+                
         cursor = cnx.cursor(prepared=True)
         stmt = "SELECT fullname FROM employees WHERE id = %s" # (1)
         cursor.execute(stmt, (5,))                            # (2)
@@ -172,7 +297,6 @@ class SqlApi(object):
         Data = (10, 15)
         """
         try:
-
             if Data != None:
                 if not isinstance(Data, dict):
                     if not isinstance(Data, list):
@@ -187,10 +311,10 @@ class SqlApi(object):
             else:
                 Cursor.execute(Query)
 
-            Temp = []
-            for i in Cursor:
-                Temp.append(i)
-            return Temp
+            CursorContent = []
+            for Item in Cursor:
+                CursorContent.append(Item)
+            return CursorContent
         
         except sql.mysql.connector.Error as err:
             self.LoggingObject.error(self._("The database returned following error: {Error}").format(Error=err) +" "+ self._("The executet query failed, please contact your administrator."))
