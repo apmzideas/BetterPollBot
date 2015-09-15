@@ -59,7 +59,8 @@ class Logger(logging.Logger):
         FileHandler = logging.handlers.RotatingFileHandler(
                                                   filename=FilePath,
                                                   mode='a',
-                                                  maxBytes=20000,
+                                                  # exacly 20 kilobites
+                                                  maxBytes=20480,
                                                   backupCount=MaxLogs
                                                   )
         
@@ -75,35 +76,35 @@ class Logger(logging.Logger):
             self.addHandler(ConsoleHandler)
     
     def debug(self, msg, *args, **kwargs):
-        # This method overrides the debug method of the parent
+        # This method extends the debug method of the parent
         # and makes the function multiprocess safe.
         self.Lock.acquire()
         super().debug(msg, *args, **kwargs)
         self.Lock.release()
     
     def info(self, msg, *args, **kwargs):
-        # This method overrides the info method of the parent
+        # This method extends the info method of the parent
         # and makes the function multiprocess safe.
         self.Lock.acquire()
         super().info(msg, *args, **kwargs)
         self.Lock.release()
     
     def warning(self, msg, *args, **kwargs):
-        # This method overrides the warning method of the parent
+        # This method extends the warning method of the parent
         # and makes the function multiprocess safe.
         self.Lock.acquire()
         super().warning(msg, *args, **kwargs)
         self.Lock.release() 
         
     def error(self, msg, *args, **kwargs):
-        # This method overrides the error method of the parent
+        # This method extends the error method of the parent
         # and makes the function multiprocess safe.
         self.Lock.acquire()
         super().error(msg, *args, **kwargs)
         self.Lock.release()                
     
     def critical(self, msg, *args, **kwargs):
-        # This method overrides the critical method of the parent
+        # This method extends the critical method of the parent
         # and makes the function multiprocess safe.
         self.Lock.acquire()
         super().critical(msg, *args, **kwargs)

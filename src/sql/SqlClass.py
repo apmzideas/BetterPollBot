@@ -1,8 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# A additional interface needed for the DatabaseConnection to the
-# MySql-Database. It's a third party software.
+"""
+A additional MySql-interface needed for the DatabaseConnection.
+
+It's a third party software. Devoloped by MySql
+
+The download is hosted on:
+http://dev.mysql.com/downloads/connector/python/
+
+The documentation is hosted on:
+http://dev.mysql.com/doc/connector-python/en/index.html
+"""
 import sql.mysql.connector
 
 # The custom modules
@@ -226,12 +235,15 @@ class SqlApi(object):
         except sql.mysql.connector.Error as err:
             if err.errno == sql.mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.warning(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."),)
-                raise SystemError
+                raise SystemExit
             elif err.errno == sql.mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."))
                 raise SystemExit
+            elif err.errno == sql.mysql.connector.errorcode.CR_CONN_HOST_ERROR:
+                self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The database server seems to be offline, please contact your administrator."))
+                raise SystemExit
             else:
-                self.LoggingObject.error(err, "Error")
+                self.LoggingObject.error(err)
                 raise SystemExit
         except:
             self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = "[WinError 10061] No connection could be made because the target machine actively refused it") + " " + self._("The database server seems to be offline, please contact your administrator.")) 
@@ -267,6 +279,10 @@ class SqlApi(object):
     def DestroyCursor(self, Cursor):
         """
         This method closes the cursor.
+        
+        Variables:
+            Cursor                Object
+                cursor object.
         """
         return Cursor.close()
     
@@ -326,22 +342,42 @@ class SqlApi(object):
                                                                                             Data = Data))
             
     def CreateDatabase(self, Cursor, DatabaseName):
-        try:
-            Cursor.execute(
-            "CREATE DATABASE IF NOT EXISTS {0} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName))
-        except sql.mysql.connector.Error as err:
-            self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The creation of the following database {DatabaseName} has not succeded, please contact your administrator.").format(DatabaseName=DatabaseName) )
+        """
+        This methode will create a database. Use with caution!
+        
+        Variables:
+            Cursor                object
+                contains the cursor object
+            DatabaseName          string
+                contains the database name that has to be created
+        """
+        Query = "CREATE DATABASE IF NOT EXISTS {DatabaseName} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName = DatabaseName)
+        
+        self.ExecuteTrueQuery(
+                              Cursor,
+                              Query
+                              )
     
     def DeleteDatabase(self, Cursor, DatabaseName):
-        try:
-            Cursor.execute(
-            "DROP DATABASE {0};".format(DatabaseName))
-        except sql.mysql.connector.Error as err:
-            self.LoggingObject.error(_("The database returned following error: {Error}").format(Error=err) + " " + _("Failed to delete the \"{DatabaseName}\" database, please delete manually.").format(DatabaseName = DatabaseName))
-            
+        """
+        This methode will drop a database. Use with caution!
+        
+        Variables:
+            Cursor                object
+                contains the cursor object
+            DatabaseName          string
+                contains the database name that has to be droped
+        """        
+        Query = "DROP DATABASE {DatabaseName};".format(DatabaseName = DatabaseName)
+        
+        self.ExecuteTrueQuery(
+                              Cursor,
+                              Query
+                              )
+        
     def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True, Engine="InnoDB"):
         """
-        A methode to dynamicaly create a table entry to the database
+        A methode to dynamicaly create a table entry to the database.
         
         HOW TO USE:
  
@@ -351,9 +387,21 @@ class SqlApi(object):
                 ('PRIMARY KEY', 'ID'),
                 ('Foreigh Key', 'ID', 'Persons(P_Id)')
             )
-            
-            #function call
-            SqlApl.CreateTable('Test', TableDataIfNotExists = True)
+                    
+        Variables:
+            Cursor                object
+                contains the cursor object
+            TableName             string
+                contains the table name that has to be created
+            TableData             array (list or tuple)
+                contains the table columns that will be created
+            IfNotExists           boolean
+                determines if the query will be created with the prefix
+                IF NOT EXISTS is used as a default since it doesn't 
+                really matter
+            Engine                string
+                determince what mysql engine will be used
+                
         """
             
         try:
@@ -400,10 +448,12 @@ class SqlApi(object):
                     Query += ","
                 Query += " " + TableData[ForeignKeyId][0] + " (" + TableData[ForeignKeyId][1] + ") REFERENCES " + TableData[ForeignKeyId][2]              
             
-            Query += ")" 
+            Query += ")"
+             
             if Engine != None:
-                Query += "ENGINE="+Engine
-            
+                if Engine in ("MRG_MYISAM", "MyISAM", "BLACKHOLE", "CSV", "MEMORY", "ARCHIVE", "InnoDB"):
+                    Query += "ENGINE="+Engine
+                
             Query += ";"
             Cursor.execute(Query)
             return True
@@ -414,7 +464,13 @@ class SqlApi(object):
             return False
     
     def CreateMainDatabase(self, Cursor):
-        #This methode will create all the default tables and data for the database
+        """
+        This methode will create all the default tables and data.
+        
+        Variables:
+            Cursor                object
+                contains the cursor object        
+        """
         
         #First all the tables 
         #UserTable
@@ -584,10 +640,69 @@ class SqlApi(object):
         return True
          
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
-        # a simple SQL SELECT builder, this will be replaces by the query Class generator
-        # 
-        # OrderBy example [[column_name, "ASC"],[column_name, ],[column_name, "DESC"]] if emtpy ASC - has to be list
-        # Where example [['column_name', operator, value], operator, [column_name, operator, "%s"]]
+        """
+        a simple SQL SELECT builder
+        
+        This method will be replaces in the future by the query class
+        generator.
+        
+        Variables:
+            Cursor                object
+                contains the cursor object  
+                
+            FromTable,            string
+                contains the table name from wich the system takes 
+                the information
+            
+            Columns               array (list or tuple)
+                contains the columns to be intertet into
+            
+            OrderBy               array (list or tuple)
+                contains the order in wich the data will be returnd
+                Example
+                    [
+                        [
+                            column_name, 
+                            "ASC"
+                        ],
+                        [
+                            column_name, 
+                                #if the order is empty ASC will be used
+                        ],
+                        [
+                            column_name,
+                            "DESC"
+                        ]
+                    ] 
+                
+            Amount                None or integer
+                is the limit of entrys that will be returned
+                
+            Where                 array (list or tuple)  
+                contains the filter of the query
+                Example
+                    [
+                        [
+                            'column_name', 
+                            operator, 
+                            value
+                        ], 
+                        operator,
+                         [    
+                             column_name, 
+                             operator, 
+                             "%s" 
+                             # if %s is used the value has to be 
+                             # mentioned in the Data variable
+                        ]
+                    ]
+                    
+            Data                 array (list or tuple)
+                contains the data that will be inseted into the query
+                
+            Distinct             boolean
+                determines if the search is distinct or not
+        """
         
         Query = ["SELECT"]
         
@@ -654,17 +769,58 @@ class SqlApi(object):
             return (self.ExecuteTrueQuery(Cursor, Query, Data))
 
     def UpdateEntry(self, Cursor, TableName, Columns, Where=[], Autocommit = False):
-        # This Methode will update a record in the database
-        # This methode will return something like this:
-        # UPDATE table_name
-        # SET column1=value1,column2=value2,...
-        # WHERE some_column=some_value;
-        # If autocommit is true the methode will automatically commit to the database.
-        # Columns = { 'id' : id,
-        #            'Name': 'Max'}
-        # Where = [["Id", "=", 2], "AND", "(", ["as", "65"], "OR",  ")",]
-
-    
+        """
+        This Methode will update a record in the database.
+        
+        This methode will return something like this:
+            UPDATE table_name
+            SET column1=value1,column2=value2,...
+            WHERE some_column=some_value;
+        
+        Variables:
+            Cursor                object
+                contains the cursor object 
+                 
+            TableName             string
+                contains the table name into wich the system will 
+                insert the information 
+                
+            Columns               dictionary
+                contains the columns into that will be inseted
+                Example
+                {
+                    'id' : id,
+                    Name': 'Max'
+                }
+                
+            Where                 array (list or tuple)
+                contains the query filter
+                Example
+                    [
+                        [
+                            "Id", 
+                            "=", 
+                            2
+                        ], 
+                        "AND", 
+                        "(", 
+                        [
+                            "as", 
+                            "65" 
+                            # Here will automatically the equality 
+                            # operator be used. ("=")
+                            
+                        ], 
+                        "OR", # This will raise an error
+                        ")",
+                    ]
+                
+            Autocommit            boolean
+                If autocommit is true the methode will automatically 
+                commit the values to the database.
+            
+        """
+        
         Query = "UPDATE "
             
         Query += TableName
@@ -682,8 +838,13 @@ class SqlApi(object):
             
             Query += " WHERE "
             
-            for i in range(len(Where)):
+            # This variable is used to ensure that no 2 operator will 
+            # follow eachother
+            LastTypeAnOperator = False
+            for i in range(len(Where)):    
+
                 if type(Where[i]) == type([]):
+                    LastTypeAnOperator = False
                     Where[i] = [str(i) for i in Where[i]]
                     Query += str(Where[i][0])
                     if Where[i][1].upper() in ("=", "<", ">", "<>", "!=", ">=", "<=", "BETWEEN", "LIKE", "IN"):
@@ -695,10 +856,14 @@ class SqlApi(object):
                         Columns[Where[i][0] + "Where"] = Where[i][1]
                     
                 elif type(Where[i]) == type(""):
-                    if Where[i].upper() in ("(", ")", "AND", "OR"):
-                        Query += " {} ".format(Where[i])
+                    if LastTypeAnOperator == False:
+                        LastTypeAnOperator = True
+                        if Where[i].upper() in ("(", ")", "AND", "OR"):
+                            Query += " {} ".format(Where[i])
+                        else:
+                            raise ValueError( self._("The where type in your query is not in the list of valid types. {Error}").format(Error = Where[i]))
                     else:
-                        raise ValueError( self._("The where type in your query is not in the list of valid types. {Error}").format(Error = Where[i]))
+                        raise ValueError( self._("There where two operator behind each other that doesn't work."))
         Query += ";"
 #         print(Query)
 #         print(Columns)
@@ -711,7 +876,38 @@ class SqlApi(object):
         return True
         
     def InsertEntry(self, Cursor, TableName, Columns={}, Duplicate = None, AutoCommit = False):
-        #This method will insert any type of entry into the system
+        """
+        This method will insert any type of entry into the database.
+        
+        This methode will return something like this:
+            UPDATE table_name
+            SET column1=value1,column2=value2,...
+            WHERE some_column=some_value;
+        
+        Variables:
+            Cursor                object
+                contains the cursor object 
+                 
+            TableName             string
+                contains the table name into wich the system will 
+                insert the information 
+                
+            Columns               dictionary
+                contains the columns into that will be inseted
+                Example
+                {
+                    'id' : id,
+                    Name': 'Max'
+                }
+            Duplicate             None or dictionary
+                contains the columns in those the possible duplicates 
+                values exist
+                
+            Autocommit            boolean
+                If autocommit is true the methode will automatically 
+                commit the values to the database.
+        """
+        
         Query = "INSERT INTO "
              
         Query += TableName + " ("
@@ -744,6 +940,13 @@ class SqlApi(object):
         return True
 
     def Commit(self, Cursor):
+        """
+        This methode will commit the changens to the database.
+        
+        Variables:
+            Cursor                object
+                contains the cursor object 
+        """
         try:
             self.DatabaseConnection.commit()
         except mysql.DatabaseConnection.Error as Error:
