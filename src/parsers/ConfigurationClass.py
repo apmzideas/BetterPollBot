@@ -7,7 +7,27 @@ import collections
 
 
 class ConfigurationParser(configparser.RawConfigParser):
-    def __init__(self, FileName = "config.ini", **Configuration ):
+    """
+    This class is an extension of the configparser.RawConfigParser
+    class set by the standard python library, it add an ability to 
+    automatically read the configuration file on object creation as
+    well as some default configuration.
+    """
+    def __init__(self, 
+                 FileName = "config.ini", 
+                 **Configuration ):
+        """
+        This init method extends the original one with multiple 
+        variables.
+        
+        Variables:
+            FileName                      string
+                contains the name of the configuration file
+                
+            Configuration                 directory
+                contains the option to reconfigure the default 
+                super values.
+        """
         
         #Custom configurable filename
         self.FileName = FileName
@@ -83,10 +103,12 @@ class ConfigurationParser(configparser.RawConfigParser):
             
             
     def WriteDefaultConfigurationFile(self):
-        #a methode to write the default configuration to the .ini file
+        """
+        A methode to write the default configuration to the .ini file.
+        """
         
         #The Title of the file 
-        self["Configuration".upper()] = collections.OrderedDict(())
+        self["CONFIGURATION"] = collections.OrderedDict(())
         
         self["Telegram"] = collections.OrderedDict((
                                                     #This is the value needed for the main loop it states how long we need to wait 
@@ -113,53 +135,20 @@ class ConfigurationParser(configparser.RawConfigParser):
                                                    ("Dateformat", "%d.%M.%Y %H:%M:%S")
                                                    ))
         
-#         #some parameters needed for the logger
-#         self["loggers"] = {"keys": "root,Console"}
-#         
-#         self["handlers"] = {"keys": "fileHandler,consoleHandler"}
-#         
-#         self["formatters"] = {"keys": "simpleFormatter"}
-#         
-#         self["logger_root"] = collections.OrderedDict((
-#                                                        ("level", "DEBUG"), 
-#                                                        ("handlers", "fileHandler")
-#                                                        ))
-#         
-#         self["logger_Console"] = collections.OrderedDict((
-#                                                           ("level", "DEBUG"),
-#                                                           ("handlers", "consoleHandler"), 
-#                                                           ("qualname", "Console"),
-#                                                           ("propagate", 0)
-#                                                           ))
-#         
-#         self["handler_consoleHandler"] = collections.OrderedDict((
-#                                                                   ("class", "StreamHandler"),
-#                                                                   ("level", "DEBUG"),
-#                                                                   ("formatter", "simpleFormatter"),
-#                                                                   ("args", "(sys.stdout,)")
-#                                                                   ))
-#         
-#         self["handler_fileHandler"] = collections.OrderedDict((
-#                                                                ("class", "FileHandler"),
-#                                                                ("level", "DEBUG"),
-#                                                                ("formatter", "simpleFormatter"),
-#                                                                ("args", "('log.txt',)")
-#                                                                ))
-#         
-#         self["formatter_simpleFormatter"] = collections.OrderedDict((
-#                                                                      ("format", "%(asctime)s - [%(levelname)s] - %(message)s"),
-#                                                                      ('datefmt', '[%d.%M.%Y %H:%M:%S]')
-#                                                                      ))
-       
        #Writes the default configuration in to the correct file 
         with open(self.FileName, "w") as configfile:
             self.write(configfile)
             
     def ReadConfigurationFile(self):
-        #This methode will read the configuration from the self.file
-        self.read(self.FileName,)
+        """
+        This method will read the configuration form the self.file.
         
-        return True
+        This methode will read the configuration file into the buffer 
+        of the object directory. 
+        """
+
+        self.read(self.FileName,)
+
     
 if __name__ == "__main__":
     print("Online")

@@ -4,6 +4,12 @@
 ''' Telegram Emoji-Names'''
 
 class Emoji(object):
+    """
+    In this class will be nothing except the unicode emjois.
+    
+    The emoji can simply be inserted into the system by adding the 
+    variable name.
+    """
     GRINNING_FACE_WITH_SMILING_EYES = '\xF0\x9F\x98\x81'
     FACE_WITH_TEARS_OF_JOY = '\xF0\x9F\x98\x82'
     SMILING_FACE_WITH_OPEN_MOUTH = '\xF0\x9F\x98\x83'

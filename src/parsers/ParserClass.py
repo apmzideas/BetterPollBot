@@ -3,33 +3,62 @@
 import GlobalObjects
 import argparse
 import language.LanguageClass
-#import ConfigurationClass
+
+
 
 class Parser(argparse.ArgumentParser):
-    # This module it a preconfigured version of the Argparser.
-    # From the documentation.
-    # The argparse module makes it easy to write user-friendly command-line 
-    # interfaces. The program defines what arguments it requires, 
-    # and argparse will figure out how to parse those out of sys.argv. 
-    # The argparse module also automatically generates help and usage 
-    # messages and issues errors when users give the program invalid arguments.  
+    """
+    This module it a preconfigured extended version of the Argparser.
+    
+    From the documentation.
+    The argparse module makes it easy to write user-friendly 
+    command-line interfaces. The program defines what arguments it 
+    requires, and argparse will figure out how to parse those out of 
+    sys.argv. The argparse module also automatically generates help and 
+    usage messages and issues errors when users give the program 
+    invalid arguments.
+    
+    link to the documentation:
+        https://docs.python.org/3.4/library/argparse.html
+    """
 
-    def __init__(self, **OptionalObjects):
+
+    def __init__(self, 
+                 **OptionalObjects):
+        """
+        This method is an init, never seen one bevor?
+        
+        Variables:
+            OptionalObjects               directory
+                contains the optional objects 
+                like:
+                    ConfigurationObject   object
+                        contains the configuration
+                    
+                    LanguageObject        object
+                        contains the language object needed for 
+                        automatic string translation
+        """
+        
+        Description = ("An in python written telegram bot,"
+                    " called BetterPollBot.")
+        Epilog = ("Author:\t\t\t{Author}\nCredits:\t\t{Credits}"
+                    "\nVersion:\t\t{Version}\nRelease:\t\t"
+                    "{Release}\nLicense:\t\t{License}\n"
+                    "Copyright:\t\t{Copyright}".format(
+                                    Author = GlobalObjects.__author__,
+                                    Credits = ", ".join(GlobalObjects.__credits__),
+                                    Version = GlobalObjects.__version__,
+                                    Release = GlobalObjects.__release__,
+                                    License = GlobalObjects.__license__,
+                                    Copyright = GlobalObjects.__copyright__)
+                  )
+        
         super().__init__(
                          prog=GlobalObjects.__AppName__,
                          formatter_class=argparse.RawDescriptionHelpFormatter,
-                         description="An in python written telegram bot,"
-                            " called BetterPollBot.",
-                        epilog="Author:\t\t\t{Author}\nCredits:\t\t{Credits}"
-                            "\nVersion:\t\t{Version}\nRelease:\t\t"
-                            "{Release}\nLicense:\t\t{License}\n"
-                            "Copyright:\t\t{Copyright}".format(
-                                      Author = GlobalObjects.__author__,
-                                      Credits = ", ".join(GlobalObjects.__credits__),
-                                      Version = GlobalObjects.__version__,
-                                      Release = GlobalObjects.__release__,
-                                      License = GlobalObjects.__license__,
-                                      Copyright = GlobalObjects.__copyright__)
+                         description=Description,
+                         epilog=Epilog
                                     )
         
         if "ConfigurationObject" in OptionalObjects:
@@ -39,6 +68,15 @@ class Parser(argparse.ArgumentParser):
             self._ = self.LanguageObject.gettext
         
     def RunParser(self):
+        """
+        This method add the parser arguments to the system.
+        
+        With the here defined parser arguments can the system 
+        understand the sys.args values better.
+        
+        Variables:
+            -
+        """
         # adding parser arguments to the system
         self.add_argument(
                             "-v", 
@@ -158,4 +196,8 @@ class Parser(argparse.ArgumentParser):
         
         
     def GetArguments(self):
+        """
+        This method will return the parser arguments as a directory.
+        """
         return self.parse_args()
+        

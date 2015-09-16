@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 ''' 
-    some error classes
+    Some error classes needed for error- exceptionhangling.
 '''
 
 class TokenError(Exception):
-    #A Error Handling Class for an Wrong Token or Conection error
+    """
+    An error handling class for an wrong API token or conection error.
+    """
     
     def __init__(self, value):
         self.value = value
@@ -15,7 +17,9 @@ class TokenError(Exception):
         return repr(self.value)
     
 class LanguageImportError(Exception):
-    #A Error Handling Class for a not existing Language
+    """
+    An error handling class for a not existing language file.
+    """
     
     def __init__(self, value):
         self.value = value
@@ -24,17 +28,13 @@ class LanguageImportError(Exception):
         return repr(self.value)
 
 class MissingArguments(Exception):
-    #A Error Handling Class for an missing argument
+    """
+    An error handling class for a missing argument.
+    """
     
     def __init__(self, value):
         self.value = value
     
     def __str__(self):
         return repr(self.value)
-
-if __name__ == "__main__":
-    try:
-        raise LanguageImportError("Foo")
-    except LanguageImportError as Error:
-        print("The Connection to the TelegramServer failed")
 

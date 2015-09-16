@@ -1,8 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+This file contains a function to create the translation object.
+
+In this file the function _() or self._() will be initialised.
+"""
+
 import gettext
- 
+
 def CreateTranslationObject( 
                             Languages = ["de", "en"], 
                             Localedir='language',

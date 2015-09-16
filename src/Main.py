@@ -29,6 +29,9 @@ import messages.MessageProcessorClass
 
 
 def Main():
+    """
+    The main function that let's the application roll.
+    """
     # Create the configuration class and read the configuration class.
     Configuration = parsers.ConfigurationClass.ConfigurationParser()
 

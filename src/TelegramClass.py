@@ -8,7 +8,7 @@ import ssl
 import json
 import platform
 
-# my own babys
+# my own classes
 import GlobalObjects
 import LoggingClass
 import ErrorClasses
@@ -16,8 +16,101 @@ import messages.MessageClass
 import language.LanguageClass  # imports the _() function! (the translation feature.
 
 class TelegramApi(object):
-    # This class is responsable for contacting the telegram servers.
-    def __init__(self, ApiToken, RequestTimer, **OptionalObjects):
+    """
+    This class is responsable for contacting the telegram bot servers.
+    
+    From the documentation:
+    
+        The Bot API is an HTTP-based interface created for developers 
+        keen on building bots for Telegram.
+        To learn how to create and set up a bot
+    
+        Authorizing your bot
+    
+        Each bot is given a unique authentication token when it is 
+        created. The token looks something like 
+        123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11, but we'll use simply 
+        <token> in this document instead. You can learn about obtaining 
+        tokens and generating new ones in this document.
+        
+        Making requests
+        
+        All queries to the Telegram Bot API must be served over HTTPS 
+        and need to be presented in this form: 
+        https://api.telegram.org/bot<token>/METHOD_NAME. 
+        
+        Like this for example:
+        https://api.telegram.org/bot<token>/getMe
+        
+        We support GET and POST HTTP methods. We support four ways of 
+        passing parameters in Bot API requests:
+        
+            URL query string
+            application/x-www-form-urlencoded
+            application/json (except for uploading files)
+            multipart/form-data (use to upload files)
+        
+        The response contains a JSON object, which always has a Boolean 
+        field ‘ok’ and may have an optional String field ‘description’ 
+        with a human-readable description of the result. If ‘ok’ equals 
+        true, the request was successful and the result of the query 
+        can be found in the ‘result’ field. In case of an unsuccessful 
+        request, ‘ok’ equals false and the error is explained in the 
+        ‘description’. An Integer ‘error_code’ field is also returned, 
+        but its contents are subject to change in the future.
+        
+            All methods in the Bot API are case-insensitive.
+            All queries must be made using UTF-8.
+    
+        the documentation is online under:
+            https://core.telegram.org/bots/api
+    """
+    def __init__(self, 
+                 ApiToken, 
+                 RequestTimer, 
+                 **OptionalObjects
+                 ):
+        
+        """
+        The init methode...
+        
+        Here we set the variables like the header send to the API:
+        Example:
+            Header
+            {
+            'Content-Type': 
+            'application/x-www-form-urlencoded;charset=utf-8', 
+            'User-agent': 
+            "BetterPollBot/0.1 (Windows; 8; 6.2.9200)"\\
+            " Python-urllib/('v3.4.3:9b73f1c3e601', "\\
+            "'Feb 24 2015 22:43:06') "\\
+            "from https://github.com/apmzideas/BetterPollBot"
+            }
+        
+        Variables:
+            ApiToken                      string
+                contains the token to contact the background information
+                of the bot
+                Each bot is given a unique authentication token when it 
+                is created
+            
+            RequestTimer                  integer
+                set's the sleeping time between requests to the bot API
+                
+            OptionalObjects               dictionary
+                contains the optional objects
+                like:
+                    LanguageObject        object
+                        contains the translation object
+                        
+                    LoggingObject         object
+                        contains the logging object needed to log
+                        
+                    ExitOnError           boolean
+                        determines if the system should shut down 
+                        if an exception or error ocourse 
+                        
+        """
         self.ApiToken = ApiToken
         self.BotApiUrl = "https://api.telegram.org/bot" + self.ApiToken
         
@@ -45,7 +138,15 @@ class TelegramApi(object):
         # Hier we are initialising the function for the translations 
         self._ = self.LanguageObject.gettext
         
-        self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23) 
+        self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        
+        """ this looks like this:
+        {
+        'Content-Type': 
+            'application/x-www-form-urlencoded;charset=utf-8', 
+        'User-agent': "BetterPollBot/0.1 (Windows; 8; 6.2.9200) Python-urllib/('v3.4.3:9b73f1c3e601', 'Feb 24 2015 22:43:06') from https://github.com/apmzideas/BetterPollBot"
+        }
+        """
         self.Headers = {
                         'User-agent': (
                                        GlobalObjects.__AppName__ + '/' + str(GlobalObjects.__version__) 
@@ -63,18 +164,32 @@ class TelegramApi(object):
                         "Content-Type":
                         "application/x-www-form-urlencoded;charset=utf-8"
                         }
-        
+
         self.LoggingObject.info(self._("Starting self check"))
         self.BotName = self.GetMe()
-        
-        
-        
+               
     def GetBotName(self):
+        """
+        This methode returns the given botname from the API.
+        
+        Variables:
+            -
+        """
         return self.BotName
         
     def SendRequest(self, Request):
-        # This methode will send the prepared request to the telegram server.
-        # And in the end get the response.
+        """
+        This methode will send the request to the telegram server.
+        
+        It will return the in the end the response from the servers.
+        
+        Variables:
+            Request                       object
+                this varible is generated bevore the request is beeing
+                send to the telegram bot API
+
+        """
+
         
         # Reset the request timer if needed.
         if self.RequestTimer != self.GivenRequestTimer:
@@ -107,16 +222,40 @@ class TelegramApi(object):
                 exit()  
             
     def GetMe(self):
-        # A methode to confirm the ApiToken exists                                                    
+        """
+        A methode to confirm the ApiToken exists  
+        
+        It returns the responce from the request, this includes the 
+        botname.
+        
+        Variables:
+            -
+        """
+        #                                                   
         Request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)
         
         return self.SendRequest(Request)
              
     def GetUpdates(self, CommentNumber=None):
-        # a Methode to get the Updates as well to confirm the old comments from the Telegram API
-        # Notes
-        # 1. This method will not work if an outgoing webhook is set up.
-        # 2. In order to avoid getting duplicate updates, recalculate offset after each server response.
+        """
+        A Methode to get the Updates from the Telegram API.
+        
+        It does as well to confirm the old comments so that only 
+        new responces have to be processed.
+        
+        Notes
+        1. This method will not work if an outgoing webhook is set up.
+        2. In order to avoid getting duplicate updates, recalculate 
+        offset after each server response.
+        
+        Variables:
+            CommentNumber                 None or integer
+                this variable set's the completed request id
+                
+        """
+        
+        # 
+
         DataToBeSend = {
                         # "limit": 1,
                         "timeout": 0
@@ -144,8 +283,15 @@ class TelegramApi(object):
         return None
         
     def SendMessage(self, MessageObject):
-        # A method to send Messeges to the TelegramApi
-        # print(MessageObject.GetMessage())
+        """
+        A method to send Messeges to the TelegramApi
+        
+        Variables:
+            MessageObject                 object
+                this variable is the object with the content of the
+                message to be send, as well as other options.
+        """
+
         MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8')  # data should be bytes
     
         Request = urllib.request.Request(self.BotApiUrl + "/sendMessage",
@@ -156,8 +302,14 @@ class TelegramApi(object):
         return self.SendRequest(Request,)       
 
     def ForwardMessage(self, ChatId, FromChatId, MessageId):
-        # A method to forward a message
+        """
+        A method to forward a recived message
+        
+        This function will maybe be build in the future for now
+        it's not doing anything.
+        """
         MessageData = {}
+        pass
     
 if __name__ == "__main__":
     print('online')

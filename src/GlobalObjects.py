@@ -3,7 +3,8 @@
 
 
 ''' 
-    This File will hold the global object called ObjectHolder in this object all the global class instances will be stored.
+    This File will hold the global object called ObjectHolder in this 
+    object all the global interesting variables will be stored.
 '''
 
 __author__ = "Adrian Hornung"
@@ -12,7 +13,7 @@ __credits__ = ["Jonas Löw", "Adrian Hornung"]
 __translation__ = ["Jonas Löw", "Adrian Hornung"]
 __license__ = "License GNU General Public License https://www.gnu.org/copyleft/gpl.html"
 __version__ = 0.1
-__release__ = 20150914203031
+__release__ = 20150916192409
 __maintainer__ = "Adrian Hornung"
 __email__ = "hornung.adrian@gmail.com"
 __status__ = "Development"
