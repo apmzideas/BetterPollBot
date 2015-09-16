@@ -248,6 +248,12 @@ class MessageProcessor(object):
             return True
         
     def AddUser(self,):
+        """
+        This methode will add a new user to the database.
+        
+        Variables:
+            -
+        """
         # Insert into user
         TableName = "User_Table"
         Columns = {
@@ -372,7 +378,6 @@ class MessageProcessor(object):
         the database.
         Variables:
             -
-        
         """
 
         return self.SqlObject.SelectEntry(
@@ -395,9 +400,7 @@ class MessageProcessor(object):
         Variables:
             -
         """
-        # This methode will interpret and the message and do what ever is needed.
-        # This variable is to be used later on
-
+        
         MessageObject = messages.MessageClass.MessageToBeSend(ToChatId=self.ChatId)
         MessageObject.Text = self._("Sorry, but this command could not be interpreted.")
         # check if message is a command
@@ -792,3 +795,4 @@ class MessageProcessor(object):
             return Polls
         else: 
             return False
+        
