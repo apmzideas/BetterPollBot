@@ -7,6 +7,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+src/env/
 env/
 build/
 Build/
@@ -53,6 +54,8 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/_build_html
+_static
 
 # PyBuilder
 target/

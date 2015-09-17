@@ -12,7 +12,7 @@ http://dev.mysql.com/downloads/connector/python/
 The documentation is hosted on:
 http://dev.mysql.com/doc/connector-python/en/index.html
 """
-import sql.mysql.connector
+import mysql.connector
 
 # The custom modules
 import GlobalObjects
@@ -158,7 +158,7 @@ class SqlApi(object):
                   Password, 
                   DatabaseName=None, 
                   Host="127.0.0.1", 
-                  Port="3306", 
+                  Port="3306",
                   **OptionalObjects):
             
         """
@@ -222,24 +222,25 @@ class SqlApi(object):
 
         try:
             config = {
-                      'user': self.User,
-                      'password': self.Password,
-                      'host': self.Host,
-                      'port': 3306,
-                      'raise_on_warnings': True,
+                      "user": self.User,
+                      "password": self.Password,
+                      "host": self.Host,
+                      "port": 3306,
+                      "use_pure":False,
+                      "raise_on_warnings": True,
                       }
             if self.DatabaseName:
                 config['database'] = self.DatabaseName
     
-            return  sql.mysql.connector.connect(**config)
-        except sql.mysql.connector.Error as err:
-            if err.errno == sql.mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            return  mysql.connector.connect(**config)
+        except mysql.connector.Error as err:
+            if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.warning(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."),)
                 raise SystemExit
-            elif err.errno == sql.mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."))
                 raise SystemExit
-            elif err.errno == sql.mysql.connector.errorcode.CR_CONN_HOST_ERROR:
+            elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
                 self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The database server seems to be offline, please contact your administrator."))
                 raise SystemExit
             else:
@@ -332,7 +333,7 @@ class SqlApi(object):
                 CursorContent.append(Item)
             return CursorContent
         
-        except sql.mysql.connector.Error as err:
+        except mysql.connector.Error as err:
             self.LoggingObject.error(self._("The database returned following error: {Error}").format(Error=err) +" "+ self._("The executet query failed, please contact your administrator."))
             if isinstance(Data, list):
                 Data = ', '.join(Data)
@@ -458,7 +459,7 @@ class SqlApi(object):
             Cursor.execute(Query)
             return True
         
-        except sql.mysql.connector.Error as err:    
+        except mysql.connector.Error as err:    
             self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The following database table \"{TableName}\" could not be created, please contact your administrator.").format(TableName=TableName),)
             self.DatabaseConnection.rollback()
             return False

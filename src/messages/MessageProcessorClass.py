@@ -692,7 +692,7 @@ class MessageProcessor(object):
         if Language == "English":
             Language = "en_US"
         elif Language == "Deutsch":
-            Language = "de_De"
+            Language = "de_DE"
 
         self.SqlObject.UpdateEntry(
                                    Cursor=self.SqlCursor,
@@ -703,10 +703,12 @@ class MessageProcessor(object):
                                    )
         try:
             self.LanguageName = Language
-            self.LanguageObject = language.LanguageClass.CreateTranslationObject(Language)
+            self.LanguageObject = language.LanguageClass.CreateTranslationObject(self.LanguageName)
             self._ = self.LanguageObject.gettext
-            if self.LanguageObject.info()["language"]!= Language:
-                raise ErrorClasses.LanguageImportError("")
+            print(self.LanguageObject.info()["language"], Language)
+            print(self.LanguageObject.info()["language"] == Language)
+            if self.LanguageObject.info()["language"] != Language:
+                raise ErrorClasses.LanguageImportError(self.M_("Unnokown Error"))
             return True
         except ErrorClasses.LanguageImportError as Error:
             self.LoggingObject.error(self.M_("There has been an error with the changing of the language class, this error has been returned: {Error}").format(Error = Error)

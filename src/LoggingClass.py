@@ -1,7 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-''' a logging tool'''
+'''
+This module defines functions and classes which implement a flexible 
+event logging system for applications and libraries.
+'''
 
 import logging
 import logging.handlers
@@ -16,6 +19,7 @@ class Logger(logging.Logger):
     It simplifies the customisation and throuth the extending of some 
     parent methodes listed below, it makes the Logger thread and 
     multiprocess safe.
+
     """
 
     def __init__(self, 
@@ -47,6 +51,7 @@ class Logger(logging.Logger):
                     
             LoggingFormat                 string
                 the format of the string that has to be logged
+                
                 Example:
                     %(asctime)s 
                         Human-readable time when the LogRecord was 
@@ -57,7 +62,7 @@ class Logger(logging.Logger):
                         Text logging level for the message ('DEBUG', 
                         'INFO', 'WARNING', 'ERROR', 'CRITICAL').
                     
-                for the full list of possible attributes:
+                For the full list of possible attributes:
                     https://docs.python.org/3/library/logging.html
                     #logrecord-attributes
             
@@ -141,10 +146,10 @@ class Logger(logging.Logger):
             from the python documentation:
                 Logs a message with level DEBUG on the root logger. 
                 The msg is the message format string, and the args are 
-                the arguments which are merged into msg using the string
-                formatting operator. (Note that this means that you can 
-                use keywords in the format string, together with a 
-                single dictionary argument.)
+                the arguments which are merged into msg using the 
+                string formatting operator. (Note that this means that 
+                you can use keywords in the format string, together 
+                with a single dictionary argument.)
 
                 There are three keyword arguments in kwargs which are 
                 inspected: exc_info which, if it does not evaluate as 
@@ -166,9 +171,10 @@ class Logger(logging.Logger):
                 while searching for exception handlers.
 
                 You can specify stack_info independently of exc_info, 
-                e.g. to just show how you got to a certain point in your 
-                code, even when no exceptions were raised. The stack 
-                frames are printed following a header line which says:
+                e.g. to just show how you got to a certain point in 
+                your code, even when no exceptions were raised. The 
+                stack frames are printed following a header line which 
+                says:
 
                 Stack (most recent call last):
 
@@ -200,8 +206,7 @@ class Logger(logging.Logger):
                 The keys in the dictionary passed in extra should not 
                 clash with the keys used by the logging system. (See 
                 the Formatter documentation for more information on
-                which keys are used by the logging system.)
-                
+                which keys are used by the logging system.)  
         """
 
         self.Lock.acquire()
@@ -216,6 +221,7 @@ class Logger(logging.Logger):
         It makes the parent function multiprocess safe.
         See debug for more informations about the variables.
         """
+        
         self.Lock.acquire()
         super().info(msg, *args, **kwargs)
         self.Lock.release()
@@ -241,6 +247,7 @@ class Logger(logging.Logger):
         It makes the parent function multiprocess safe.
         See debug for more informations about the variables.
         """
+        
         self.Lock.acquire()
         super().error(msg, *args, **kwargs)
         self.Lock.release()                
@@ -253,6 +260,7 @@ class Logger(logging.Logger):
         It makes the parent function multiprocess safe.
         See debug for more informations about the variables.
         """
+        
         self.Lock.acquire()
         super().critical(msg, *args, **kwargs)
         self.Lock.release()  
@@ -266,6 +274,7 @@ class Logger(logging.Logger):
         This function should only be called from an exception handler.
         See debug for more informations about the variables.
         """
+        
         self.Lock.acquire()
         super().exception( msg, *args, **kwargs)
         self.Lock.release() 
@@ -278,6 +287,7 @@ class Logger(logging.Logger):
         It makes the parent function multiprocess safe.        
         See debug for more informations about the variables.
         """
+        
         self.Lock.acquire()
         super().log(level, msg, *args, **kwargs)
         self.Lock.release() 
@@ -285,7 +295,7 @@ class Logger(logging.Logger):
         
 if __name__ == '__main__':
     log_to = False
-    c = Logger()
+    c = Logger(True)
     c.info("Hallo?")
     c.error("Test")
 

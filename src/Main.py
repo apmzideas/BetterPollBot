@@ -157,6 +157,7 @@ def Main():
                                                                           SqlObject = SqlObject,
                                                                           LoggingObject = MasterLogger,
                                                                           ConfigurationObject = Configuration,
+                                                                          LanguageObeject = LanguageMasterObject,
                                                                           BotName = BotName
                                                                           )
                 

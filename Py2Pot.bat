@@ -7,6 +7,6 @@ Date	14.09.2015
 :comment
 SET Modules=src/*.py src/language/*.py src/messages/*.py src/parsers/*.py src/sql/*.py
 
-py -3.4  C:\PYthon34\Tools\i18n\pygettext.py -n --keyword=_ --default-domain=Telegram --output-dir=translation %Modules%
+py -3.4  C:\PYthon34\Tools\i18n\pygettext.py -n --keyword=_ --keyword=M_ --default-domain=Telegram --output-dir=translation %Modules%
 
 pause
