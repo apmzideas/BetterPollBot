@@ -119,13 +119,16 @@ class ConfigurationParser(configparser.RawConfigParser):
                                                     ("ApiToken", "")
                                                     ))
         
-        self["MySQLConnectionParameter"] = collections.OrderedDict((                        
+        self["MySQLConnectionParameter"] = collections.OrderedDict(
+                                                                   ( 
+                                                                    ("MaxDatabaseConnection", 10),                       
                                                                     ("DatabaseName", "BetterPollBotDatabase"),                                            
                                                                     ("DatabaseHost", "127.0.0.1"),
                                                                     ("DatabasePort", 3306),
                                                                     ("DatabaseUser",""),
                                                                     ("DatabasePassword","")
-                                                                    ))
+                                                                    )
+                                                                   )
         
         self["Logging"] = collections.OrderedDict((
                                                    ("LogToConsole", True),

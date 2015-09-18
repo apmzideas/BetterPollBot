@@ -299,7 +299,6 @@ class MessageProcessor(object):
         
         self.SqlObject.Commit(self.SqlCursor)
 
-    
     def GetInternalUserId(self):
         """
         This methode will get the internal user id from the database.
@@ -438,7 +437,7 @@ class MessageProcessor(object):
         if self.Text == "/start":
             MessageObject.Text = self._("Welcome.\nWhat can I do for you?\nPress /help for all my commands")
         elif self.Text == "/newpoll":
-            self.SetLastSendCommand("/newpoll")
+
             # Check if user has already a poll
             temp = self.SqlObject.ExecuteTrueQuery(
                                                    self.SqlObject.CreateCursor(Dictionary=False),
@@ -449,11 +448,12 @@ class MessageProcessor(object):
                 MessageObject.Text = self._("Welcome to the poll creation, please follow the following steps.\n") + self._("Please enter the name of the new poll.")
             else:
                 MessageObject.Text = self._("Please enter the name of the new poll.")
-
+            self.SetLastSendCommand("/newpoll")
+            
         elif self.Text == "/addanswer":
              # Get the polls
             Polls = self.GetUserPolls()
-            MessageObject.Text = self._("Please choose the poll to add the poll to:")
+            MessageObject.Text = self._("Please choose the poll to add the answer to:")
             MessageObject.ReplyKeyboardMarkup(
                                               [Polls],
                                               OneTimeKeyboard=True
@@ -467,7 +467,31 @@ class MessageProcessor(object):
         elif self.Text == "/delpoll":
             pass
         elif self.Text == "/polllink":
-            pass
+            # This command will give the system the chance to include itself into a group
+            # first check if user has a poll to add to a group
+            Polls = self.GetUserPolls()
+
+            if Polls != []:
+                # if some polls exist add them to the system
+                MessageObject.Text = self._("Please choose the poll to add to the group:")
+                MessageObject.ReplyKeyboardMarkup(
+                                                  [Polls],
+                                                  OneTimeKeyboard=True
+                                                  )                
+            
+                self.SetLastSendCommand("/polllink", None)
+            
+            elif Polls == []:
+                # there are no polls to add to a group 
+                MessageObject.Text = self._("Sorry but there are no poll in your database.\nDo you want to add some?")
+                MessageObject.ReplyKeyboardMarkup(                                                  [
+                                                   [self._("YES")],
+                                                   [self._("NO")]
+                                                   ],
+                                                  OneTimeKeyboard=True
+                                                  )
+                self.SetLastSendCommand("/newpoll unclear", None)
+                
         elif self.Text == "/done":
             LastSendCommand = self.GetLastSendCommand()
             LastUsedId = LastSendCommand["Last_Used_Id"]
@@ -481,7 +505,7 @@ class MessageProcessor(object):
                                                    ],
                                                   OneTimeKeyboard=True
                                                   )
-                self.SetLastSendCommand("/addtogroup unclear", LastUsedId)
+                self.SetLastSendCommand("/polllink unclear", LastUsedId)
         elif self.Text == "/help":                
             MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /listpoll - see all your polls\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
         elif self.Text == "/settings":
@@ -573,6 +597,12 @@ class MessageProcessor(object):
                     self.SetLastSendCommand("/newpoll question", Id)
                 else:
                     MessageObject.Text = self._("The poll {PollName} allready exists.\nPress /list and on the poll to modify it.")
+            elif LastCommand == "/newpoll unclear":
+                if self.Text == self._("YES"):
+                    MessageObject.Text = self._("")
+                elif self.Text == self._("NO"):
+                    pass
+            
             elif LastCommand.startswith("/newpoll question"):
 
                 Poll = messages.PollingClass.Poll(
@@ -602,21 +632,31 @@ class MessageProcessor(object):
                     MessageObject.ReplyKeyboardHide()
                     self.ClearLastCommand()
             
-            elif LastCommand.startswith("/addtogroup"):
-                if LastCommand == "/addtogroup unclear":
-                    if self.Text == self._("YES"):
-                        # Send the Url to add the poll to the group.
-                        Poll = messages.PollingClass.Poll(
-                                         InternalUserId=self.InternalUserId,
-                                         InternalPollId=LastUsedId,
-                                         LoggingObject=self.LanguageObject,
-                                         SqlObject=self.SqlObject                                                          
+        elif LastCommand.startswith("/polllink"):
+                # Send the Url to add the poll to the group.
+                Poll = messages.PollingClass.Poll(
+                                 InternalUserId = self.InternalUserId,
+                                 PollName = self.Text,
+                                 LoggingObject = self.LanguageObject,
+                                 SqlObject  =self.SqlObject                                                          
                                                           )
-                        URL = Poll.GenerateURL()
-                        pass
-                    elif self.Text == self._("NO"):
-                        # stop execution
-                        pass
+                URL = Poll.GenerateURL(self.BotName)
+                
+                MessageObject.Text = self._("Press the following link to add the poll to a group:\n {GroupURL}").format(GroupURL = URL)
+
+#                 else:
+#                     # Get the poll url from it's name
+#                     
+#                     Poll = messages.PollingClass.Poll(
+#                                          InternalUserId=self.InternalUserId,
+#                                          PollName = self.Text,
+#                                          LoggingObject=self.LanguageObject,
+#                                          SqlObject=self.SqlObject                                                      
+#                                                       )
+#                     Poll.GetPollByName()
+#                     URL = Poll.GenerateURL()
+#                     MessageObject.Text = self._("Press the following link to add the poll to a group:\n {GroupURL}").format(GroupURL = URL)
+
         return MessageObject
                
     def SetLastSendCommand(self, Command, LastUsedId = None):
@@ -805,7 +845,7 @@ class MessageProcessor(object):
         
         This method will get all the allready created polls and 
         will return them, if the user has no polls the system will
-        return a False.
+        return a None.
         
         Variables:
             -
@@ -826,5 +866,5 @@ class MessageProcessor(object):
         if len(Polls)>0:
             return Polls
         else: 
-            return False
+            return None
         

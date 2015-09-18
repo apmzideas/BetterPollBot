@@ -108,7 +108,7 @@ class Poll(object):
                                             self.PollName, 
                                             self.InternalUserId
                                             )
-                                   )
+                                   )[0]["Internal_Poll_Id"]
     
     def GetExternalPollId(self):
         """
@@ -117,8 +117,24 @@ class Poll(object):
         Variables:
             -
         """
-        pass
-    
+        if self.InternalPollId == None:
+            self.GetPollByName()
+
+#         self.ExternalPollId = self.SqlObject.SelectEntry(
+#                                    self.SqlCursor,
+#                                    "Poll_Table",
+#                                    ("CAST('External_Poll_Id' AS CHARACTER) AS 'External_Poll_Id'",),
+#                                    Where = [["Internal_Poll_Id","=", "%s"]],
+#                                    Data = (self.InternalPollId)
+#                                    )[0]["External_Poll_Id"]
+        
+        Query = "SELECT CAST(`External_Poll_Id` AS CHARACTER) AS `External_Poll_Id` FROM `poll_table` WHERE `Internal_Poll_Id`=%s;"
+        Data = self.InternalPollId
+        self.ExternalPollId = self.SqlObject.ExecuteTrueQuery(self.SqlCursor,
+                                        Query,
+                                        Data
+                                        )[0]['External_Poll_Id']
+
     def GetPollName(self):
         """
         This methode will return the poll name if given.
@@ -170,10 +186,16 @@ class Poll(object):
         The telegram 
         https://telegram.me/BetterPollBot?startgroup=<external group id>
         """
-        URL = "https://telegram.me/{Name}".format(Name = NameOfApp)
+        URL = [
+               "https://telegram.me/", 
+               NameOfApp,
+               ]
                 
         if self.ExternalPollId == None:
             self.GetExternalPollId()
+            
+        URL.append("?startgroup=")
+        URL.append(self.ExternalPollId)
         
-        return URL
+        return "".join(URL)
         

@@ -331,14 +331,13 @@ class SqlApi(object):
         """
         try:
             if Data != None:
-                if not isinstance(Data, dict):
-                    if not isinstance(Data, list):
-                        if isinstance(Data, int):
-                            Data = (str(Data),)
-                        elif isinstance(Data, str):
-                            Data = (Data,)
-                        Data = list(Data)
-                    Cursor.execute(Query, [str(i) for i in Data])
+                if not isinstance(Data, dict) and not isinstance(Data, list):
+                    if isinstance(Data, int):
+                        Data = (Data,)
+                    elif isinstance(Data, str):
+                        Data = (Data,)
+                    Data = [str(i) for i in list(Data)] 
+                    Cursor.execute(Query, Data)
                 else:
                     Cursor.execute(Query, Data)
             else:
@@ -794,9 +793,9 @@ class SqlApi(object):
         Query.append(";")
         
         Query = ' '.join([str(i) for i in Query])
-        
-        #print(Query)
-        
+#         
+#         print(Query)
+#         print(Data)
         if Data == ():
             return (self.ExecuteTrueQuery(Cursor, Query, ))
         else:
