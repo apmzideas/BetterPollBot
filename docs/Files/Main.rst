@@ -8,3 +8,5 @@ The function to start the execution of program.
    :undoc-members:
    :show-inheritance:
    
+   .. autofunction:: Main
+   
