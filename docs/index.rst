@@ -6,16 +6,31 @@
 Welcome to BetterPollBot's documentation!
 =========================================
 
-Contents:
+Top level files:
 
 .. toctree::
    :maxdepth: 2
-   :numbered:
    :glob:
 
    Files/Main.rst
    Files/GlobalObjects.rst
    Files/LoggingClass.rst
+   Files/Setup.rst
+   Files/TelegramClass.rst
+   Files/ErrorClasses.rst
+
+Sub modules:
+   
+.. toctree::
+   :maxdepth: 2
+   :glob:
+   
+   Files/sql.rst
+   Files/parsers.rst
+   Files/messages.rst
+   Files/language.rst
+
+
 	
 Indices and tables
 ==================

@@ -7,6 +7,4 @@ The function to start the execution of program.
    :members:
    :undoc-members:
    :show-inheritance:
-   
-   .. autofunction:: Main
-   
+      
