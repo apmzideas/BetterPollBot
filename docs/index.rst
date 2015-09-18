@@ -11,11 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
    :numbered:
-   :titlesonly:
    :glob:
-	
-   Files/LoggingClass.rst
 
+   Files/Main.rst
+   Files/GlobalObjects.rst
+   Files/LoggingClass.rst
+	
 Indices and tables
 ==================
 

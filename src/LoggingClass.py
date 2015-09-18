@@ -63,8 +63,7 @@ class Logger(logging.Logger):
                         'INFO', 'WARNING', 'ERROR', 'CRITICAL').
                     
                 For the full list of possible attributes:
-                    https://docs.python.org/3/library/logging.html
-                    #logrecord-attributes
+                    https://docs.python.org/3/library/logging.html#logrecord-attributes
             
             Dateformat                  string
                 configures the date string format
