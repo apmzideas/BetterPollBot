@@ -105,6 +105,9 @@ class ConfigurationParser(configparser.RawConfigParser):
     def WriteDefaultConfigurationFile(self):
         """
         A methode to write the default configuration to the .ini file.
+        
+        Variables:
+            \-
         """
         
         #The Title of the file 
@@ -148,6 +151,9 @@ class ConfigurationParser(configparser.RawConfigParser):
         
         This methode will read the configuration file into the buffer 
         of the object directory. 
+        
+        Variables:
+            \-
         """
 
         self.read(self.FileName,)

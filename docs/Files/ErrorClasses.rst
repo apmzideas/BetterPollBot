@@ -1,8 +1,8 @@
-LoggingClass
+ErrorClasses
 ============
 
-.. automodule:: LoggingClass
+.. automodule:: ErrorClasses
    :members:
    :undoc-members:
    :show-inheritance:
-   :inherited-members:
+  

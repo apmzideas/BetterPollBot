@@ -5,4 +5,3 @@ parsers.ConfigurationClass
    :members:
    :undoc-members:
    :show-inheritance:
-  

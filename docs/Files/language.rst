@@ -1,5 +1,5 @@
 language package
-===============
+================
 
 This package contains all the language processing modules.
 

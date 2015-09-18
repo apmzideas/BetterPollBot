@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 ''' 
-    Some error classes needed for error- exceptionhangling.
+    Some error classes needed for error and exception hangling.
 '''
 
 class TokenError(Exception):

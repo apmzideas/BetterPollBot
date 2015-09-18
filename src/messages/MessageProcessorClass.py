@@ -25,7 +25,8 @@ class MessageProcessor(object):
     so that this class will be thread save and so that we can run
     multiple instances per unit.    
     
-    The message object will contain all the following parts.
+    The message object will contain all the following parts.\n
+    .. code-block:: python\n
         {
                        'message': {
                                    'date': 1439471738, 
@@ -52,12 +53,14 @@ class MessageProcessor(object):
         Just a init here nothing special.
                         
         Vairables:
-            MessageObject - the to be analysed message
-            OptialObejects - just some optional objects
-                for example the logging object, the configuration
-                object, the sql object with the connection 
-                commands and the master language object, that is used
-                for the logging in the correct language.
+            MessageObject                 object
+                the message to be analysed message
+                
+            OptialObejects                object
+                just some optional objects for example the logging 
+                object, the configuration object, the sql object with 
+                the connection commands and the master language object, 
+                that is used for the logging in the correct language.
         """
 
         
@@ -227,13 +230,14 @@ class MessageProcessor(object):
         
         The following query will return 1 if a user with the specified 
         username exists a 0 otherwise.
-         
-        SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+        
+        .. code-block:: sql\n
+            SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
         
         It will return a True if the database retuns a 1 and a False
         if the databse a 0.
         Variables:
-            -
+            \-
         """
 
         Exists = self.SqlObject.ExecuteTrueQuery(
@@ -252,7 +256,7 @@ class MessageProcessor(object):
         This methode will add a new user to the database.
         
         Variables:
-            -
+            \-
         """
         # Insert into user
         TableName = "User_Table"
@@ -306,7 +310,7 @@ class MessageProcessor(object):
         This methode will return the internal user id directly.
         
         Veriables:
-            -
+            \-
         """
         # first the internal user id
         FromTable = "User_Table"
@@ -329,12 +333,12 @@ class MessageProcessor(object):
         The following query will return a 1 if a user with the 
         specified username exists a 0 otherwise. From that on
         the system will return True if the group exists and if it
-        doens't False.
-        
-        SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
+        doens't False.\n
+        .. code-block:: sql\n
+            SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
         
         Variables:
-            -
+            \-
         """
         
         # This method checks in the database if the group (if it is one) exists.
@@ -356,7 +360,7 @@ class MessageProcessor(object):
         This method will add an not existing group to the database.
         
         Variables:
-            -
+            \-
         """
         # This method will add the group if it doen't exit.
         self.SqlObject.InsertEntry(
@@ -376,7 +380,7 @@ class MessageProcessor(object):
         This method will return the the internal group id directly from
         the database.
         Variables:
-            -
+            \-
         """
 
         return self.SqlObject.SelectEntry(
@@ -397,7 +401,7 @@ class MessageProcessor(object):
         It returns the MessageObject after letting it get modified.
         
         Variables:
-            -
+            \-
         """
         
         MessageObject = messages.MessageClass.MessageToBeSend(ToChatId=self.ChatId)
@@ -430,8 +434,8 @@ class MessageProcessor(object):
         the user Text.
         
         Variables:
-            MessageObejct - is the message obejct that has to be 
-                modified
+            MessageObejct                 object   
+                is the message obejct that has to be modified
         """
          # register the command in the database for later use
         if self.Text == "/start":
@@ -547,8 +551,8 @@ class MessageProcessor(object):
         after modifying it.
         
         Variables:
-            MessageObejct - is the message obejct that has to be 
-                modified
+            MessageObejct                 object
+                is the message obejct that has to be modified
         """
         
         # Get the last send command and the last used id
@@ -666,12 +670,17 @@ class MessageProcessor(object):
         The commands used can be set manuely from the programmer 
         so that it can be user for flow controll.
         
-        Example:
+        Example:\n
+        .. code-block:: guess\n
             /Command option
+            
         Variables:
-            Command - this is the used command with the option
-            LastUsedId - This is the last used id, it can be
-                every id, depending the situation.
+            Command                       string 
+                this is the used command with the option
+                
+            LastUsedId                    integer
+                This is the last used id, it can be every id, depending 
+                the situation.
         """
         
         TableName = "Session_Table"
@@ -706,11 +715,12 @@ class MessageProcessor(object):
         The command are mostly set by the system and not by the user,
         at least not direct.
         
-        Example:
+        Example:\n
+        .. code-block:: guess\n
             /command option
             
         Variables:
-            -
+            \-
         """
 
         
@@ -734,7 +744,7 @@ class MessageProcessor(object):
         This method clears the last set command if the process finished.
         
         Variables:
-            -
+            \-
         """
 
         self.SqlObject.UpdateEntry(
@@ -758,7 +768,8 @@ class MessageProcessor(object):
         been an error.
         
         Variables:
-            Language - should be a string with the new language file
+            Language                      string
+                should be a string with the new language file
         """
         
         if Language == "English":
@@ -796,7 +807,7 @@ class MessageProcessor(object):
         unique otherwise it returns a False.
         
         Variables:
-            -
+            \-
         """
         IfExists = self.SqlObject.ExecuteTrueQuery(
                                                    self.SqlObject.CreateCursor(Dictionary=False),
@@ -848,7 +859,7 @@ class MessageProcessor(object):
         return a None.
         
         Variables:
-            -
+            \-
         """
         Polls = self.SqlObject.SelectEntry(
                                    self.SqlCursor,

@@ -17,9 +17,8 @@ class Logger(logging.Logger):
     This class is a child class of the logging.Logger.
     
     It simplifies the customisation and throuth the extending of some 
-    parent methodes listed below, it makes the Logger thread and 
+    parent methodes listed below, it makes the Logger thread and
     multiprocess safe.
-
     """
 
     def __init__(self, 
@@ -44,21 +43,25 @@ class Logger(logging.Logger):
             MaxLogs                       integer
                 the maximal amout of old logs are written.
                 Example:
-                    log.txt
-                    log.txt.1
-                    log.txt.2
+                
+                .. code-block:: python
+                
+                    log.txt\n
+                    log.txt.1\n
+                    log.txt.2\n
                     ...
                     
             LoggingFormat                 string
                 the format of the string that has to be logged
                 
                 Example:
-                    %(asctime)s 
+                
+                    ``%(asctime)s`` 
                         Human-readable time when the LogRecord was 
                         created. By default this is of the form 
                         ‘2003-07-08 16:49:45,896’ (the numbers after 
                         the comma are millisecond portion of the time).
-                    %(levelname)s
+                    ``%(levelname)s``
                         Text logging level for the message ('DEBUG', 
                         'INFO', 'WARNING', 'ERROR', 'CRITICAL').
                     
@@ -67,19 +70,28 @@ class Logger(logging.Logger):
             
             Dateformat                  string
                 configures the date string format
-                Example:    
-                    %Y-%m-%d %H:%M:%S 
-                    
+                
+                Example:
+                
+                    ``%Y-%m-%d %H:%M:%S``
+                
+                For the full lsit of possibles attributes:
+                    https://docs.python.org/3.4/library/time.html#time.strftime
+                
             LoggingLevel                string
                 set's the minium logging value
                 Explanation:
+                    
+                    ========  =============
                     Level     Numeric value
+                    ========  =============
                     CRITICAL      50
                     ERROR         40
                     WARNING       30
                     INFO          20
                     DEBUG         10
                     NOTSET        0
+                    ========  ============= 
                     
         """
         PossibleLoggingLevel = {"NOTSET": logging.NOTSET,
@@ -151,25 +163,25 @@ class Logger(logging.Logger):
                 with a single dictionary argument.)
 
                 There are three keyword arguments in kwargs which are 
-                inspected: exc_info which, if it does not evaluate as 
+                inspected: ``exc_info`` which, if it does not evaluate as 
                 false, causes exception information to be added to the 
                 logging message. If an exception tuple (in the format 
-                returned by sys.exc_info()) is provided, it is used; 
-                otherwise, sys.exc_info() is called to get the 
+                returned by ``sys.exc_info())`` is provided, it is used; 
+                otherwise, ``sys.exc_info()`` is called to get the 
                 exception information.
 
-                The second optional keyword argument is stack_info, 
-                which defaults to False. If true, stack information 
+                The second optional keyword argument is ``stack_info``, 
+                which defaults to ``False``. If true, stack information 
                 is added to the logging message, including the actual 
                 logging call. Note that this is not the same stack 
                 information as that displayed through specifying 
-                exc_info: The former is stack frames from the bottom 
+                ``exc_info``: The former is stack frames from the bottom 
                 of the stack up to the logging call in the current 
                 thread, whereas the latter is information about stack 
                 frames which have been unwound, following an exception, 
                 while searching for exception handlers.
 
-                You can specify stack_info independently of exc_info, 
+                You can specify ``stack_info`` independently of ``exc_info``, 
                 e.g. to just show how you got to a certain point in 
                 your code, even when no exceptions were raised. The 
                 stack frames are printed following a header line which 
@@ -182,25 +194,26 @@ class Logger(logging.Logger):
 
                 The third optional keyword argument is extra which 
                 can be used to pass a dictionary which is used to 
-                populate the __dict__ of the LogRecord created for the 
+                populate the ``__dict__`` of the LogRecord created for the 
                 logging event with user-defined attributes. These 
                 custom attributes can then be used as you like. 
                 For example, they could be incorporated into logged
                 messages. For example:
+                
+                .. code-block:: python\n
+                    FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s '\\
+                        '%(message)s'
+                    logging.basicConfig(format=FORMAT)
+                    d = {'clientip': '192.168.0.1', 'user': 'fbloggs'}
+                    logging.warning('Protocol problem: %s', 
+                        'connection reset', 
+                        extra=d
+                    )
 
-                FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s '\\
-                    '%(message)s'
-                logging.basicConfig(format=FORMAT)
-                d = {'clientip': '192.168.0.1', 'user': 'fbloggs'}
-                logging.warning('Protocol problem: %s', 
-                    'connection reset', 
-                    extra=d
-                )
-
-                would print something like:
-            
-                2006-02-08 22:20:02,165 192.168.0.1 fbloggs  
-                Protocol problem: connection reset
+                would print something like:\n
+                .. code-block:: python\n
+                    2006-02-08 22:20:02,165 192.168.0.1 fbloggs  
+                    Protocol problem: connection reset
             
                 The keys in the dictionary passed in extra should not 
                 clash with the keys used by the logging system. (See 

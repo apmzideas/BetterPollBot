@@ -75,7 +75,7 @@ class Parser(argparse.ArgumentParser):
         understand the sys.args values better.
         
         Variables:
-            -
+            \-
         """
         # adding parser arguments to the system
         self.add_argument(
@@ -198,6 +198,9 @@ class Parser(argparse.ArgumentParser):
     def GetArguments(self):
         """
         This method will return the parser arguments as a directory.
+        
+        Variables:
+            \-
         """
         return self.parse_args()
         

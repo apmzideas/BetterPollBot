@@ -29,7 +29,7 @@ class TelegramApi(object):
     
         Each bot is given a unique authentication token when it is 
         created. The token looks something like 
-        123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11, but we'll use simply 
+        ``123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11``, but we'll use simply 
         <token> in this document instead. You can learn about obtaining 
         tokens and generating new ones in this document.
         
@@ -37,7 +37,7 @@ class TelegramApi(object):
         
         All queries to the Telegram Bot API must be served over HTTPS 
         and need to be presented in this form: 
-        https://api.telegram.org/bot<token>/METHOD_NAME. 
+        ``https://api.telegram.org/bot<token>/METHOD_NAME``. 
         
         Like this for example:
         https://api.telegram.org/bot<token>/getMe
@@ -45,10 +45,10 @@ class TelegramApi(object):
         We support GET and POST HTTP methods. We support four ways of 
         passing parameters in Bot API requests:
         
-            URL query string
-            application/x-www-form-urlencoded
-            application/json (except for uploading files)
-            multipart/form-data (use to upload files)
+            * URL query string
+            * application/x-www-form-urlencoded
+            * application/json (except for uploading files)
+            * multipart/form-data (use to upload files)
         
         The response contains a JSON object, which always has a Boolean 
         field ‘ok’ and may have an optional String field ‘description’ 
@@ -59,8 +59,8 @@ class TelegramApi(object):
         ‘description’. An Integer ‘error_code’ field is also returned, 
         but its contents are subject to change in the future.
         
-            All methods in the Bot API are case-insensitive.
-            All queries must be made using UTF-8.
+            * All methods in the Bot API are case-insensitive.
+            * All queries must be made using UTF-8.
     
         the documentation is online under:
             https://core.telegram.org/bots/api
@@ -76,23 +76,25 @@ class TelegramApi(object):
         
         Here we set the variables like the header send to the API:
         Example:
-            Header
-            {
-            'Content-Type': 
-            'application/x-www-form-urlencoded;charset=utf-8', 
-            'User-agent': 
-            "BetterPollBot/0.1 (Windows; 8; 6.2.9200)"\\
-            " Python-urllib/('v3.4.3:9b73f1c3e601', "\\
-            "'Feb 24 2015 22:43:06') "\\
-            "from https://github.com/apmzideas/BetterPollBot"
-            }
+            .. code-block:: python
+            
+                Header
+                {
+                'Content-Type': 
+                'application/x-www-form-urlencoded;charset=utf-8', 
+                'User-agent': 
+                "BetterPollBot/0.1 (Windows; 8; 6.2.9200)"\\
+                " Python-urllib/('v3.4.3:9b73f1c3e601', "\\
+                "'Feb 24 2015 22:43:06') "\\
+                "from https://github.com/apmzideas/BetterPollBot"
+                }
         
         Variables:
             ApiToken                      string
                 contains the token to contact the background information
-                of the bot
+                of the bot\n
                 Each bot is given a unique authentication token when it 
-                is created
+                is created.
             
             RequestTimer                  integer
                 set's the sleeping time between requests to the bot API
@@ -140,13 +142,13 @@ class TelegramApi(object):
         
         self.SSLEncription = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
         
-        """ this looks like this:
-        {
-        'Content-Type': 
-            'application/x-www-form-urlencoded;charset=utf-8', 
-        'User-agent': "BetterPollBot/0.1 (Windows; 8; 6.2.9200) Python-urllib/('v3.4.3:9b73f1c3e601', 'Feb 24 2015 22:43:06') from https://github.com/apmzideas/BetterPollBot"
-        }
-        """
+#         this looks like this:
+#         {
+#         'Content-Type': 
+#             'application/x-www-form-urlencoded;charset=utf-8', 
+#         'User-agent': "BetterPollBot/0.1 (Windows; 8; 6.2.9200) Python-urllib/('v3.4.3:9b73f1c3e601', 'Feb 24 2015 22:43:06') from https://github.com/apmzideas/BetterPollBot"
+#         }
+        
         self.Headers = {
                         'User-agent': (
                                        GlobalObjects.__AppName__ + '/' + str(GlobalObjects.__version__) 
@@ -173,7 +175,7 @@ class TelegramApi(object):
         This methode returns the given botname from the API.
         
         Variables:
-            -
+            \-
         """
         return self.BotName
         
@@ -229,7 +231,7 @@ class TelegramApi(object):
         botname.
         
         Variables:
-            -
+           \ -
         """
         #                                                   
         Request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)

@@ -219,7 +219,7 @@ class SqlApi(object):
         catch the error and make a log entry. 
         
         Variables:
-            -
+            \-
         """ 
 
         try:
@@ -257,7 +257,7 @@ class SqlApi(object):
         This method will close the open connection for good.
         
         Variables:
-            -
+            \-
         """
         try:
             self.DatabaseConnection.close()
@@ -318,16 +318,17 @@ class SqlApi(object):
                 contains the query that has to be executed
             Data                  list
                 contains the data to be send to the databse
-                
-        cursor = cnx.cursor(prepared=True)
-        stmt = "SELECT fullname FROM employees WHERE id = %s" # (1)
-        cursor.execute(stmt, (5,))                            # (2)
-        # ... fetch data ...
-        cursor.execute(stmt, (10,))                           # (3)
-        # ... fetch data ...
-        
-        Query = "SELECT fullname FROM employees WHERE id = %s or id = %s"
-        Data = (10, 15)
+         
+        .. code-block:: python\n       
+            cursor = cnx.cursor(prepared=True)
+            stmt = "SELECT fullname FROM employees WHERE id = %s" # (1)
+            cursor.execute(stmt, (5,))                            # (2)
+            # ... fetch data ...
+            cursor.execute(stmt, (10,))                           # (3)
+            # ... fetch data ...
+            
+            Query = "SELECT fullname FROM employees WHERE id = %s or id = %s"
+            Data = (10, 15)
         """
         try:
             if Data != None:
@@ -395,14 +396,14 @@ class SqlApi(object):
         """
         A methode to dynamicaly create a table entry to the database.
         
-        HOW TO USE:
- 
+        HOW TO USE:\n
+        .. code-block:: python\n
             TableData = (
                 ('Id', 'INT UNSIGNED NOT NULL AUTO_INCREMENT'),
                 ('Unique', 'ID'),
                 ('PRIMARY KEY', 'ID'),
                 ('Foreigh Key', 'ID', 'Persons(P_Id)')
-            )
+                )
                     
         Variables:
             Cursor                object
@@ -692,28 +693,31 @@ class SqlApi(object):
             
             OrderBy               array (list or tuple)
                 contains the order in wich the data will be returnd
-                Example
-                    [
+                
+                .. code-block:: python\n
+                    Example
                         [
-                            column_name, 
-                            "ASC"
-                        ],
-                        [
-                            column_name, 
-                                #if the order is empty ASC will be used
-                        ],
-                        [
-                            column_name,
-                            "DESC"
-                        ]
-                    ] 
+                            [
+                                column_name, 
+                                "ASC"
+                            ],
+                            [
+                                column_name, 
+                                    #if the order is empty ASC will be used
+                            ],
+                            [
+                                column_name,
+                                "DESC"
+                            ]
+                        ] 
                 
             Amount                None or integer
                 is the limit of entrys that will be returned
                 
             Where                 array (list or tuple)  
                 contains the filter of the query
-                Example
+                Example\n
+                .. code-block:: python\n
                     [
                         [
                             'column_name', 
@@ -820,15 +824,17 @@ class SqlApi(object):
                 
             Columns               dictionary
                 contains the columns into that will be inseted
-                Example
-                {
-                    'id' : id,
-                    Name': 'Max'
-                }
+                Example\n
+                .. code-block:: python\n
+                    {
+                        'id' : id,
+                        Name': 'Max'
+                    }
                 
             Where                 array (list or tuple)
                 contains the query filter
-                Example
+                Example\n
+                .. code-block:: python\n
                     [
                         [
                             "Id", 
@@ -927,11 +933,12 @@ class SqlApi(object):
                 
             Columns               dictionary
                 contains the columns into that will be inseted
-                Example
-                {
-                    'id' : id,
-                    Name': 'Max'
-                }
+                Example\n
+                .. code-block:: python\n
+                    {
+                        'id' : id,
+                        Name': 'Max'
+                    }
             Duplicate             None or dictionary
                 contains the columns in those the possible duplicates 
                 values exist

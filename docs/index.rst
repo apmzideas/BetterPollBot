@@ -15,7 +15,6 @@ Top level files:
    Files/Main.rst
    Files/GlobalObjects.rst
    Files/LoggingClass.rst
-   Files/Setup.rst
    Files/TelegramClass.rst
    Files/ErrorClasses.rst
 
