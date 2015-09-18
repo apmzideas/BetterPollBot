@@ -142,6 +142,7 @@ def Main():
             PressedKey = ord(msvcrt.getch())
             if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
                 MasterLogger.info( _("A user shutdown was requested will now shutdown."))
+                SqlObject.CloseConnection()
                 break
         
         #Processrequest()

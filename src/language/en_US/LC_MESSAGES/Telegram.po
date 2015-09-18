@@ -4,48 +4,351 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: 2015-08-11 16:17+0200\n"
-"PO-Revision-Date: 2015-08-11 16:18+0200\n"
-"Language-Team: \n"
+"Project-Id-Version: Telegram BetterPollBot\n"
+"POT-Creation-Date: 2015-09-17 20:01+0200\n"
+"PO-Revision-Date: 2015-09-17 21:51+0200\n"
+"Last-Translator: Hornung Adrian <hornung.adrian@gmail.com>\n"
+"Language-Team: Jonas Löw; Adrian Hornung <hornung.adrian@gmail.com>\n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 1.8.4\n"
-"Last-Translator: Hornung Adrian <hornung.adrian@gmail.com>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: en\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
-#: Telegram\TelegramClass.py:41 Telegram\TelegramClass.py:43
+#: src/messages\MessageProcessorClass.py:91
+#: src/messages\MessageProcessorClass.py:92
+msgid "The sql obejct is missing, please contact your administrator."
+msgstr "The sql obejct is missing, please contact your administrator."
+
+#: src/messages\MessageProcessorClass.py:405
+msgid "Sorry, but this command could not be interpreted."
+msgstr "Sorry, but this command could not be interpreted."
+
+#: src/messages\MessageProcessorClass.py:439
 msgid ""
-"The token you are using has not been found in the system. Try later or check "
-"the token for spelling errors."
+"Welcome.\n"
+"What can I do for you?\n"
+"Press /help for all my commands"
 msgstr ""
-"The token you are using has not been found in the system. Try later or check "
-"the token for spelling errors."
+"Welcome.\n"
+"What can I do for you?\n"
+"Press /help for all my commands"
 
-#: Telegram\TelegramClass.py:41 Telegram\TelegramClass.py:43
-#: Telegram\TelegramClass.py:45 Telegram\TelegramClass.py:47
-#: Telegram\TelegramClass.py:49 Telegram\TelegramClass.py:51
-msgid "The webserver returned the HTTPError \"{0}\":"
-msgstr "The webserver returned the HTTPError \"{0}\":"
+#: src/messages\MessageProcessorClass.py:449
+msgid "Welcome to the poll creation, please follow the following steps.\n"
+msgstr "Welcome to the poll creation, please follow the following steps.\n"
 
-#: Telegram\TelegramClass.py:45
+#: src/messages\MessageProcessorClass.py:449
+#: src/messages\MessageProcessorClass.py:451
+msgid "Please enter the name of the new poll."
+msgstr "Please enter the name of the new poll."
+
+#: src/messages\MessageProcessorClass.py:456
+msgid "Please choose the poll to add the poll to:"
+msgstr "Please choose the poll to add the poll to:"
+
+#: src/messages\MessageProcessorClass.py:476
+msgid ""
+"Thank you very much for adding the commands.\n"
+"Do you wnat to add this poll to a group?"
+msgstr ""
+"Thank you very much for adding the commands.\n"
+"Do you wnat to add this poll to a group?"
+
+#: src/messages\MessageProcessorClass.py:486
+msgid ""
+"Work in progress! @BetterPollBot is a bot similar to @PollBot, with more "
+"features and less spamming in groups.\n"
+"\n"
+"general commands\n"
+" /help - display's this message\n"
+" /settings - display's you're own settings\n"
+"\n"
+"poll related commands\n"
+" /newpoll - creates a new poll\n"
+" /delpoll - deletes a selected poll\n"
+" /addanswer - adds a new answer to the selected poll\n"
+" /delanswer - deletes a selected answer\n"
+" /listpoll - see all your polls\n"
+" /polllink - get's the link to a selected poll\n"
+" /endpoll - ends a poll in a group\n"
+" /pollsettings - display's all the settings for a selected poll"
+msgstr ""
+"Work in progress! @BetterPollBot is a bot similar to @PollBot, with more "
+"features and less spamming in groups.\n"
+"\n"
+"general commands\n"
+" /help - display's this message\n"
+" /settings - display's you're own settings\n"
+"\n"
+"poll related commands\n"
+" /newpoll - creates a new poll\n"
+" /delpoll - deletes a selected poll\n"
+" /addanswer - adds a new answer to the selected poll\n"
+" /delanswer - deletes a selected answer\n"
+" /listpoll - see all your polls\n"
+" /polllink - get's the link to a selected poll\n"
+" /endpoll - ends a poll in a group\n"
+" /pollsettings - display's all the settings for a selected poll"
+
+#: src/messages\MessageProcessorClass.py:490
+msgid "Please, choose the setting to change:"
+msgstr "Please, choose the setting to change:"
+
+#: src/messages\MessageProcessorClass.py:504
+msgid "Please choose your preferred language:"
+msgstr "Please choose your preferred language:"
+
+#: src/messages\MessageProcessorClass.py:538
+msgid "Language changed successfully."
+msgstr "Language changed successfully."
+
+#: src/messages\MessageProcessorClass.py:555
+msgid ""
+"The poll \"{PollName}\" has been created, please enter the question to the "
+"poll."
+msgstr ""
+"The poll \"{PollName}\" has been created, please enter the question to the "
+"poll."
+
+#: src/messages\MessageProcessorClass.py:558
+msgid ""
+"The poll {PollName} allready exists.\n"
+"Press /list and on the poll to modify it."
+msgstr ""
+"The poll {PollName} allready exists.\n"
+"Press /list and on the poll to modify it."
+
+#: src/messages\MessageProcessorClass.py:569
+msgid ""
+"The question has been added.\n"
+"Do you want to add some anwsers to the question?"
+msgstr ""
+"The question has been added.\n"
+"Do you want to add some anwsers to the question?"
+
+#: src/messages\MessageProcessorClass.py:572
+msgid "YES"
+msgstr "YES"
+
+#: src/messages\MessageProcessorClass.py:573
+msgid "NO"
+msgstr "NO"
+
+#: src/messages\MessageProcessorClass.py:580
+msgid "Please enter your first possible awnser to the question."
+msgstr "Please enter your first possible awnser to the question."
+
+#: src/messages\MessageProcessorClass.py:584
+msgid "You can add an awnser later via the /addawnser command."
+msgstr "You can add an awnser later via the /addawnser command."
+
+#: src/messages\MessageProcessorClass.py:711
+msgid "Unnokown Error"
+msgstr "Unnokown Error"
+
+#: src/messages\MessageProcessorClass.py:714
+msgid ""
+"There has been an error with the changing of the language class, this error "
+"has been returned: {Error}"
+msgstr ""
+"There has been an error with the changing of the language class, this error "
+"has been returned: {Error}"
+
+#: src/messages\MessageProcessorClass.py:715
+msgid "Please, contact your administrator."
+msgstr "Please, contact your administrator."
+
+#: src/parsers\ParserClass.py:91
+msgid "Toggles the type of logging from the set settings in the config.ini."
+msgstr "Toggles the type of logging from the set settings in the config.ini."
+
+#: src/parsers\ParserClass.py:101
+msgid "Set the file to log into temporary to the set destination."
+msgstr "Set the file to log into temporary to the set destination."
+
+#: src/parsers\ParserClass.py:111
+msgid "Change the language settings temporary"
+msgstr "Change the language settings temporary"
+
+#: src/parsers\ParserClass.py:122
+msgid "Set's the time for the main loop to wait until the next request."
+msgstr "Set's the time for the main loop to wait until the next request."
+
+#: src/parsers\ParserClass.py:133
+msgid "Sets the telegram api token temporary."
+msgstr "Sets the telegram api token temporary."
+
+#: src/parsers\ParserClass.py:144
+msgid "Changes the database name to connect to."
+msgstr ""
+
+#: src/parsers\ParserClass.py:154
+msgid "Set the database user, needed to connect to the database."
+msgstr ""
+
+#: src/parsers\ParserClass.py:155 src/parsers\ParserClass.py:166
+msgid "Attention use this option insted of the config.ini!"
+msgstr ""
+
+#: src/parsers\ParserClass.py:165
+msgid "Set the databse password, needed to connect to the database."
+msgstr ""
+
+#: src/parsers\ParserClass.py:175
+msgid "Set the database host, needed to connect to the database."
+msgstr ""
+
+#: src/parsers\ParserClass.py:184
+msgid "Set the database port, needed to connect to the database."
+msgstr ""
+
+#: src/sql\SqlClass.py:238
+msgid "Something is wrong with your user name or password."
+msgstr ""
+
+#: src/sql\SqlClass.py:238 src/sql\SqlClass.py:241 src/sql\SqlClass.py:244
+#: src/sql\SqlClass.py:250 src/sql\SqlClass.py:463 src/sql\SqlClass.py:954
+msgid "The database connector returned following error: {Error}"
+msgstr ""
+
+#: src/sql\SqlClass.py:241
+msgid "The database does not exist, please contact your administrator."
+msgstr ""
+
+#: src/sql\SqlClass.py:244 src/sql\SqlClass.py:250
+msgid ""
+"The database server seems to be offline, please contact your administrator."
+msgstr ""
+
+#: src/sql\SqlClass.py:337
+msgid "The database returned following error: {Error}"
+msgstr ""
+
+#: src/sql\SqlClass.py:337
+msgid "The executet query failed, please contact your administrator."
+msgstr ""
+
+#: src/sql\SqlClass.py:342
+msgid ""
+"The failed query is:\n"
+"{Query}\n"
+"{Data}"
+msgstr ""
+
+#: src/sql\SqlClass.py:463
+msgid ""
+"The following database table \"{TableName}\" could not be created, please "
+"contact your administrator."
+msgstr ""
+
+#: src/sql\SqlClass.py:865
+msgid "The where type in your query is not in the list of valid types. {Error}"
+msgstr ""
+
+#: src/sql\SqlClass.py:867
+msgid "There where two operator behind each other that doesn't work."
+msgstr ""
+
+#: src\Main.py:61
+msgid "{AppName} has been startet."
+msgstr ""
+
+#: src\Main.py:64
+msgid "No telegram token has been added to the system!"
+msgstr ""
+
+#: src\Main.py:85
+msgid "User:"
+msgstr ""
+
+#: src\Main.py:87
+msgid "Password:"
+msgstr ""
+
+#: src\Main.py:104
+msgid "try again"
+msgstr ""
+
+#: src\Main.py:106
+msgid "too bad"
+msgstr ""
+
+#: src\Main.py:108
+msgid "You have used {NrTry} of 3 times:"
+msgstr ""
+
+#: src\Main.py:114
+msgid ""
+"{AppName} has been stoped, because you didn't input the correct user name of "
+"password."
+msgstr ""
+
+#: src\Main.py:119
+msgid "Are you sure you want to install the database structure?"
+msgstr ""
+
+#: src\Main.py:121
+msgid "{AppName} will now start to install the database structure"
+msgstr ""
+
+#: src\Main.py:124
+msgid "The database has been installed, please restart system."
+msgstr ""
+
+#: src\Main.py:126
+msgid "Database will not be installed terminating process."
+msgstr ""
+
+#: src\Main.py:134
+msgid "Exit loop by pressing <Esc>, <q> or <Space>"
+msgstr ""
+
+#: src\Main.py:135
+msgid "Getting updates from the telegram api."
+msgstr ""
+
+#: src\Main.py:144
+msgid "A user shutdown was requested will now shutdown."
+msgstr ""
+
+#: src\TelegramClass.py:168
+msgid "Starting self check"
+msgstr ""
+
+#: src\TelegramClass.py:206
+msgid ""
+"The server cannot or will not process the request due to something that is "
+"perceived to be a client error (e.g., malformed request syntax, invalid "
+"request message framing, or deceptive request routing)."
+msgstr ""
+
+#: src\TelegramClass.py:206 src\TelegramClass.py:208 src\TelegramClass.py:210
+#: src\TelegramClass.py:212 src\TelegramClass.py:214 src\TelegramClass.py:217
+msgid "The webserver returned the HTTPError \"{Error}\"."
+msgstr ""
+
+#: src\TelegramClass.py:208
+msgid ""
+"The ApiToken you are using has not been found in the system. Try later or "
+"check the ApiToken for spelling errors."
+msgstr ""
+
+#: src\TelegramClass.py:210
 msgid "The adress is forbidden to access, please try later."
 msgstr "The adress is forbidden to access, please try later."
 
-#: Telegram\TelegramClass.py:47
+#: src\TelegramClass.py:212
 msgid ""
 "The requested resource was not found. This status code can also be used to "
 "reject a request without closer reason. Links, which refer to those error "
-"pages, also referred to as dead links"
+"pages, also referred to as dead links."
 msgstr ""
-"The requested resource was not found. This status code can also be used to "
-"reject a request without closer reason. Links, which refer to those error "
-"pages, also referred to as dead links"
 
-#: Telegram\TelegramClass.py:49
+#: src\TelegramClass.py:214
 msgid ""
 "The server could not fulfill its function as a gateway or proxy, because it "
 "has itself obtained an invalid response. Please try later."
@@ -53,7 +356,7 @@ msgstr ""
 "The server could not fulfill its function as a gateway or proxy, because it "
 "has itself obtained an invalid response. Please try later."
 
-#: Telegram\TelegramClass.py:51
+#: src\TelegramClass.py:217
 msgid ""
 "The server could not fulfill its function as a gateway or proxy, because it "
 "has not received a reply from it's servers or services within a specified "
@@ -62,3 +365,26 @@ msgstr ""
 "The server could not fulfill its function as a gateway or proxy, because it "
 "has not received a reply from it's servers or services within a specified "
 "period of time."
+
+#: src\TelegramClass.py:221
+msgid "Exiting the system!"
+msgstr ""
+
+#~ msgid ""
+#~ "The token you are using has not been found in the system. Try later or "
+#~ "check the token for spelling errors."
+#~ msgstr ""
+#~ "The token you are using has not been found in the system. Try later or "
+#~ "check the token for spelling errors."
+
+#~ msgid "The webserver returned the HTTPError \"{0}\":"
+#~ msgstr "The webserver returned the HTTPError \"{0}\":"
+
+#~ msgid ""
+#~ "The requested resource was not found. This status code can also be used "
+#~ "to reject a request without closer reason. Links, which refer to those "
+#~ "error pages, also referred to as dead links"
+#~ msgstr ""
+#~ "The requested resource was not found. This status code can also be used "
+#~ "to reject a request without closer reason. Links, which refer to those "
+#~ "error pages, also referred to as dead links"

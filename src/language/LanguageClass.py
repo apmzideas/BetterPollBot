@@ -10,7 +10,7 @@ In this file the function _() or self._() will be initialised.
 import gettext
 
 def CreateTranslationObject( 
-                            Languages = ["de", "en"], 
+                            Languages = ["de_DE", "en_US"], 
                             Localedir='language',
                             ):
     """
@@ -33,5 +33,9 @@ def CreateTranslationObject(
     return LanguageObject
 
 if __name__ == "__main__":
-    i = CreateTranslationObject(localedir="../language")
+    i = CreateTranslationObject("en_US",Localedir="../language")
+    _ = i.gettext
+    print(_("YES")=="JA")
+    print(_("YES"), "JA")
+    
 

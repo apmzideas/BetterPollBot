@@ -13,7 +13,9 @@ class Poll(object):
 
     def __init__(self, 
                  InternalUserId = None, 
-                 InternalPollId = None, 
+                 InternalPollId = None,
+                 ExternalPollId = None,
+                 PollName = None,
                  **OptionalObjects
                  ):
         """
@@ -39,7 +41,11 @@ class Poll(object):
         self.InternalUserId = InternalUserId
         
         self.InternalPollId = InternalPollId
-
+        
+        self.ExternalPollId = ExternalPollId
+        
+        self.PollName = PollName
+        
         # Predefining attribute so that it later can be used for evil.
         self.LoggingObject = None
         
@@ -80,7 +86,38 @@ class Poll(object):
                                             ],
                                    Autocommit = True
                                    )
-        return True
+    
+    def GetPollByName(self):
+        """
+        This methode will set the self.InternalPollId with the id.
+        
+        Variables:
+            -
+        """
+        
+        self.InternalPollId = self.SqlObject.SelectEntry(
+                                   self.SqlCursor,
+                                   FromTable = "Poll_Table",
+                                   Columns = ("Internal_Poll_Id",),
+                                   Where = [
+                                            ["Poll_Name","=","%s"],
+                                            "AND",
+                                            ["Master_User_Id", "=", "%s"]
+                                            ],
+                                    Data = (
+                                            self.PollName, 
+                                            self.InternalUserId
+                                            )
+                                   )
+    
+    def GetExternalPollId(self):
+        """
+        This method will get the external group id from the database.
+        
+        Variables:
+            -
+        """
+        pass
     
     def GetPollName(self):
         """
@@ -89,8 +126,10 @@ class Poll(object):
         Variables:
             -
         """
-        pass     
-    
+        PollName = ""
+        
+        return PollName   
+         
     def AddAnwser(self, Anwser):
         """
         This method adds an anwser to the poll.
@@ -104,23 +143,37 @@ class Poll(object):
                                   TableName = "Options_Table",
                                   Columns = {
                                              "Option_Name": Anwser,
-                                             "Id_Poll_Table": self.InternalPollId
-                                             }
+                                             "Id_Poll_Table": self.InternalPollId,
+                                             "Master_User_Id": self.InternalUserId,
+                                             },
+                                  Autocommit = True
                                   )
-        
-        pass
-    
-#     def AddQuestion(self, Question):
-#         pass
-    
 
-def GetPollByExternalId(ExternalId):
-    """
-    This method will return a poll object with the correct selected poll. 
-    """
-    # 
-    # SELECT * FROM `poll_table` WHERE `External_Poll_Id`=CAST('c4ca4238a0b923820dcc509a6f75849b' AS BINARY)
+    def GetPollByExternalId(self):
+        """
+        This method will return a poll object with the correct selected poll. 
+        
+        Variables:
+            -
+        """
+        # 
+        # SELECT * FROM `poll_table` WHERE `External_Poll_Id`=CAST('c4ca4238a0b923820dcc509a6f75849b' AS BINARY)
+        
+        PollObject = Poll()
+        
+        return PollObject
     
-    PollObject = Poll()
-    
-    return PollObject
+    def GenerateURL(self, NameOfApp):
+        """
+        Generates and returns the url needed to add a poll to a group.
+        
+        The telegram 
+        https://telegram.me/BetterPollBot?startgroup=<external group id>
+        """
+        URL = "https://telegram.me/{Name}".format(Name = NameOfApp)
+                
+        if self.ExternalPollId == None:
+            self.GetExternalPollId()
+        
+        return URL
+        

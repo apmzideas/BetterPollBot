@@ -12,6 +12,8 @@ http://dev.mysql.com/downloads/connector/python/
 The documentation is hosted on:
 http://dev.mysql.com/doc/connector-python/en/index.html
 """
+import sys
+
 import mysql.connector
 
 # The custom modules
@@ -247,9 +249,23 @@ class SqlApi(object):
                 self.LoggingObject.error(err)
                 raise SystemExit
         except:
-            self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = "[WinError 10061] No connection could be made because the target machine actively refused it") + " " + self._("The database server seems to be offline, please contact your administrator.")) 
+            self.LoggingObject.critical(self._("The database connector returned following error: {Error}").format(Error = sys.exc_info()[0]) )
             raise SystemExit
+    
+    def CloseConnection(self,):
+        """
+        This method will close the open connection for good.
         
+        Variables:
+            -
+        """
+        try:
+            self.DatabaseConnection.close()
+        except mysql.connection.Error as err:
+            self.LoggingObject.error(self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database connection could not be closed correctly, please contact your administrator!"))
+        except:
+            self.LoggingObject.critical(self._("The database connector returned following error: {Error}").format(Error = sys.exc_info()[0]) )
+
     def CreateCursor(self, Buffered=False, Dictionary=True):
         """
         This methode creates the connection cursor
@@ -318,7 +334,7 @@ class SqlApi(object):
                 if not isinstance(Data, dict):
                     if not isinstance(Data, list):
                         if isinstance(Data, int):
-                            Data = (Data,)
+                            Data = (str(Data),)
                         elif isinstance(Data, str):
                             Data = (Data,)
                         Data = list(Data)
@@ -336,10 +352,10 @@ class SqlApi(object):
         except mysql.connector.Error as err:
             self.LoggingObject.error(self._("The database returned following error: {Error}").format(Error=err) +" "+ self._("The executet query failed, please contact your administrator."))
             if isinstance(Data, list):
-                Data = ', '.join(Data)
+                Data = ', '.join((str(i) for i in Data))
             elif isinstance(Data, dict):
                 Data = ', '.join("{Key}={Value}".format(Key = Key, Value = Value) for (Key, Value) in Data.items())
-            self.LoggingObject.error(self._("The failed query is:\n{Query}\n{Data}").format(Query = Query,
+            self.LoggingObject.error(self._("The failed query is:\nQuery:\n{Query}\n\nData:\n{Data}").format(Query = Query,
                                                                                             Data = Data))
             
     def CreateDatabase(self, Cursor, DatabaseName):
@@ -621,6 +637,7 @@ class SqlApi(object):
         # Second all the inserts
         # The Settings for the default polls
         
+        # The default language for the polls
         Columns = {
                    "Setting_Name": "Language",
                    "Default_String": "en_US"
@@ -628,6 +645,22 @@ class SqlApi(object):
         
         self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
         
+        # The setting to define if a response should be forced
+        Columns = {
+                   "Setting_Name": "ForceResponce",
+                   "Default_Boolean": False
+                   }
+        
+        self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
+        
+        # The setting to define if multiple answer per persons are 
+        # allowed.
+        Columns = {
+                   "Setting_Name": "MultiAnswer",
+                   "Default_Boolean": False
+                   }
+        
+        self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
         # the inserts for the settings 
         Columns = {
                    "Setting_Name": "Language",

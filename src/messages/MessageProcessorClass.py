@@ -450,7 +450,7 @@ class MessageProcessor(object):
             else:
                 MessageObject.Text = self._("Please enter the name of the new poll.")
 
-        elif self.Text == "/addanwser":
+        elif self.Text == "/addanswer":
              # Get the polls
             Polls = self.GetUserPolls()
             MessageObject.Text = self._("Please choose the poll to add the poll to:")
@@ -472,16 +472,16 @@ class MessageProcessor(object):
             LastSendCommand = self.GetLastSendCommand()
             LastUsedId = LastSendCommand["Last_Used_Id"]
             LastCommand = LastSendCommand["Command"]
-            if LastCommmand == "/addanwser awnser":
+            if LastCommand == "/addanwser anwser":
                 MessageObject.Text = self._("Thank you very much for adding the commands.\nDo you wnat to add this poll to a group?")
                 MessageObject.ReplyKeyboardMarkup(
                                                   [
-                                                   ["1. YES"],
-                                                   ["2. NO"]
+                                                   [self._("YES")],
+                                                   [self._("NO")]
                                                    ],
                                                   OneTimeKeyboard=True
                                                   )
-                self.SetLastSendCommand("/addtogroup", LastUsedId)
+                self.SetLastSendCommand("/addtogroup unclear", LastUsedId)
         elif self.Text == "/help":                
             MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n\ngeneral commands\n /help - display's this message\n /settings - display's you're own settings\n\npoll related commands\n /newpoll - creates a new poll\n /delpoll - deletes a selected poll\n /addanswer - adds a new answer to the selected poll\n /delanswer - deletes a selected answer\n /listpoll - see all your polls\n /polllink - get's the link to a selected poll\n /endpoll - ends a poll in a group\n /pollsettings - display's all the settings for a selected poll")
         elif self.Text == "/settings":
@@ -532,59 +532,91 @@ class MessageProcessor(object):
         LastUsedId = LastSendCommand["Last_Used_Id"]
         LastCommand = LastSendCommand["Command"]
         
-        if LastCommand != None:
-            if LastCommand == "/language":
-                self.ChangeUserLanguage(self.Text)
-                MessageObject.Text = self._("Language changed successfully.")
-                MessageObject.ReplyKeyboardHide()
-                self.ClearLastCommand()
-            elif LastCommand.startswith("/addanwser"):
-                if LastCommand == "addawnser awnser":
-                    Poll = messages.PollingClass.Poll(
-                                             InternalUserId=self.InternalUserId,
-                                             InternalPollId=PollId,
-                                             LoggingObject=self.LanguageObject,
-                                             SqlObject=self.SqlObject
-                                            )
-                    Poll.AddAnwser(self.Text)
-                #elif LastCommand.startswith()
-            elif LastCommand.startswith("/newpoll"):
-                if LastCommand == "/newpoll":
-                    Id = self.AddPoll()
-                    if Id != False:
-                        MessageObject.Text = self._("The poll \"{PollName}\" has been created, please enter the question to the poll.").format(PollName=self.Text)
-                        self.SetLastSendCommand("/newpoll question", Id)
-                    else:
-                        MessageObject.Text = self._("The poll {PollName} allready exists.\nPress /list and on the poll to modify it.")
-                elif LastCommand.startswith("/newpoll question"):
+        if LastCommand == None:
+            # if there is nothing return de default.
+            return MessageObject
+        
+        if LastCommand == "/language":
+            self.ChangeUserLanguage(self.Text)
+            MessageObject.Text = self._("Language changed successfully.")
+            MessageObject.ReplyKeyboardHide()
+            self.ClearLastCommand()
+            
+        elif LastCommand.startswith("/addanwser"): # /addanwser NoPoll
+            if LastCommand == "addawnser anwser":
+                Poll = messages.PollingClass.Poll(
+                                         InternalUserId=self.InternalUserId,
+                                         InternalPollId=PollId,
+                                         LoggingObject=self.LanguageObject,
+                                         SqlObject=self.SqlObject
+                                         )
+                Poll.AddAnwser(self.Text)
+                MessageObject.Text = self._("The anwser has been added, please add a additional anwser to stop adding anwsers press /done or enter it.")
+            elif LastCommand == "/addanwser NoPoll":
+                Poll = messages.PollingClass.Poll(
+                                         InternalUserId=self.InternalUserId,
+                                         PollName = self.Text,
+                                         LoggingObject=self.LanguageObject,
+                                         SqlObject=self.SqlObject                                                  
+                                                  )
+                Poll.GetPollByName()
+                
+                MessageObject.Text = self._("Please enter your first possible anwser to the question.")
+                
+                self.SetLastSendCommand("/addanwser anwser", Poll.InternalPollId)
+                
+        elif LastCommand.startswith("/newpoll"):
+            if LastCommand == "/newpoll":
+                Id = self.AddPoll()
+                if Id != False:
+                    MessageObject.Text = self._("The poll \"{PollName}\" has been created, please enter the question to the poll.").format(PollName=self.Text)
+                    self.SetLastSendCommand("/newpoll question", Id)
+                else:
+                    MessageObject.Text = self._("The poll {PollName} allready exists.\nPress /list and on the poll to modify it.")
+            elif LastCommand.startswith("/newpoll question"):
 
-                    Poll = messages.PollingClass.Poll(
-                                             InternalUserId=self.InternalUserId,
-                                             InternalPollId=LastUsedId,
-                                             LoggingObject=self.LanguageObject,
-                                             SqlObject=self.SqlObject
-                                             )
+                Poll = messages.PollingClass.Poll(
+                                         InternalUserId=self.InternalUserId,
+                                         InternalPollId=LastUsedId,
+                                         LoggingObject=self.LanguageObject,
+                                         SqlObject=self.SqlObject
+                                         )
 
-                    if Poll.UpdateQuestion(self.Text):
-                        MessageObject.Text = self._("The question has been added.\nDo you want to add some anwsers to the question?")
-                        MessageObject.ReplyKeyboardMarkup(
-                                                          [
-                                                           ["1. " + self._("YES")], 
-                                                           ["2. " + self._("NO")]
-                                                           ],
-                                                          OneTimeKeyboard=True
+                if Poll.UpdateQuestion(self.Text):
+                    MessageObject.Text = self._("The question has been added.\nDo you want to add some anwsers to the question?")
+                    MessageObject.ReplyKeyboardMarkup(
+                                                      [
+                                                       [self._("YES")],
+                                                       [self._("NO")]
+                                                       ],
+                                                      OneTimeKeyboard=True
+                                                      )
+                    self.SetLastSendCommand("/newpoll anwser", LastUsedId)
+            elif LastCommand.startswith("/newpoll anwser"):
+                if self.Text == self._("YES"):
+                    MessageObject.Text = self._("Please enter your first possible anwser to the question.")
+                    MessageObject.ReplyKeyboardHide()
+                    self.SetLastSendCommand("/addawnser anwser", LastUsedId)
+                elif self.Text == self._("NO"):
+                    MessageObject.Text = self._("You can add an answer later via the /addawnser command.")
+                    MessageObject.ReplyKeyboardHide()
+                    self.ClearLastCommand()
+            
+            elif LastCommand.startswith("/addtogroup"):
+                if LastCommand == "/addtogroup unclear":
+                    if self.Text == self._("YES"):
+                        # Send the Url to add the poll to the group.
+                        Poll = messages.PollingClass.Poll(
+                                         InternalUserId=self.InternalUserId,
+                                         InternalPollId=LastUsedId,
+                                         LoggingObject=self.LanguageObject,
+                                         SqlObject=self.SqlObject                                                          
                                                           )
-                        self.SetLastSendCommand("/newpoll anwser", LastUsedId)
-                elif LastCommand.startswith("/newpoll anwser"):
-                    if self.Text.startswith("1."):
-                        MessageObject.Text = self._("Please enter your first possible awnser to the question.")
-                        MessageObject.ReplyKeyboardHide()
-                        self.SetLastSendCommand("/addawnser awnser", LastUsedId)
-                    elif self.Text.startswith("2. "):
-                        MessageObject.Text = self._("You can add an awnser later via the /addawnser command.")
-                        MessageObject.ReplyKeyboardHide()
-                        self.ClearLastCommand()
-                    
+                        URL = Poll.GenerateURL()
+                        pass
+                    elif self.Text == self._("NO"):
+                        # stop execution
+                        pass
         return MessageObject
                
     def SetLastSendCommand(self, Command, LastUsedId = None):
@@ -705,8 +737,6 @@ class MessageProcessor(object):
             self.LanguageName = Language
             self.LanguageObject = language.LanguageClass.CreateTranslationObject(self.LanguageName)
             self._ = self.LanguageObject.gettext
-            print(self.LanguageObject.info()["language"], Language)
-            print(self.LanguageObject.info()["language"] == Language)
             if self.LanguageObject.info()["language"] != Language:
                 raise ErrorClasses.LanguageImportError(self.M_("Unnokown Error"))
             return True
