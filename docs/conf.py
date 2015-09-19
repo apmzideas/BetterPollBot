@@ -286,3 +286,4 @@ texinfo_show_urls = 'footnote'
 
 # -- Additional options set by the user -----------------------------------
 autoclass_content="both"
+html_show_sourcelink=False

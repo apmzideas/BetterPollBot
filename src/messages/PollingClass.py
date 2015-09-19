@@ -92,7 +92,7 @@ class Poll(object):
         This methode will set the self.InternalPollId with the id.
         
         Variables:
-            -
+            \-
         """
         
         self.InternalPollId = self.SqlObject.SelectEntry(
@@ -115,7 +115,7 @@ class Poll(object):
         This method will get the external group id from the database.
         
         Variables:
-            -
+            \-
         """
         if self.InternalPollId == None:
             self.GetPollByName()
@@ -140,7 +140,7 @@ class Poll(object):
         This methode will return the poll name if given.
         
         Variables:
-            -
+            \-
         """
         PollName = ""
         
@@ -170,7 +170,7 @@ class Poll(object):
         This method will return a poll object with the correct selected poll. 
         
         Variables:
-            -
+            \-
         """
         # 
         # SELECT * FROM `poll_table` WHERE `External_Poll_Id`=CAST('c4ca4238a0b923820dcc509a6f75849b' AS BINARY)
@@ -185,6 +185,12 @@ class Poll(object):
         
         The telegram 
         https://telegram.me/BetterPollBot?startgroup=<external group id>
+        
+        Variables:
+            NameOfApp                     string
+                contains the name of the bot (the bot username) it
+                is needed to tell the telegram client what bot with what 
+                parameter to add to a user chosen group.
         """
         URL = [
                "https://telegram.me/", 

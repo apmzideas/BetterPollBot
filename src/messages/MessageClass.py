@@ -19,11 +19,9 @@ class MessageToBeSend(object):
     We currently support text and emoji for your buttons. Here are some 
     custom keyboard examples:
         https://core.telegram.org/bots#keyboards
-    
     The markup is build on the telegram bot api.
-    see here for the main bot api:
+    See here for the main bot api:
         https://core.telegram.org/bots/api
-
     """
     
     def __init__(
@@ -37,31 +35,40 @@ class MessageToBeSend(object):
         The init of the class.
         
         The Api defines the following parameters:
-        
-        Parameters                    Type        Required
-        
-        chat_id                       integer     Yes
-            Unique identifier for the message recipient — 
-            User or GroupChat id
-            
-        text                          string       Yes          
-            Text of the message to be sent
-            
-        disable_web_page_preview      boolean      Optional     
-            Disables link previews for links in this message
-            
-        reply_to_message_id           integer      Optional     
-            If the message is a reply, ID of the original message
-            
-        reply_markup        
-        ReplyKeyboardMarkup or 
-        ReplyKeyboardHide or 
-        ForceReply                     string       Optional     
-            Additional interface options. A JSON-serialized object 
-            for a custom reply keyboard, instructions to hide keyboard 
-            or to force a reply from the user.
-
-        
+       +----------------------------+-----------+------------+ 
+       | Parameters                 |   Type    |  Required  |
+       +============================+===========+============+ 
+       |**chat_id**                 |  integer  |   Yes      |  
+       |  Unique identifier for     |           |            |  
+       |  the message recipient     |           |            | 
+       |  (User or GroupChat id)    |           |            |
+       +----------------------------+-----------+------------+     
+       |**text**                    |   string  |     Yes    |      
+       |  Text of the message       |           |            |
+       |  to be sent                |           |            |
+       +----------------------------+-----------+------------+     
+       |**disable_web_page_preview**|   boolean |  Optional  |     
+       |  Disables link previews    |           |            |
+       |  for links in this message |           |            |
+       +----------------------------+-----------+------------+     
+       |**reply_to_message_id**     |  integer  |  Optional  |     
+       |  if the message is a       |           |            |  
+       |  reply, ID of the          |           |            |
+       |  original message          |           |            | 
+       +----------------------------+-----------+------------+     
+       |**reply_markup**            |           |            |
+       |**ReplyKeyboardMarkup**     |           |            |
+       |**or**                      |           |            |
+       |**ReplyKeyboardHide**       |           |            |
+       |**or**                      |           |            |  
+       |**ForceReply**              |    string |  Optional  |   
+       |  Additional interface      |           |            |
+       |  options. A JSON-serialized|           |            |
+       |  object for a custom reply |           |            | 
+       |  keyboard, instructions to |           |            |   
+       |  hide keyboard or to force |           |            |
+       |  a reply from the user.    |           |            |
+       +----------------------------+-----------+------------+
         Variables:
             ToChatId              integer
                 contains the receiver of the message
@@ -100,27 +107,28 @@ class MessageToBeSend(object):
         Variables:
         Keybord             array (list or tulple)
             This variable contains the keyboard layout to be send
-            Example:
-            list
-                [
+            Example:\n
+            .. code-block:: python\n
+                list
                     [
-                        "Yes"
-                    ],
-                    [
-                        "No"
+                        [
+                            "Yes"
+                        ],
+                        [
+                            "No"
+                        ]
                     ]
-                ]
-            tuple
-                (
+                tuple
                     (
-                        "Yes", 
-                        # Don't forget this komma or else the tuple
-                        # will collaps
-                    ),
-                    (
-                        "No",
+                        (
+                            "Yes", 
+                            # Don't forget this komma or else the tuple
+                            # will collaps
+                        ),
+                        (
+                            "No",
+                        )
                     )
-                )
         
         ResizeKeyboard      boolean 
             From the api:
@@ -141,7 +149,7 @@ class MessageToBeSend(object):
                 Optional. Use this parameter if you want to show the 
                 keyboard to specific users only. Targets: 1) users that 
                 are @mentioned in the text of the Message object; 2) if 
-                the bot's message is a reply (has reply_to_message_id), 
+                the bot's message is a reply (has ``reply_to_message_id``), 
                 sender of the original message.
     
                 Example: A user requests to change the bot‘s language, 
@@ -221,7 +229,7 @@ class MessageToBeSend(object):
         telegram bot api.
         
         Variables:
-            -
+            \-
         """
         DataToBeSend = { 
                         "chat_id": self.ToChatId,
