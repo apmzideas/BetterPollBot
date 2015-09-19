@@ -647,7 +647,7 @@ class MessageProcessor(object):
                 URL = Poll.GenerateURL(self.BotName)
                 
                 MessageObject.Text = self._("Press the following link to add the poll to a group:\n {GroupURL}").format(GroupURL = URL)
-
+                self.ClearLastCommand()
 #                 else:
 #                     # Get the poll url from it's name
 #                     

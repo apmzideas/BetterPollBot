@@ -154,7 +154,6 @@ class SqlApi(object):
             
     """
     
-
     def __init__(self,
                   User, 
                   Password, 
@@ -228,13 +227,14 @@ class SqlApi(object):
                       "password": self.Password,
                       "host": self.Host,
                       "port": 3306,
-                      "use_pure":False,
+                      #"use_pure":False,
                       "raise_on_warnings": True,
                       }
             if self.DatabaseName:
                 config['database'] = self.DatabaseName
     
             return  mysql.connector.connect(**config)
+        
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.warning(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."),)
@@ -251,7 +251,10 @@ class SqlApi(object):
         except:
             self.LoggingObject.critical(self._("The database connector returned following error: {Error}").format(Error = sys.exc_info()[0]) )
             raise SystemExit
-    
+        
+        else:
+            self.CloseConnection()
+        
     def CloseConnection(self,):
         """
         This method will close the open connection for good.

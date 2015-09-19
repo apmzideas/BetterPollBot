@@ -160,13 +160,13 @@ class MessageToBeSend(object):
         """
         
         self.ReplyMarkup["keyboard"] = Keybord
-        if ResizeKeyboard:
-            self.ReplyMarkup["resize_keyboard"] = ResizeKeyboard
+        if ResizeKeyboard or len(Keybord[0]) > 4:
+            self.ReplyMarkup["resize_keyboard"] = True
         if OneTimeKeyboard:
-            self.ReplyMarkup["one_time_keyboard"] = OneTimeKeyboard
+            self.ReplyMarkup["one_time_keyboard"] = True
         if Selective and not "selective"  in self.ReplyMarkup:
             self.ReplyMarkup["selective"] = Selective
-    
+            
     def ReplyKeyboardHide(
                           self, 
                           Selective=False

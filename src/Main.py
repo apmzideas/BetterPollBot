@@ -90,7 +90,8 @@ def Main():
                                     ParserArguments.DatabaseUser,
                                     ParserArguments.DatabasePassword,
                                     ParserArguments.DatabaseName,
-                                    LoggingObject = MasterLogger
+                                    LoggingObject = MasterLogger,
+                                    LanguageObject = LanguageMasterObject
                                     )
         
         if SqlObject.DatabaseConnection == False:
