@@ -286,8 +286,4 @@ texinfo_show_urls = 'footnote'
 
 # -- Additional options set by the user -----------------------------------
 autoclass_content="both"
-<<<<<<< HEAD
 html_show_sourcelink=False
-=======
-html_show_sourcelink=False
->>>>>>> origin/master
