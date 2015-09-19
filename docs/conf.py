@@ -138,7 +138,7 @@ html_favicon = '../src/icons/photo_2015-09-03_20-15-23.ico'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static',]
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -173,10 +173,10 @@ html_static_path = ['_static']
 #html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
@@ -268,8 +268,9 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'BetterPollBot', 'BetterPollBot Documentation',
-   author, 'BetterPollBot', 'One line description of project.',
-   'Miscellaneous'),
+   author, 'BetterPollBot', 'Work in progress! @BetterPollBot is a bot'
+   ' similar to @PollBot, with more features and less spaming in groups.',
+   'robots'),
 ]
 
 # Documents to append as an appendix to all manuals.
