@@ -20,19 +20,38 @@ def LogPrint(Message, Type = "INFO"):
 # Set the compiler time
 DateOfCompiling = time.strftime("%Y%m%d%H%M%S", time.gmtime())
 
-# Modification of the GlobalObjects
+
+# Modification of the GlobalObjects.py
 if os.path.isfile("GlobalObjects.py"):
     os.rename("GlobalObjects.py", "GlobalObjects_old.py")
-with open("GlobalObjects_old.py") as FileInput:
-    with open("GlobalObjects.py", "w") as FileOutPut:
-        for Line in FileInput:
-            if Line.startswith("__release__"):
-                FileOutPut.write("__release__ = {Date}\n".format(Date=DateOfCompiling))
-            else:
-                FileOutPut.write(Line)
 
-if os.path.isfile("GlobalObjects_old.py"):
-    os.remove("GlobalObjects_old.py")
+    with open("GlobalObjects_old.py") as FileInput:
+        with open("GlobalObjects.py", "w") as FileOutPut:
+            for Line in FileInput:
+                if Line.startswith("__release__"):
+                    FileOutPut.write("__release__ = {Date}\n".format(Date = DateOfCompiling))
+                else:
+                    FileOutPut.write(Line)
+
+    if os.path.isfile("GlobalObjects_old.py"):
+        os.remove("GlobalObjects_old.py")
+
+# Modification of the docs/conf.py
+File = "../docs/conf.py"
+FileOld = "../docs/conf_old.py"
+if os.path.isfile(File):
+    os.rename(File, FileOld)
+    
+    with open(FileOld) as FileInput:
+        with open(File, "w") as FileOutPut:
+            for Line in FileInput:
+                if Line.startswith("release"):
+                    FileOutPut.write("release = '{Date}'\n".format(Date = DateOfCompiling))
+                else:
+                    FileOutPut.write(Line)
+    
+    if os.path.isfile(FileOld):
+        os.remove(FileOld)        
 
 # This Module will be modified befor the import.
 import GlobalObjects

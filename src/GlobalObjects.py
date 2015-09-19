@@ -21,7 +21,7 @@ __license__ = "License GNU General Public License https://www.gnu.org/copyleft/g
 #: 
 __version__ = 0.1
 #: 
-__release__ = 20150918124944
+__release__ = 20150919205709
 #: 
 __maintainer__ = "Adrian Hornung"
 #: 
