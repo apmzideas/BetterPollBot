@@ -217,7 +217,7 @@ class SqlApi(object):
         VARIABLES:
             User                     ``string``                             
                 contains the databaseuser
-            Password                 ``string                               
+            Password                 ``string``                               
                 contains the databaseuserpassword
             DatabaseName             ``string``                             
                 contains the databasename
@@ -977,14 +977,14 @@ class SqlApi(object):
             WHERE some_column=some_value;
         
         Variables:
-            Cursor                *object*
+            Cursor                ``object``
                 contains the cursor object 
                  
-            TableName             *string*
+            TableName             ``string``
                 contains the table name into wich the system will 
                 insert the information 
                 
-            Columns               *dictionary*
+            Columns               ``dictionary``
                 contains the columns into that will be inseted
                 Example\n
                 .. code-block:: python\n
@@ -992,11 +992,11 @@ class SqlApi(object):
                         'id' : id,
                         Name': 'Max'
                     }
-            Duplicate             *None or dictionary*
+            Duplicate             ``None or dictionary``
                 contains the columns in those the possible duplicates 
                 values exist
                 
-            Autocommit            *boolean*
+            Autocommit            ``boolean``
                 If autocommit is true the methode will automatically 
                 commit the values to the database.
         """
@@ -1037,7 +1037,7 @@ class SqlApi(object):
         This methode will commit the changens to the database.
         
         Variables:
-            Cursor                *object*
+            Cursor                ``object``
                 contains the cursor object 
         """
         try:
