@@ -1,4 +1,6 @@
-import sys, termios, atexit
+import sys
+import termios
+import atexit
 from select import select
 
 # save the terminal settings
@@ -30,7 +32,7 @@ def getche():
 
 def kbhit():
     dr,dw,de = select([sys.stdin], [], [], 0)
-    return dr <> []
+    return dr != []
 
 if __name__ == '__main__':
     atexit.register(set_normal_term)
@@ -42,4 +44,4 @@ if __name__ == '__main__':
             break
         sys.stdout.write('.')
 
-    print 'done'
+    print ('done')
