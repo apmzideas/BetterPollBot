@@ -21,10 +21,10 @@ class ConfigurationParser(configparser.RawConfigParser):
         variables.
         
         Variables:
-            FileName                      string
+            FileName                      ``string``
                 contains the name of the configuration file
                 
-            Configuration                 directory
+            Configuration                 ``directory``
                 contains the option to reconfigure the default 
                 super values.
         """

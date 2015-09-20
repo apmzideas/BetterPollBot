@@ -29,13 +29,13 @@ class Parser(argparse.ArgumentParser):
         This method is an init, never seen one bevor?
         
         Variables:
-            OptionalObjects               directory
+            OptionalObjects               ``directory``
                 contains the optional objects 
                 like:
-                    ConfigurationObject   object
+                    ConfigurationObject   ``object``
                         contains the configuration
                     
-                    LanguageObject        object
+                    LanguageObject        ``object``
                         contains the language object needed for 
                         automatic string translation
         """
@@ -72,7 +72,59 @@ class Parser(argparse.ArgumentParser):
         This method add the parser arguments to the system.
         
         With the here defined parser arguments can the system 
-        understand the sys.args values better.
+        understand the ``sys.args`` values better.
+        This method will set the command line arguments like this:\n
+
+
+            usage: BetterPollBot [-h] [-v] [-c] [-f FILE] [-l LANGUAGE] 
+                                 [-t TIME] [-at APITOKEN] 
+                                 [-dn DATABASENAME] [-du DATABASEUSER]
+                                 [-dp DATABASEPASSWORD] 
+                                 [-dh DATABASEHOST]
+                                 [-dhp DATABASEHOSTPORT]
+            
+            An in python written telegram bot, called BetterPollBot.
+            
+            optional arguments:\n
+            +---------------------+------------------------------------+
+            |  -h, --help         |show this help message and exit     |
+            +---------------------+------------------------------------+ 
+            |  -v, --version      |show program's version number and   |
+            |                     |exit                                |
+            +---------------------+------------------------------------+
+            |  -c, --console      | Toggles the type of logging from   |
+            |                     |the set settings in the config.ini. | 
+            +---------------------+------------------------------------+
+            |  -f FILE            |Set the file to log into temporary  |
+            |                     |to the set destination.             |
+            +---------------------+------------------------------------+
+            |  -l LANGUAGE        |Changes the set language temporary. |
+            +---------------------+------------------------------------+
+            |  -t TIME            |Set's the time for the main loop to | 
+            |                     |wait until the next request.        | 
+            +---------------------+------------------------------------+
+            |  -at APITOKEN       |Sets the telegram api token         |
+            |                     |temporary.                          |
+            +---------------------+------------------------------------+
+            |  -dn DATABASENAME   |Changes the database name to connect|
+            |                     |to.                                 |
+            +---------------------+------------------------------------+
+            |  -du DATABASEUSER   |Set the database user, needed to    |
+            |                     |connect to the database. Attention  |
+            |                     |use this option insted of the       |
+            |                     |config.ini!                         |
+            +---------------------+------------------------------------+  
+            |-dp DATABASEPASSWORD |Set the databse password, needed to |
+            |                     |connect to the database.            |
+            |                     |Attention use this option insted of |
+            |                     |the config.ini!                     |
+            +---------------------+------------------------------------+
+            |-dh DATABASEHOST     |Set the database host, needed to    |
+            |                     |connect to the database.            |
+            +---------------------+------------------------------------+ 
+            |-dhp DATABASEHOSTPORT|Set the database port, needed to    |
+            |                     |connect to the database.            |
+            +---------------------+------------------------------------+            
         
         Variables:
             \-
@@ -108,7 +160,7 @@ class Parser(argparse.ArgumentParser):
         self.add_argument(
                             "-l",
                             #"--Language",
-                            help=self._("Change the language settings temporary"),
+                            help=self._("Changes the set language temporary."),
                             action="store",
                             #nargs="+",
                             #metavar="\b",
@@ -197,7 +249,9 @@ class Parser(argparse.ArgumentParser):
         
     def GetArguments(self):
         """
-        This method will return the parser arguments as a directory.
+        This method will return the parser arguments as a directory. 
+        
+        Thie method is an alias of ``Parser.parse_args()``.
         
         Variables:
             \-

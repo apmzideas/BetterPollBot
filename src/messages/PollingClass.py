@@ -22,18 +22,18 @@ class Poll(object):
         The init method of the class
         
         Variables:
-            InternalUserId                None or integer
+            InternalUserId                ``None or integer``
                 stores the internal user id
                 
-            InternalPollId                None or integer
+            InternalPollId                ``None or integer``
                 stores the internal poll id
             
-            OptionalObjects               dictionary
+            OptionalObjects               ``dictionary``
                 holds all the additional objects like:
-                    LoggingObject         object
+                    LoggingObject         ``object``
                         holds the logging object
                     
-                    SqlObject             object
+                    SqlObject             ``object``
                         holds the sql connection object
                         
         """
@@ -71,7 +71,7 @@ class Poll(object):
         This method adds or modifies a question from the specific poll.
         
         Variables:
-            Question                      string
+            Question                      ``string``
                 holds the question given by the user
         """
 
@@ -151,7 +151,7 @@ class Poll(object):
         This method adds an anwser to the poll.
         
         Variables:
-            Anwser                        string
+            Anwser                        ``string``
                 the answer or option to be added
         """
         self.SqlObject.InserEntry(
@@ -184,10 +184,10 @@ class Poll(object):
         Generates and returns the url needed to add a poll to a group.
         
         The telegram 
-        https://telegram.me/BetterPollBot?startgroup=<external group id>
+        https://telegram.me/<bot name>?startgroup=<external group id>
         
         Variables:
-            NameOfApp                     string
+            NameOfApp                     ``string``
                 contains the name of the bot (the bot username) it
                 is needed to tell the telegram client what bot with what 
                 parameter to add to a user chosen group.
