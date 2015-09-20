@@ -17,7 +17,8 @@ import platform
 # if windows only windows is supported :(
 if platform.system() == "Windows":
     import msvcrt
-
+else:
+    import curses
     
 import threading
 import sys
@@ -37,6 +38,13 @@ def Main():
     """
     The main function that let's the application roll.
     """
+    # if program is run not on a windows system:
+    if platform.system() != "Windows":
+        #init the curses screen
+        stdscr = curses.initscr()
+        #use cbreak to not require a return key press
+        curses.cbreak()
+        
     # Create the configuration class and read the configuration class.
     Configuration = parsers.ConfigurationClass.ConfigurationParser()
 
@@ -143,13 +151,21 @@ def Main():
     CommentNumber = None
     
     while True:
-        # check if a key is pressed by user and stop if pressed.    
-        if msvcrt.kbhit():
-            PressedKey = ord(msvcrt.getch())
+        # check if a key is pressed by user and stop if pressed.   
+        # if windows use msvcrt
+        if platform.system() == "Windows": 
+            if msvcrt.kbhit():
+                PressedKey = ord(msvcrt.getch())
+                if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
+                    MasterLogger.info( _("A user shutdown was requested will now shutdown."))
+                    SqlObject.CloseConnection()
+                    break
+        else:
+            PressedKey = ord(curses.keyname(stdscr.getch()))
             if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
                 MasterLogger.info( _("A user shutdown was requested will now shutdown."))
                 SqlObject.CloseConnection()
-                break
+                break                
         
         #Processrequest()
         
