@@ -1,7 +1,7 @@
 import sys
 import termios
 import atexit
-from select import select
+import select
 
 # save the terminal settings
 fd = sys.stdin.fileno()
@@ -31,7 +31,7 @@ def getche():
     return ch
 
 def kbhit():
-    dr,dw,de = select([sys.stdin], [], [], 0)
+    dr,dw,de = select.select([sys.stdin], [], [], 0)
     return dr != []
 
 if __name__ == '__main__':
@@ -44,4 +44,4 @@ if __name__ == '__main__':
             break
         sys.stdout.write('.')
 
-    print ('done')
+    print('done')
