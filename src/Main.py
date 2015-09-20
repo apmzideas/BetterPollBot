@@ -17,8 +17,7 @@ import platform
 # if windows only windows is supported :(
 if platform.system() == "Windows":
     import msvcrt
-else:
-    import lmsvcrt as msvcrt
+
     
 import threading
 import sys
