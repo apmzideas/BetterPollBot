@@ -14,12 +14,10 @@ import GlobalObjects
 import getpass
 import time
 import platform
-# if windows and linux
+# if windows only windows is supported :(
 if platform.system() == "Windows":
     import msvcrt
-else:
-    # cannot try this here...
-    import lmsvcrt as msvcrt
+
     
 import threading
 import sys
