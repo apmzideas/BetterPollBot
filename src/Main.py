@@ -13,7 +13,14 @@ import GlobalObjects
 # import argparse
 import getpass
 import time
-import msvcrt
+import platform
+# if windows and linux
+if platform.system() == "Windows":
+    import msvcrt
+else:
+    # cannot try this here...
+    import lmsvcrt as msvcrt
+    
 import threading
 import sys
 
