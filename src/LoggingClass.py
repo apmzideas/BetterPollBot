@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3.4
 # -*- coding: utf-8 -*-
 
 '''
@@ -10,6 +10,85 @@ import logging
 import logging.handlers
 import multiprocessing
 import os
+import platform
+
+
+try:
+    unicode
+    _unicode = True
+except NameError:
+    _unicode = False
+
+
+class CursesHandler(logging.Handler):
+    """
+    This is a extended logging handler.
+    
+    This class is needed to compensate for the incompability with the
+    curses module needed for all the unix computer, since the msvcrt
+    module from windows is missing.
+    """
+    def __init__(self, screen):
+        """
+        This init method does initialise the super class (parent).
+        
+        Variables:
+            screen                        ``object``
+                This variable is the initialied curses object we get
+                from the main function. It handels all the out put.
+        """
+        super().__init__()
+        self.screen = screen
+
+    def emit(self, record):
+        """
+        Do whatever it takes to actually log the specified logging record.
+        
+        It will acquire the lock in the beginning and release it finally
+        in the end, so that there will be no problems with 
+        multithreading.
+        
+        Variables:
+            record                        ``object``
+                from the python documentation:
+                    If a formatter is specified, it is used to format 
+                    the record. The record is then written to the 
+                    stream with a terminator. If exception information 
+                    is present, it is formatted using 
+                    ``traceback.print_exception()`` and appended to the 
+                    stream.
+                link to documentation:
+                    https://docs.python.org/3.4/library/logging.handlers.html#logging.StreamHandler.emit
+        """
+        self.acquire()
+        try:
+            msg = self.format(record)
+            fs = "%s\n"
+            if not _unicode: #if no unicode support...
+                self.screen.addstr(fs % msg)
+                self.screen.refresh()
+            else:
+                try:
+                    if isinstance(msg, unicode):
+                        ufs = u'%s\n'
+                        try:
+                            self.screen.addstr(ufs % msg)
+                            self.screen.refresh()
+                        except UnicodeEncodeError:
+                            self.screen.addstr((ufs % msg).encode(code))
+                            self.screen.refresh()
+                    else:
+                        self.screen.addstr(fs % msg)
+                        self.screen.refresh()
+                except UnicodeError:
+                    self.screen.addstr(fs % msg.encode("UTF-8"))
+                    self.screen.refresh()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception:
+            self.handleError(record)
+        finally:
+            self.release()
 
 #read logging info
 class Logger(logging.Logger):
@@ -27,7 +106,8 @@ class Logger(logging.Logger):
                  MaxLogs = 20,
                  LoggingFormat = "[%(asctime)s] - [%(levelname)s] - %(message)s",
                  Dateformat = "%d.%m.%Y %H:%M:%S",
-                 LoggingLevel = "debug"
+                 LoggingLevel = "debug",
+                 CursesObject = None  
                  ):
         """
         An init function in which the configuration is written.
@@ -105,10 +185,7 @@ class Logger(logging.Logger):
             LoggingLevel = PossibleLoggingLevel[LoggingLevel.upper()]
         else:
             LoggingLevel = PossibleLoggingLevel["DEBUG"]
-            
-        Formatter = logging.Formatter(fmt=LoggingFormat,
-                                      datefmt=Dateformat,)
-        
+
         # Initialise the superclass 
         super().__init__(name="DefaultLogger")
         self.setLevel(LoggingLevel)
@@ -134,18 +211,28 @@ class Logger(logging.Logger):
                                                   maxBytes=20480,
                                                   backupCount=MaxLogs
                                                   )
-        
+
+
+        Formatter = logging.Formatter(fmt = LoggingFormat,
+                                       datefmt=Dateformat,
+                                       style="%")
+
         FileHandler.setFormatter(Formatter)
         
         self.addHandler(FileHandler)
         
         self.Lock = multiprocessing.Lock()
-        
+
         if LogToConsole == True:
-            ConsoleHandler = logging.StreamHandler()
-            ConsoleHandler.setFormatter(Formatter)
-            self.addHandler(ConsoleHandler)
-    
+            if platform.system() == "Windows":
+                ConsoleHandler = logging.StreamHandler()
+                ConsoleHandler.setFormatter(Formatter)
+                self.addHandler(ConsoleHandler)
+            else:
+                ConsoleHandler = CursesHandler(CursesObject)
+                ConsoleHandler.setFormatter(Formatter)
+                self.addHandler(ConsoleHandler)
+
     def debug(self, msg, *args, **kwargs):
         """
         This method extends the debug method of the parent.

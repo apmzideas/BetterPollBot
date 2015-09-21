@@ -94,7 +94,7 @@ class ConfigurationParser(configparser.RawConfigParser):
         #check if configfile exists
         if os.path.isfile(self.FileName) is not True:
             self.WriteDefaultConfigurationFile()
-            #raise SystemExit
+
         elif self.ResetConfigurationFile is True:
             self.WriteDefaultConfigurationFile()
         

@@ -1,25 +1,24 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# The standard library modules
-import json
 
 # The custom modules
 import GlobalObjects
 import ErrorClasses
 import LoggingClass
 import sql.SqlClass
+
 # imports the _() function! (the translation feature).
 import language.LanguageClass
 import parsers.ConfigurationClass
-
-import messages.PollingClass
-import messages.MessageClass
-import messages.EmojiClass
+# imports in the same folder (module)
+from . import PollingClass
+from . import MessageClass
+from . import EmojiClass
 
 class MessageProcessor(object):
     """
-    This class is used as the user message analysor.
+    This class is used as the user message analyser.
     
     The MessageObject will only contains a single message object, 
     so that this class will be thread save and so that we can run
@@ -52,20 +51,18 @@ class MessageProcessor(object):
         """
         Just a init here nothing special.
                         
-        Vairables:
-            MessageObject                 object
+        Variables:
+            MessageObject                 ``object``
                 the message to be analysed message
                 
-            OptialObejects                object
-                just some optional objects for example the logging 
+            OptionalObjects                ``object``
+                Just some optional objects for example the logging
                 object, the configuration object, the sql object with 
                 the connection commands and the master language object, 
                 that is used for the logging in the correct language.
         """
 
-        
-        
-        # Predefining attribute so that it later can be used for evil.
+        # Predefining attributes so that it later can be used for evil.
         self.LoggingObject = None
         self.ConfigurationObject = None
         
@@ -91,19 +88,19 @@ class MessageProcessor(object):
             self.SqlCursor = self.SqlObject.CreateCursor()
 
         else:
-            self.LoggingObject.error(self._("The sql obejct is missing, please contact your administrator."))
-            raise ErrorClasses.MissingArguments(self._("The sql obejct is missing, please contact your administrator."))
+            self.LoggingObject.error(self._("The sql object is missing, please contact your administrator."))
+            raise ErrorClasses.MissingArguments(self._("The sql object is missing, please contact your administrator."))
         
         # This variable is needed for the logger so that the log end up 
         # getting printed in the correct language.
-        if "LanguageObeject"  in OptionalObjects:
+        if "LanguageObject" in OptionalObjects:
             self.M_ = OptionalObjects["LanguageObject"].gettext
         else:
             self.M_ = language.LanguageClass.CreateTranslationObject()
             
         if "BotName" in OptionalObjects:
             self.BotName = OptionalObjects["BotName"]["result"]["username"]
-            #print(self.BotName, type(self.BotName))
+
         else:
             self.BotName = GlobalObjects.__AppName__
         
@@ -129,24 +126,22 @@ class MessageProcessor(object):
             self.UserName = ""
         if "id" in MessageObject["message"]["from"]:
             self.UserId = MessageObject["message"]["from"]["id"]
-        
-        
+
         # Add user to the system if not exists
-        if self.UserExists() == False:
+        if self.UserExists() is False:
             self.AddUser()
             
         # Get the Internal user id
         self.InternalUserId = self.GetInternalUserId()
-#         print(self.InternalUserId)
-        
-        # Hier we are initialising the function for the translations
+
+        # Here we are initialising the function for the translations.
         # Get the user settings
-        Query = "SELECT user_setting_table.User_String FROM user_setting_table "\
-                "INNER JOIN setting_table "\
-                "ON user_setting_table.Master_Setting_Id=setting_table.Setting_Id "\
-                "WHERE setting_table.Setting_Name=%s "\
-                "AND user_setting_table.Master_User_Id=%s;"
-        
+        Query = "SELECT User_Setting_Table.User_String FROM User_Setting_Table "\
+                "INNER JOIN Setting_able "\
+                "ON User_Setting_Table.Master_Setting_Id=Setting_Table.Setting_Id "\
+                "WHERE Setting_Table.Setting_Name=%s "\
+                "AND User_Setting_Table.Master_User_Id=%s;"
+
         Data = ("Language", self.InternalUserId)
         
         self.LanguageName = self.SqlObject.ExecuteTrueQuery(self.SqlCursor, Query, Data)[0]["User_String"]
@@ -160,6 +155,7 @@ class MessageProcessor(object):
             self.Text = MessageObject["message"]["text"]
         else:
             self.Text = None
+
         # where was the message send from the user or the group
         # Get the chat id
         if "id" in MessageObject["message"]["chat"]:
@@ -172,7 +168,7 @@ class MessageProcessor(object):
             self.InGroup = True
             self.GroupName = MessageObject["message"]["chat"]["title"]
             # Check if group exists
-            if self.GroupExists() == False:
+            if self.GroupExists() is False:
                 self.AddGroup()
             self.InternalGroupId = self.GetInternalGroupId()
         
@@ -226,7 +222,7 @@ class MessageProcessor(object):
 
     def UserExists(self,):
         """
-        This methode will detect if the use already exists or not.
+        This method will detect if the use already exists or not.
         
         The following query will return 1 if a user with the specified 
         username exists a 0 otherwise.
@@ -234,26 +230,26 @@ class MessageProcessor(object):
         .. code-block:: sql\n
             SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
         
-        It will return a True if the database retuns a 1 and a False
-        if the databse a 0.
+        It will return a True if the database returns a 1 and a False
+        if the database a 0.
         Variables:
             \-
         """
 
-        Exists = self.SqlObject.ExecuteTrueQuery(
+        exists = self.SqlObject.ExecuteTrueQuery(
                                           self.SqlObject.CreateCursor(Dictionary=False),
                                           Query="SELECT EXISTS(SELECT 1 FROM User_Table WHERE External_User_Id = %s);",
                                           Data=self.UserId
                                           )[0][0]    
 
-        if Exists == False:
+        if exists is False:
             return False
         else:
             return True
         
     def AddUser(self,):
         """
-        This methode will add a new user to the database.
+        This method will add a new user to the database.
         
         Variables:
             \-
@@ -273,7 +269,7 @@ class MessageProcessor(object):
         # insert default settings
         # get default values
 
-        # get the default settigns
+        # get the default settings
         # get the default language
         FromTable = "Setting_Table"
         Columns = ["Setting_Id", "Default_String"]
@@ -305,11 +301,11 @@ class MessageProcessor(object):
 
     def GetInternalUserId(self):
         """
-        This methode will get the internal user id from the database.
+        This method will get the internal user id from the database.
         
-        This methode will return the internal user id directly.
+        This method will return the internal user id directly.
         
-        Veriables:
+        Variables:
             \-
         """
         # first the internal user id
@@ -404,7 +400,7 @@ class MessageProcessor(object):
             \-
         """
         
-        MessageObject = messages.MessageClass.MessageToBeSend(ToChatId=self.ChatId)
+        MessageObject = MessageClass.MessageToBeSend(ToChatId=self.ChatId)
         MessageObject.Text = self._("Sorry, but this command could not be interpreted.")
         # check if message is a command
         if self.Text != None:
@@ -572,7 +568,7 @@ class MessageProcessor(object):
             
         elif LastCommand.startswith("/addanwser"): # /addanwser NoPoll
             if LastCommand == "addawnser anwser":
-                Poll = messages.PollingClass.Poll(
+                Poll = PollingClass.Poll(
                                          InternalUserId=self.InternalUserId,
                                          InternalPollId=PollId,
                                          LoggingObject=self.LanguageObject,
@@ -581,7 +577,7 @@ class MessageProcessor(object):
                 Poll.AddAnwser(self.Text)
                 MessageObject.Text = self._("The anwser has been added, please add a additional anwser to stop adding anwsers press /done or enter it.")
             elif LastCommand == "/addanwser NoPoll":
-                Poll = messages.PollingClass.Poll(
+                Poll = PollingClass.Poll(
                                          InternalUserId=self.InternalUserId,
                                          PollName = self.Text,
                                          LoggingObject=self.LanguageObject,
@@ -609,7 +605,7 @@ class MessageProcessor(object):
             
             elif LastCommand.startswith("/newpoll question"):
 
-                Poll = messages.PollingClass.Poll(
+                Poll = PollingClass.Poll(
                                          InternalUserId=self.InternalUserId,
                                          InternalPollId=LastUsedId,
                                          LoggingObject=self.LanguageObject,
@@ -638,7 +634,7 @@ class MessageProcessor(object):
             
         elif LastCommand.startswith("/polllink"):
                 # Send the Url to add the poll to the group.
-                Poll = messages.PollingClass.Poll(
+                Poll = PollingClass.Poll(
                                  InternalUserId = self.InternalUserId,
                                  PollName = self.Text,
                                  LoggingObject = self.LanguageObject,
@@ -651,7 +647,7 @@ class MessageProcessor(object):
 #                 else:
 #                     # Get the poll url from it's name
 #                     
-#                     Poll = messages.PollingClass.Poll(
+#                     Poll = PollingClass.Poll(
 #                                          InternalUserId=self.InternalUserId,
 #                                          PollName = self.Text,
 #                                          LoggingObject=self.LanguageObject,

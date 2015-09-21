@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import GlobalObjects
-import hashlib
+
 import sql.SqlClass
 import LoggingClass
 

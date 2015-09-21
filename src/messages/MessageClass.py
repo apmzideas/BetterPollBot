@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import json
 
 class MessageToBeSend(object):
@@ -29,7 +30,8 @@ class MessageToBeSend(object):
                  ToChatId,
                  Text=None,
                  DisableWebPagePreview=False,
-                 ReplyToMessageId=None 
+                 ReplyToMessageId=None,
+                Logger = None
                  ):
         """
         The init of the class.
@@ -91,6 +93,10 @@ class MessageToBeSend(object):
         self.DisableWebPagePreview = DisableWebPagePreview
         self.ReplyToMessageId = ReplyToMessageId
         self.ReplyMarkup = {}
+
+        # just for debugging xd
+        sys.stdout.write("JUPPI")
+
         
     def ReplyKeyboardMarkup(
                             self, 
@@ -166,7 +172,8 @@ class MessageToBeSend(object):
             self.ReplyMarkup["one_time_keyboard"] = True
         if Selective and not "selective"  in self.ReplyMarkup:
             self.ReplyMarkup["selective"] = Selective
-            
+
+
     def ReplyKeyboardHide(
                           self, 
                           Selective=False
