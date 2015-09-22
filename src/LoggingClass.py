@@ -90,7 +90,8 @@ class CursesHandler(logging.Handler):
         finally:
             self.release()
 
-#read logging info
+
+# read logging info
 class Logger(logging.Logger):
     """
     This class is a child class of the logging.Logger.
@@ -221,7 +222,7 @@ class Logger(logging.Logger):
         
         self.addHandler(FileHandler)
         
-        self.Lock = multiprocessing.Lock()
+        self.MLock = multiprocessing.Lock()
 
         if LogToConsole is True:
             if platform.system() == "Windows":
@@ -311,9 +312,9 @@ class Logger(logging.Logger):
                     https://docs.python.org/3.4/library/logging.html#logging.Formatter
         """
 
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().debug(msg, *args, **kwargs)
-        self.Lock.release()
+        self.MLock.release()
     
     def info(self, msg, *args, **kwargs):
         """
@@ -324,9 +325,9 @@ class Logger(logging.Logger):
         See debug for more information about the variables.
         """
         
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().info(msg, *args, **kwargs)
-        self.Lock.release()
+        self.MLock.release()
     
     def warning(self, msg, *args, **kwargs):
         """
@@ -337,9 +338,9 @@ class Logger(logging.Logger):
         See debug for more information about the variables.
         """
 
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().warning(msg, *args, **kwargs)
-        self.Lock.release() 
+        self.MLock.release()
         
     def error(self, msg, *args, **kwargs):
         """
@@ -350,9 +351,9 @@ class Logger(logging.Logger):
         See debug for more information about the variables.
         """
         
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().error(msg, *args, **kwargs)
-        self.Lock.release()                
+        self.MLock.release()
     
     def critical(self, msg, *args, **kwargs):
         """
@@ -363,9 +364,9 @@ class Logger(logging.Logger):
         See debug for more information about the variables.
         """
         
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().critical(msg, *args, **kwargs)
-        self.Lock.release()  
+        self.MLock.release()
     
     def exception(self, msg, *args, **kwargs):
         """
@@ -377,9 +378,9 @@ class Logger(logging.Logger):
         See debug for more information about the variables.
         """
         
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().exception( msg, *args, **kwargs)
-        self.Lock.release() 
+        self.MLock.release()
 
     def log(self, level, msg, *args, **kwargs):
         """
@@ -395,9 +396,9 @@ class Logger(logging.Logger):
                 logs the entry to.
         """
         
-        self.Lock.acquire()
+        self.MLock.acquire()
         super().log(level, msg, *args, **kwargs)
-        self.Lock.release() 
+        self.MLock.release()
         
         
 if __name__ == '__main__':

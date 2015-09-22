@@ -232,11 +232,6 @@ def Main():
             else:
                 time.sleep((TelegramObject.RequestTimer / 1000))
 
-    except:
-        curses.nocbreak()
-        curses.echo()
-        curses.endwin()
-
     finally:
         if platform.system() != "Windows":
             # clean after the curses module
