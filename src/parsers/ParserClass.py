@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 import GlobalObjects
 import argparse
-import language.LanguageClass
 
 
 
 class Parser(argparse.ArgumentParser):
     """
-    This module it a preconfigured extended version of the Argparser.
+    This module it a preconfigured extended version of the argparser.
     
     From the documentation.
     The argparse module makes it easy to write user-friendly 
@@ -22,185 +21,240 @@ class Parser(argparse.ArgumentParser):
         https://docs.python.org/3.4/library/argparse.html
     """
 
-
-    def __init__(self, 
+    def __init__(self,
                  **OptionalObjects):
         """
-        This method is an init, never seen one bevor?
+        This method is an init, never seen one before?
         
         Variables:
-            OptionalObjects               directory
+            OptionalObjects               ``directory``
                 contains the optional objects 
                 like:
-                    ConfigurationObject   object
+                    ConfigurationObject   ``object``
                         contains the configuration
                     
-                    LanguageObject        object
+                    LanguageObject        ``object``
                         contains the language object needed for 
                         automatic string translation
         """
-        
+
         Description = ("An in python written telegram bot,"
-                    " called BetterPollBot.")
+                       " called BetterPollBot.")
         Epilog = ("Author:\t\t\t{Author}\nCredits:\t\t{Credits}"
-                    "\nVersion:\t\t{Version}\nRelease:\t\t"
-                    "{Release}\nLicense:\t\t{License}\n"
-                    "Copyright:\t\t{Copyright}".format(
-                                    Author = GlobalObjects.__author__,
-                                    Credits = ", ".join(GlobalObjects.__credits__),
-                                    Version = GlobalObjects.__version__,
-                                    Release = GlobalObjects.__release__,
-                                    License = GlobalObjects.__license__,
-                                    Copyright = GlobalObjects.__copyright__)
-                  )
-        
+                  "\nVersion:\t\t{Version}\nRelease:\t\t"
+                  "{Release}\nLicense:\t\t{License}\n"
+                  "Copyright:\t\t{Copyright}".format(
+            Author=GlobalObjects.__author__,
+            Credits=", ".join(GlobalObjects.__credits__),
+            Version=GlobalObjects.__version__,
+            Release=GlobalObjects.__release__,
+            License=GlobalObjects.__license__,
+            Copyright=GlobalObjects.__copyright__)
+        )
+
         super().__init__(
-                         prog=GlobalObjects.__AppName__,
-                         formatter_class=argparse.RawDescriptionHelpFormatter,
-                         description=Description,
-                         epilog=Epilog
-                                    )
-        
+            prog=GlobalObjects.__AppName__,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description=Description,
+            epilog=Epilog
+        )
+
         if "ConfigurationObject" in OptionalObjects:
             self.Configuration = OptionalObjects["ConfigurationObject"]
+        else:
+            raise ValueError("Missing ConfigurationObject")
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
             self._ = self.LanguageObject.gettext
-        
+        else:
+            raise ValueError("Missing LanguageObject")
+
     def RunParser(self):
         """
         This method add the parser arguments to the system.
         
         With the here defined parser arguments can the system 
-        understand the sys.args values better.
+        understand the ``sys.args`` values better.
+        This method will set the command line arguments like this:\n
+
+
+            usage: BetterPollBot [-h] [-v] [-c] [-f FILE] [-l LANGUAGE] 
+                                 [-t TIME] [-at APITOKEN] 
+                                 [-dn DATABASENAME] [-du DATABASEUSER]
+                                 [-dp DATABASEPASSWORD] 
+                                 [-dh DATABASEHOST]
+                                 [-dhp DATABASEHOSTPORT]
+            
+            An in python written telegram bot, called BetterPollBot.
+            
+            optional arguments:\n
+            +---------------------+------------------------------------+
+            |  -h, --help         |show this help message and exit     |
+            +---------------------+------------------------------------+ 
+            |  -v, --version      |show program's version number and   |
+            |                     |exit                                |
+            +---------------------+------------------------------------+
+            |  -c, --console      | Toggles the type of logging from   |
+            |                     |the set settings in the config.ini. | 
+            +---------------------+------------------------------------+
+            |  -f FILE            |Set the file to log into temporary  |
+            |                     |to the set destination.             |
+            +---------------------+------------------------------------+
+            |  -l LANGUAGE        |Changes the set language temporary. |
+            +---------------------+------------------------------------+
+            |  -t TIME            |Set's the time for the main loop to | 
+            |                     |wait until the next request.        | 
+            +---------------------+------------------------------------+
+            |  -at APITOKEN       |Sets the telegram api token         |
+            |                     |temporary.                          |
+            +---------------------+------------------------------------+
+            |  -dn DATABASENAME   |Changes the database name to connect|
+            |                     |to.                                 |
+            +---------------------+------------------------------------+
+            |  -du DATABASEUSER   |Set the database user, needed to    |
+            |                     |connect to the database. Attention  |
+            |                     |use this option instead of the      |
+            |                     |config.ini!                         |
+            +---------------------+------------------------------------+  
+            |-dp DATABASEPASSWORD |Set the database password, needed to|
+            |                     |connect to the database.            |
+            |                     |Attention use this option instead of|
+            |                     |the config.ini!                     |
+            +---------------------+------------------------------------+
+            |-dh DATABASEHOST     |Set the database host, needed to    |
+            |                     |connect to the database.            |
+            +---------------------+------------------------------------+ 
+            |-dhp DATABASEHOSTPORT|Set the database port, needed to    |
+            |                     |connect to the database.            |
+            +---------------------+------------------------------------+            
         
         Variables:
             \-
         """
         # adding parser arguments to the system
         self.add_argument(
-                            "-v", 
-                            "--version",
-                            action="version", 
-                            version="%(prog)s " + str(GlobalObjects.__version__)
-                            )
-        
+            "-v",
+            "--version",
+            action="version",
+            version="%(prog)s " + str(GlobalObjects.__version__)
+        )
+
         self.add_argument(
-                            "-c",
-                            "--console", 
-                            help=self._("Toggles the type of logging from the set settings in the config.ini."),                
-                            action=("store_false" if self.Configuration.getboolean("Logging","LogToConsole" ) 
-                                    else "store_true"),
-                            dest="PrintToConsole"
-                            )
-        
+            "-c",
+            "--console",
+            help=self._("Toggles the type of logging from the set settings in the config.ini."),
+            action=("store_false" if self.Configuration.getboolean("Logging", "LogToConsole")
+                    else "store_true"),
+            dest="PrintToConsole"
+        )
+
         # All the telegram related commands are here.
         self.add_argument(
-                            "-f",
-                            #"--FileToLog",
-                            help=self._("Set the file to log into temporary to the set destination."),
-                            action="store",
-                            #metavar="\b",
-                            dest="File",
-                            default=self.Configuration["Logging"]["LoggingFileName"]
-                            )
-        
+            "-f",
+            # "--FileToLog",
+            help=self._("Set the file to log into temporary to the set destination."),
+            action="store",
+            # metavar="\b",
+            dest="File",
+            default=self.Configuration["Logging"]["LoggingFileName"]
+        )
+
         self.add_argument(
-                            "-l",
-                            #"--Language",
-                            help=self._("Change the language settings temporary"),
-                            action="store",
-                            #nargs="+",
-                            #metavar="\b",
-                            dest="Language",
-                            default=self.Configuration["Telegram"]["DefaultLanguage"]
-                            )
-        
+            "-l",
+            # "--Language",
+            help=self._("Changes the set language temporary."),
+            action="store",
+            # nargs="+",
+            # metavar="\b",
+            dest="Language",
+            default=self.Configuration["Telegram"]["DefaultLanguage"]
+        )
+
         self.add_argument(
-                            "-t",
-                            #"--time",
-                            help=self._("Set's the time for the main loop to wait until the next request."),
-                            action="store",
-                            type=int,
-                            #metavar="\b",
-                            dest="Time",
-                            default=self.Configuration["Telegram"]["RequestTimer"],
-                            )
-        
+            "-t",
+            # "--time",
+            help=self._("Set's the time for the main loop to wait until the next request."),
+            action="store",
+            type=int,
+            # metavar="\b",
+            dest="Time",
+            default=self.Configuration["Telegram"]["RequestTimer"],
+        )
+
         self.add_argument(
-                            "-at",
-                            #"--ApiToken",
-                            help=self._("Sets the telegram api token temporary."),
-                            action="store",
-                            #metavar="\b",
-                            dest="ApiToken",
-                            default=self.Configuration["Telegram"]["ApiToken"]
-                            )
-        
+            "-at",
+            # "--ApiToken",
+            help=self._("Sets the telegram api token temporary."),
+            action="store",
+            # metavar="\b",
+            dest="ApiToken",
+            default=self.Configuration["Telegram"]["ApiToken"]
+        )
+
         # All database related commands are listed here.
         self.add_argument(
-                            "-dn", 
-                            #"--DatabaseName",
-                            help=self._("Changes the database name to connect to."),
-                            action="store",
-                            #metavar="\b",
-                            dest="DatabaseName",
-                            default=self.Configuration["MySQLConnectionParameter"]["DatabaseName"]
-                            )
-        
+            "-dn",
+            # "--DatabaseName",
+            help=self._("Changes the database name to connect to."),
+            action="store",
+            # metavar="\b",
+            dest="DatabaseName",
+            default=self.Configuration["MySQLConnectionParameter"]["DatabaseName"]
+        )
+
         self.add_argument(
-                            "-du",
-                            #"--DatabaseUser",
-                            help=self._("Set the database user, needed to connect to the database.") +" " 
-                                + self._("Attention use this option insted of the config.ini!"),
-                            action="store",
-                            #metavar="\b",
-                            dest="DatabaseUser",
-                            default=self.Configuration["MySQLConnectionParameter"]["DatabaseUser"]
-                            )
-        
+            "-du",
+            # "--DatabaseUser",
+            help=self._("Set the database user, needed to connect to the database.") + " "
+                 + self._("Attention use this option instead of the config.ini!"),
+            action="store",
+            # metavar="\b",
+            dest="DatabaseUser",
+            default=self.Configuration["MySQLConnectionParameter"]["DatabaseUser"]
+        )
+
         self.add_argument(
-                            "-dp",
-                            #"--DatabasePassword",
-                            help=self._("Set the databse password, needed to connect to the database.") + " " 
-                                + self._("Attention use this option insted of the config.ini!"),
-                            action="store",
-                            dest="DatabasePassword",
-                            default=self.Configuration["MySQLConnectionParameter"]["DatabasePassword"]
-                            )
-        
+            "-dp",
+            # "--DatabasePassword",
+            help=self._("Set the database password, needed to connect to the database.") + " "
+                 + self._("Attention use this option instead of the config.ini!"),
+            action="store",
+            dest="DatabasePassword",
+            default=self.Configuration["MySQLConnectionParameter"]["DatabasePassword"]
+        )
+
         self.add_argument(
-                            "-dh",
-                            #"--DatabaseHost",
-                            help=self._("Set the database host, needed to connect to the database."),
-                            action="store",
-                            dest="DatabaseHost",
-                            default=self.Configuration["MySQLConnectionParameter"]["DatabaseHost"]
-                            )
-        
+            "-dh",
+            # "--DatabaseHost",
+            help=self._("Set the database host, needed to connect to the database."),
+            action="store",
+            dest="DatabaseHost",
+            default=self.Configuration["MySQLConnectionParameter"]["DatabaseHost"]
+        )
+
         self.add_argument(
-                            "-dhp",
-                            #"--DatabaseHostPort",
-                            help=self._("Set the database port, needed to connect to the database."),
-                            dest="DatabaseHostPort",
-                            default=self.Configuration["MySQLConnectionParameter"]["DatabasePort"]
-                            )
-        
+            "-dhp",
+            # "--DatabaseHostPort",
+            help=self._("Set the database port, needed to connect to the database."),
+            dest="DatabaseHostPort",
+            default=self.Configuration["MySQLConnectionParameter"]["DatabasePort"]
+        )
+
         # A hidden option to install the Database
         self.add_argument(
-                            '--InstallDatabaseStructure', 
-                            help=argparse.SUPPRESS,
-                            dest="InstallDatabaseStructure",
-                            action="store_true"                       
-                            )
-        
-        
+            '--InstallDatabaseStructure',
+            help=argparse.SUPPRESS,
+            dest="InstallDatabaseStructure",
+            action="store_true"
+        )
+
     def GetArguments(self):
         """
-        This method will return the parser arguments as a directory.
+        This method will return the parser arguments as a directory. 
+        
+        This method is an alias of ``Parser.parse_args()``.
         
         Variables:
             \-
         """
         return self.parse_args()
-        

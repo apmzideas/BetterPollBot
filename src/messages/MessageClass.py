@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import json
 
 class MessageToBeSend(object):
@@ -29,7 +30,8 @@ class MessageToBeSend(object):
                  ToChatId,
                  Text=None,
                  DisableWebPagePreview=False,
-                 ReplyToMessageId=None 
+                 ReplyToMessageId=None,
+                Logger = None
                  ):
         """
         The init of the class.
@@ -70,16 +72,16 @@ class MessageToBeSend(object):
        |  a reply from the user.    |           |            |
        +----------------------------+-----------+------------+
         Variables:
-            ToChatId              integer
+            ToChatId              ``integer``
                 contains the receiver of the message
             
-            Text                  string
+            Text                  ``string``
                 contains the text to be send to the api
             
-            DisableWebPagePreview boolean
-                defines if a webpage should be preloaded 
+            DisableWebPagePreview ``boolean``
+                defines if a web page should be preloaded
             
-            ReplyToMessageId      None or integer
+            ReplyToMessageId      ``None or integer``
                 if this is an id the message will a reply to the message
                 id given
                 read more:
@@ -91,21 +93,22 @@ class MessageToBeSend(object):
         self.DisableWebPagePreview = DisableWebPagePreview
         self.ReplyToMessageId = ReplyToMessageId
         self.ReplyMarkup = {}
+
         
     def ReplyKeyboardMarkup(
                             self, 
-                            Keybord, 
+                            Keyboard,
                             ResizeKeyboard = False, 
                             OneTimeKeyboard = False, 
                             Selective = False
                             ):
         """
-        A method to create a custom keybord.
+        A method to create a custom keyboard.
         
         This object represents a custom keyboard with reply options.
         
         Variables:
-        Keybord             array (list or tulple)
+        Keyboard                          ``array (list or tuple)``
             This variable contains the keyboard layout to be send
             Example:\n
             .. code-block:: python\n
@@ -122,15 +125,15 @@ class MessageToBeSend(object):
                     (
                         (
                             "Yes", 
-                            # Don't forget this komma or else the tuple
-                            # will collaps
+                            # Don't forget this comma or else the tuple
+                            # will collapse
                         ),
                         (
                             "No",
                         )
                     )
         
-        ResizeKeyboard      boolean 
+        ResizeKeyboard                    ``boolean``
             From the api:
                 Optional. Requests clients to resize the keyboard 
                 vertically for optimal fit (e.g., make the keyboard 
@@ -139,12 +142,12 @@ class MessageToBeSend(object):
                 always of the same height as the app's standard 
                 keyboard.
              
-        OneTimeKeyboard     boolean
+        OneTimeKeyboard                   ``boolean``
             From the api:
                 Optional. Requests clients to hide the keyboard as 
                 soon as it's been used. Defaults to false.
                 
-        Selective           boolean
+        Selective                         ``boolean``
             From the api:
                 Optional. Use this parameter if you want to show the 
                 keyboard to specific users only. Targets: 1) users that 
@@ -159,20 +162,21 @@ class MessageToBeSend(object):
          
         """
         
-        self.ReplyMarkup["keyboard"] = Keybord
-        if ResizeKeyboard or len(Keybord[0]) > 4:
+        self.ReplyMarkup["keyboard"] = Keyboard
+        if ResizeKeyboard:
             self.ReplyMarkup["resize_keyboard"] = True
         if OneTimeKeyboard:
             self.ReplyMarkup["one_time_keyboard"] = True
         if Selective and not "selective"  in self.ReplyMarkup:
             self.ReplyMarkup["selective"] = Selective
-            
+
+
     def ReplyKeyboardHide(
                           self, 
                           Selective=False
                           ):
         """
-        A methode to tell the api to hide the custom keyboard.
+        A method to tell the api to hide the custom keyboard.
         
         From the api:
             Upon receiving a message with this object, Telegram clients
@@ -184,8 +188,8 @@ class MessageToBeSend(object):
             (see ReplyKeyboardMarkup).
         
         Variables:          
-            Selective       boolean
-                Determins if the keyboard shall be hidden by a single 
+            Selective                     ``boolean``
+                Determines if the keyboard shall be hidden by a single
                 user only.
         """
            
@@ -199,7 +203,7 @@ class MessageToBeSend(object):
                    Selective=False
                    ):
         """
-        This methode will add the tag to that will force a reply.
+        This method will add the tag to that will force a reply.
         
         From the api:
             Upon receiving a message with this object, Telegram clients 
@@ -210,8 +214,8 @@ class MessageToBeSend(object):
             sacrifice privacy mode.
         
         Variables:          
-            Selective       boolean
-                Determins if the keyboard shall be hidden by a single 
+            Selective                     ``boolean``
+                Determines if the keyboard shall be hidden by a single
                 user only.
         """
 
@@ -223,7 +227,7 @@ class MessageToBeSend(object):
         
     def GetMessage(self):
         """
-        This methode will assemble the final message.
+        This method will assemble the final message.
         
         This method will return the final data that will be send to the
         telegram bot api.

@@ -4,23 +4,22 @@
 """
 A additional MySql-interface needed for the DatabaseConnection.
 
-It's a third party software. Devoloped by MySql
+It's a third party software developed by `oracle <http://www.oracle.com>`_.
 
-The download is hosted on:
-http://dev.mysql.com/downloads/connector/python/
-
-The documentation is hosted on:
-http://dev.mysql.com/doc/connector-python/en/index.html
+some useful links:\n
+    - download:\n
+        http://dev.mysql.com/downloads/connector/python/
+    - documentation:\n
+        http://dev.mysql.com/doc/connector-python/en/index.html
 """
+# standard library
 import sys
-
+# third party requirements
 import mysql.connector
-
 # The custom modules
 import GlobalObjects
 import LoggingClass
-# import the _() function!
-import language.LanguageClass
+import language.LanguageClass # import the _() function!
 
 
 class SqlApi(object):
@@ -28,130 +27,177 @@ class SqlApi(object):
     This class is user a mysql interface.
     
     It is a interface between the mysql connector that talks with 
-    the database and the python code. As well dynamicaly creates 
+    the database and the python code. As well dynamically creates
     the queries that have to be executed.
     
     DATABASE STRUCTURE:
-        Poll_Table
-            Internal_Poll_Id      Integer (auto_increment)             
-                conntains the internal polltable id
-            
-            External_Poll_Id      Binary(16)                           
-                contains the MD5 for external use is the Id
-            
-            CreationDate          TIMESTAMP CURRENT_TIMESTAMP
-                contains the creation date of the poll
-            
-            Poll_Name              Varchar(255)                         
-                contains the pollname like poll 1
-                
-            Question              Varchar(999)                         
-                contains the question that has to be asked to the group
-                
-            Master_User           Integer                              
-                contains the internal user Id
-            
-            UNIQUE (External_Poll_Id)
-            
-            PRIMARY KEY (Internal_Poll_Id)
-            
-        Options_Table
-            Id_Option            Integer (auto_increment)             
-                contains the id of the question
-                
-            Id-PollTable         Integer                              
-                contains the id of the question (from the polltable)
-                
-            Option_Name          Varchar(128)                         
-                contains the option to be displayed
-            
-            PRIMARY KEY (Id_Option)
-            
-        User_Table
-            Internal_User_ID      Integer (auto_increment)             
-                contains the internal user id
-                
-            External_User_ID      Integer                              
-                contains the external id
-                
-            User_Name             TEXT                         
-                contains the user name if exists
-                
-            First_Name            TEXT                        
-                contains the first name if exists
-                
-            Last_Name             TEXT                       
-                contains the last name id exists
-                
-            PRIMARY KEY (Internal_User_ID)
-            
-        Group_Table
-            Internal_Id          Integer (auto_increment)             
-                contains the internal group id
-                
-            External_Id          Integer                              
-                contains the external group id
-                
-            Group                Varchar(255)                          
-                contains the group name
-                
-            UNIQUE (External_Poll_Id)
-                      
-            PRIMARY KEY (Internal_Id)
-            
-        Settings_Of_Poll_Table
-            Setting_Id           Integer (auto_increment)             
-                contains the internal settings id
-                
-            Setting_Name         Varchar(128)                         
-                contains the name of the setting
-                
-            Default_String       Varchar(256)                         
-                contains the default value for the setting if string
-                
-            Default_Integer      Integer                              
-                contains the default value for the setting if integer
-                
-            Default_Boolean      Boolean                              
-                contains the default value for the setting if boolean
-            
-            PRIMARY KEY (Setting_Id)
-            
-        User_Setting_Of_Poll_Table
-            User_Setting_Id
-            Setting_Id          Integer (auto_increment)               
-                contains the settings id
-            User_Id             Integer                                
-                contains the internal user id
-            String              Varchar(256)                           
-                contanis the set string value for the setting
-            Integer             Integer                                
-                contains the set integer value for the setting
-            Boolean             Boolean                                
-                contains the set boolean value for the setting
-            
-            PRIMARY KEY (User_Setting_Id)
+
+        +------------------------------------------------------------+
+        |Poll_Table                                                  |  
+        +==================+===================+=====================+
+        |Internal_Poll_Id  |conntains          |Integer              |
+        |                  |the internal       |(auto_increment)     |
+        |                  |polltable id       |                     |   
+        +------------------+-------------------+---------------------+    
+        |External_Poll_Id  |contains the MD5   |Binary(16)           |
+        |                  |for external       |                     |
+        |                  |use is the Id      |                     |   
+        +------------------+-------------------+---------------------+    
+        |CreationDate      |contains the       |TIMESTAMP            |
+        |                  |creation date of   |CURRENT_TIMESTAMP    |
+        |                  |of the poll        |                     |
+        +------------------+-------------------+---------------------+    
+        |Poll_Name         |contains           |Varchar(255)         |   
+        |                  |the pollname like  |                     |
+        |                  |poll 1             |                     |
+        +------------------+-------------------+---------------------+        
+        |Question          |contains the       |Varchar(999)         |   
+        |                  |question that to   |                     |
+        |                  |has to be asked    |                     |
+        |                  |the group          |                     |  
+        +------------------+-------------------+---------------------+        
+        |Master_User       |contains           |Integer              |    
+        |                  |the internal user  |                     |
+        |                  |Id                 |                     |
+        +------------------+-------------------+---------------------+ 
+        |    UNIQUE (External_Poll_Id)                               |     
+        +------------------------------------------------------------+    
+        |    PRIMARY KEY (Internal_Poll_Id)                          |  
+        +------------------------------------------------------------+
         
-        User_Answers_To_Poll
-            Answer_Id           Integer (auto_increment)
-                contains the answer id
-                
-            By_User             Integer
-                contains the user the anwser has been submitted from
-                
-            By_Group            Integer 
-                contains the group in that the answer has been 
-                submitted from
-                
-            Poll_Id             Integer
-                contains the poll for that the anwser has been 
-                submitted for
-                
-            Option_ID           Integer
-                contains the id of thr id
+        +------------------------------------------------------------+
+        |Options_Table                                               | 
+        +==================+===================+=====================+
+        |Id_Option         |contains the id of |Integer              |
+        |                  |the question       |(auto_increment)     |    
+        +------------------+-------------------+---------------------+        
+        |Id-PollTable      |contains the id of |Integer              |
+        |                  |the question       |                     |
+        |                  |(from the          |                     |
+        |                  |poll table)        |                     |
+        +------------------+-------------------+---------------------+       
+        |Option_Name       |contains the option|Varchar(128)         |                          
+        |                  |to be displayed    |                     |
+        +------------------+-------------------+---------------------+    
+        |    PRIMARY KEY (Id_Option)                                 |
+        +------------------------------------------------------------+
             
-            PRIMARY KEY (Answer_Id)
-            
+        +------------------------------------------------------------+    
+        |User_Table                                                  |
+        +==================+===================+=====================+  
+        |Internal_User_ID  |contains the       |Integer              |  
+        |                  |internal user id   |(auto_increment)     |              
+        +------------------+-------------------+---------------------+        
+        |External_User_ID  |contains the       |Integer              |                              
+        |                  |external id        |                     | 
+        +------------------+-------------------+---------------------+        
+        |User_Name         |contains the user  |TEXT                 |          
+        |                  |name if it exists  |                     |
+        +------------------+-------------------+---------------------+      
+        |First_Name        |contains the first |TEXT                 |         
+        |                  |name if it exists  |                     |
+        +------------------+-------------------+---------------------+
+        |Last_Name         |contains the last  |TEXT                 |                       
+        |                  |name id exists     |                     |
+        +------------------+-------------------+---------------------+
+        |PRIMARY KEY (Internal_User_ID)                              |
+        +------------------------------------------------------------+
+        
+        +------------------------------------------------------------+    
+        |Group_Table                                                 |
+        +==================+===================+=====================+
+        |Internal_Id       |contains the       |Integer              |
+        |                  |internal group id  |(auto_increment)     |
+        +------------------+-------------------+---------------------+        
+        |External_Id       |contains the       |Integer              |                              
+        |                  |external group id  |                     | 
+        +------------------+-------------------+---------------------+        
+        |Group             |contains the group |Varchar(255)         |                          
+        |                  |name               |                     |
+        +------------------+-------------------+---------------------+         
+        |    UNIQUE (External_Poll_Id)                               | 
+        +------------------------------------------------------------+             
+        |    PRIMARY KEY (Internal_Id)                               |
+        +------------------------------------------------------------+
+        
+        +------------------------------------------------------------+    
+        |Settings_Of_Poll_Table                                      |  
+        +==================+===================+=====================+
+        |Setting_Id        |contains the       |Integer              | 
+        |                  |internal settings  |(auto_increment)     | 
+        |                  |id                 |                     |
+        +------------------+-------------------+---------------------+
+        |Setting_Name      |contains the name  |Varchar(128)         |   
+        |                  |of the setting     |                     |
+        +------------------+-------------------+---------------------+
+        |Default_String    |contains the       |Varchar(256)         |                         
+        |                  |default value for  |                     |
+        |                  |the setting if     |                     |
+        |                  |string             |                     |
+        +------------------+-------------------+---------------------+    
+        |Default_Integer   |contains the       |Integer              |                          
+        |                  |default value for  |                     |
+        |                  |the setting if     |                     |
+        |                  |integer            |                     |
+        +------------------+-------------------+---------------------+
+        |Default_Boolean   |contains the       |Boolean              |                 
+        |                  |default value for  |                     |
+        |                  |the setting if     |                     |
+        |                  |boolean            |                     |
+        +------------------+-------------------+---------------------+    
+        |PRIMARY KEY (Setting_Id)                                    |
+        +------------------------------------------------------------+
+        
+        +------------------------------------------------------------+    
+        |User_Setting_Of_Poll_Table                                  |
+        +==================+===================+=====================+ 
+        |Setting_Id        |contains the       |Integer              |               
+        |                  |settings id        |(auto_increment)     |
+        +------------------+-------------------+---------------------+
+        |User_Id           |contains the       |Integer              |
+        |                  |internal user id   |                     |
+        +------------------+-------------------+---------------------+ 
+        |User_String       |contains the set   |Varchar(256)         |                           
+        |                  |string value for   |                     |
+        |                  |the setting        |                     |
+        +------------------+-------------------+---------------------+
+        |User_Integer      |contains the set   |Integer              |                               
+        |                  |integer value for  |                     |
+        |                  |the setting        |                     |
+        +------------------+-------------------+---------------------+ 
+        |Boolean           |contains the set   |Boolean              |                      
+        |                  |boolean value for  |                     |
+        |                  |the setting        |                     | 
+        +------------------+-------------------+---------------------+ 
+        |PRIMARY KEY (User_Setting_Id)                               |
+        +------------------------------------------------------------+
+        
+        +------------------------------------------------------------+
+        |User_Answers_To_Poll                                        |  
+        +==================+===================+=====================+         
+        |Answer_Id         |contains the answer|Integer              |
+        |                  |id                 |(auto_increment)     |
+        +------------------+-------------------+---------------------+      
+        |By_User           |contains the user  |Integer              |
+        |                  |id the answer has  |                     |
+        |                  |been submitted from|                     |
+        +------------------+-------------------+---------------------+                
+        |By_Group          |contains the group |  Integer            |
+        |                  |id in that the     |                     |
+        |                  |answer has been    |                     |
+        |                  |submitted from     |                     | 
+        +------------------+-------------------+---------------------+        
+        |Poll_Id           |contains the poll  |Integer              |
+        |                  |id for that the    |                     |
+        |                  |answer has been    |                     |
+        |                  |submitted for      |                     |
+        +------------------+-------------------+---------------------+
+        |Option_ID         |contains the id of |Integer              |
+        |                  |option that has    |                     |
+        |                  |submitted          |                     |
+        +------------------+-------------------+---------------------+
+        |PRIMARY KEY (Answer_Id)                                     |
+        +------------------------------------------------------------+  
     """
     
     def __init__(self,
@@ -167,17 +213,17 @@ class SqlApi(object):
         and to the server with the database .
     
         VARIABLES:
-            User                     string                               
-                contains the databaseuser
-            Password                 string                               
-                contains the databaseuserpassword
-            DatabaseName             string                               
-                contains the databasename
-            Host                     string
-                contains the databasehost ip
-            Port                     string
+            User                     ``string``                             
+                contains the database user
+            Password                 ``string``                               
+                contains the database user password
+            DatabaseName             ``string``                             
+                contains the database name
+            Host                     ``string``
+                contains the database host ip
+            Port                     ``string``
                 contains the database port 
-            OptionalObjects          dictionary
+            OptionalObjects          ``dictionary``
                 contains optional objects like the language object, 
                 the logging object or else
         """
@@ -188,7 +234,7 @@ class SqlApi(object):
         self.DatabaseName = DatabaseName
         self.Port = Port
         
-        #Predefining attribute so that it later can be used for evil.
+        # Predefining some attributes so that they later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
         
@@ -211,10 +257,10 @@ class SqlApi(object):
         
     def CreateConnection(self):
         """
-        This methode creates the mysql connection database.
+        This method creates the mysql connection database.
         
-        This methode will return a mysql connection object if the
-        connection could be created successesfully. If not it will 
+        This method will return a mysql connection object if the
+        connection could be created successfully. If not it will
         catch the error and make a log entry. 
         
         Variables:
@@ -271,15 +317,15 @@ class SqlApi(object):
 
     def CreateCursor(self, Buffered=False, Dictionary=True):
         """
-        This methode creates the connection cursor
+        This method creates the connection cursor
         
         It returns the connection cursor.
         
-        Varibles:
-            Buffered            Boolean
-                if the cursor is bufferd or not default False
-           Dictionary           Boolean
-               if the cursor should return a dictionary or not.
+        Variables:
+            Buffered            ``boolean``
+                If the cursor is buffered or not default to False.
+           Dictionary           ``boolean``
+               If the cursor should return a dictionary or not.
         """
         return self.DatabaseConnection.cursor(
                                               buffered=Buffered, 
@@ -288,10 +334,10 @@ class SqlApi(object):
     
     def GetLastRowId(self, Cursor):
         """
-        This methode returns the last used row id of the cursor.
+        This method returns the last used row id of the cursor.
         
         Variables:
-            Cursor                Object
+            Cursor                ``object``
                 cursor object.
         """
         return Cursor.lastrowid
@@ -301,25 +347,25 @@ class SqlApi(object):
         This method closes the cursor.
         
         Variables:
-            Cursor                Object
+            Cursor                ``object``
                 cursor object.
         """
         return Cursor.close()
     
     def ExecuteTrueQuery(self, Cursor, Query, Data=None):
         """
-        A methode to execute the query statements.
+        A method to execute the query statements.
         
         All the query will be passed over this method so that the 
-        exceptions can be catched at one central place. This methode
+        exceptions can be catched at one central place. This method
         will return the results from the database.
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object
-            Query                 string
+            Query                 ``string``
                 contains the query that has to be executed
-            Data                  list
+            Data                  ``list``
                 contains the data to be send to the databse
          
         .. code-block:: python\n       
@@ -363,12 +409,12 @@ class SqlApi(object):
             
     def CreateDatabase(self, Cursor, DatabaseName):
         """
-        This methode will create a database. Use with caution!
+        This method will create a database. Use with caution!
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object
-            DatabaseName          string
+            DatabaseName          ``string``
                 contains the database name that has to be created
         """
         Query = "CREATE DATABASE IF NOT EXISTS {DatabaseName} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName = DatabaseName)
@@ -380,13 +426,13 @@ class SqlApi(object):
     
     def DeleteDatabase(self, Cursor, DatabaseName):
         """
-        This methode will drop a database. Use with caution!
+        This method will drop a database. Use with caution!
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object
-            DatabaseName          string
-                contains the database name that has to be droped
+            DatabaseName          ``string``
+                contains the database name that has to be dropped
         """        
         Query = "DROP DATABASE {DatabaseName};".format(DatabaseName = DatabaseName)
         
@@ -397,7 +443,7 @@ class SqlApi(object):
         
     def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True, Engine="InnoDB"):
         """
-        A methode to dynamicaly create a table entry to the database.
+        A method to dynamically create a table entry to the database.
         
         HOW TO USE:\n
         .. code-block:: python\n
@@ -409,18 +455,18 @@ class SqlApi(object):
                 )
                     
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object
-            TableName             string
+            TableName             ``string``
                 contains the table name that has to be created
-            TableData             array (list or tuple)
+            TableData             ``array (list or tuple)``
                 contains the table columns that will be created
-            IfNotExists           boolean
+            IfNotExists           ``boolean``
                 determines if the query will be created with the prefix
-                IF NOT EXISTS is used as a default since it doesn't 
+                ``IF NOT EXISTS`` is used as a default since it doesn't 
                 really matter
-            Engine                string
-                determince what mysql engine will be used
+            Engine                ``string``
+                determine what mysql engine will be used
                 
         """
             
@@ -450,19 +496,19 @@ class SqlApi(object):
                     elif TableData[i][0].lower() == 'foreign key':
                         ForeignKeyId = i
             
-            #If a unique key has been added.
+            # If a unique key has been added.
             if UniqueKeyId:
                 if Query[-1] != ",":
                     Query += ","
                 Query += " " + TableData[UniqueKeyId][0] + " (" + TableData[UniqueKeyId][1] + ")"
             
-            #If a PrimatyKey has been added.
+            # If a Primary Key has been added.
             if PrimaryKeyId:
                 if Query[-1] != ",":
                     Query += ","
                 Query += " " + TableData[PrimaryKeyId][0] + " (" + TableData[PrimaryKeyId][1] + ")"
            
-            #If a Foreign Key has been added.
+            #  If a Foreign Key has been added.
             if ForeignKeyId:
                 if Query[-1] != ",":
                     Query += ","
@@ -485,15 +531,15 @@ class SqlApi(object):
     
     def CreateMainDatabase(self, Cursor):
         """
-        This methode will create all the default tables and data.
+        This method will create all the default tables and data.
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object        
         """
         
-        #First all the tables 
-        #UserTable
+        # First all the tables
+        # UserTable
         TableData = (
                      ("Internal_User_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_User_Id", "Integer"),
@@ -506,7 +552,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Table", TableData,) 
             
-        #SessionHandling saves the last send command 
+        # SessionHandling saves the last send command
         TableData = (
                      ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Command_By_User", "Integer"), #is the internal id of the user
@@ -518,7 +564,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "Session_Table", TableData,)         
         
-        #Settings 
+        # Settings
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -531,7 +577,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "Setting_Table", TableData,)
                 
-        #UserSetSetting
+        # UserSetSetting
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -547,7 +593,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Setting_Table", TableData,)
         
-        #GroupTable
+        # GroupTable
         TableData = (
                      ("Internal_Group_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_Group_Id", "Integer"),
@@ -559,7 +605,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "Group_Table", TableData,)
                           
-        #The PollTable
+        # The PollTable
         TableData = (
                      ("Internal_Poll_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_Poll_Id", "BINARY(32) DEFAULT NULL"),
@@ -574,7 +620,7 @@ class SqlApi(object):
          
         self.CreateTable(Cursor, "Poll_Table", TableData,)
          
-        #Options for the Poll themself
+        # Options for the Polls themselves
         TableData = (
                      ("Id_Option", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -588,7 +634,7 @@ class SqlApi(object):
          
         self.CreateTable(Cursor, "Options_Table", TableData,)
          
-        #all settings of the poll
+        # All the available settings of the poll
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -620,7 +666,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData,)
         
-        # User anwser to the poll
+        # User answer to the poll
         TableData = (
                      ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -678,24 +724,24 @@ class SqlApi(object):
          
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
         """
-        a simple SQL SELECT builder
+        A simple SQL SELECT builder method
         
         This method will be replaces in the future by the query class
         generator.
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object  
                 
-            FromTable,            string
-                contains the table name from wich the system takes 
+            FromTable,            ``string``
+                contains the table name from which the system takes
                 the information
             
-            Columns               array (list or tuple)
-                contains the columns to be intertet into
+            Columns               ``array (list or tuple)``
+                contains the columns to be inserted into
             
-            OrderBy               array (list or tuple)
-                contains the order in wich the data will be returnd
+            OrderBy               ``array (list or tuple)``
+                contains the order in which the data will be returned
                 
                 .. code-block:: python\n
                     Example
@@ -714,10 +760,10 @@ class SqlApi(object):
                             ]
                         ] 
                 
-            Amount                None or integer
-                is the limit of entrys that will be returned
+            Amount                ``None or integer``
+                is the limit of entries that will be returned
                 
-            Where                 array (list or tuple)  
+            Where                 ``array (list or tuple)`` 
                 contains the filter of the query
                 Example\n
                 .. code-block:: python\n
@@ -737,10 +783,10 @@ class SqlApi(object):
                         ]
                     ]
                     
-            Data                 array (list or tuple)
-                contains the data that will be inseted into the query
+            Data                 ``array (list or tuple)``
+                contains the data that will be inserted into the query
                 
-            Distinct             boolean
+            Distinct             ``boolean``
                 determines if the search is distinct or not
         """
         
@@ -749,17 +795,17 @@ class SqlApi(object):
         if Distinct:
             Query.append("DISTINCT")
         
-        #columns
+        # columns
         for i in range(len(Columns)):
             if i+1 < len(Columns):
                 Query.append(Columns[i] + ",")
             else:
                 Query.append(Columns[i])
         
-        #from Table
+        # from Table
         Query.append("FROM " + FromTable)
         
-        #Where
+        # Where
         if Where != []:
             Query.append("WHERE")
             for i in range(len(Where)):
@@ -777,7 +823,7 @@ class SqlApi(object):
                 
                 #Query.append(Where[i])
                              
-        #Order By
+        # Order By
         if OrderBy[0] is not None:
             Query.append("ORDER BY")
             
@@ -793,16 +839,14 @@ class SqlApi(object):
         
         
         
-        #Limit
+        # Limit
         if (Amount is not None) and (isinstance( Amount, int )):
             Query.append("LIMIT " + str(Amount))
         
         Query.append(";")
         
         Query = ' '.join([str(i) for i in Query])
-#         
-#         print(Query)
-#         print(Data)
+
         if Data == ():
             return (self.ExecuteTrueQuery(Cursor, Query, ))
         else:
@@ -810,23 +854,24 @@ class SqlApi(object):
 
     def UpdateEntry(self, Cursor, TableName, Columns, Where=[], Autocommit = False):
         """
-        This Methode will update a record in the database.
+        This method will update a record in the database.
         
-        This methode will return something like this:
+        This method will return something like this:\n
+        .. code-block:: sql\n
             UPDATE table_name
             SET column1=value1,column2=value2,...
             WHERE some_column=some_value;
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object 
                  
-            TableName             string
+            TableName             ``string``
                 contains the table name into wich the system will 
                 insert the information 
                 
-            Columns               dictionary
-                contains the columns into that will be inseted
+            Columns               ``dictionary``
+                contains the columns into that will be inserted
                 Example\n
                 .. code-block:: python\n
                     {
@@ -834,7 +879,7 @@ class SqlApi(object):
                         Name': 'Max'
                     }
                 
-            Where                 array (list or tuple)
+            Where                 ``array (list or tuple)``
                 contains the query filter
                 Example\n
                 .. code-block:: python\n
@@ -857,8 +902,8 @@ class SqlApi(object):
                         ")",
                     ]
                 
-            Autocommit            boolean
-                If autocommit is true the methode will automatically 
+            Autocommit            ``boolean``
+                If autocommit is true the method will automatically
                 commit the values to the database.
             
         """
@@ -881,7 +926,7 @@ class SqlApi(object):
             Query += " WHERE "
             
             # This variable is used to ensure that no 2 operator will 
-            # follow eachother
+            # follow each other
             LastTypeAnOperator = False
             for i in range(len(Where)):    
 
@@ -912,7 +957,7 @@ class SqlApi(object):
 #         print(Query % Columns)
         
         self.ExecuteTrueQuery(Cursor, Query, Columns)
-        if Autocommit == True:
+        if Autocommit is True:
             # Autocommit the update to the server
             self.Commit(Cursor)
         return True
@@ -921,33 +966,34 @@ class SqlApi(object):
         """
         This method will insert any type of entry into the database.
         
-        This methode will return something like this:
+        This method will return something like this:\n
+        .. code-block:: sql\n
             UPDATE table_name
             SET column1=value1,column2=value2,...
             WHERE some_column=some_value;
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object 
                  
-            TableName             string
+            TableName             ``string``
                 contains the table name into wich the system will 
                 insert the information 
                 
-            Columns               dictionary
-                contains the columns into that will be inseted
+            Columns               ``dictionary``
+                contains the columns into that will be inserted
                 Example\n
                 .. code-block:: python\n
                     {
                         'id' : id,
                         Name': 'Max'
                     }
-            Duplicate             None or dictionary
+            Duplicate             ``None or dictionary``
                 contains the columns in those the possible duplicates 
                 values exist
                 
-            Autocommit            boolean
-                If autocommit is true the methode will automatically 
+            Autocommit            ``boolean``
+                If autocommit is true the method will automatically
                 commit the values to the database.
         """
         
@@ -978,16 +1024,16 @@ class SqlApi(object):
         Cursor.execute(Query, Columns)
             
         if AutoCommit:
-             # Make sure data is committed to the database
+            # Make sure data is committed to the database
             self.Commit(Cursor)
         return True
 
     def Commit(self, Cursor):
         """
-        This methode will commit the changens to the database.
+        This method will commit the changes to the database.
         
         Variables:
-            Cursor                object
+            Cursor                ``object``
                 contains the cursor object 
         """
         try:

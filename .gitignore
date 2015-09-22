@@ -55,7 +55,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 docs/_build_html
-docs/_static
+# This is needed to include the custom css into the website
+#docs/_static
 
 # PyBuilder
 target/
@@ -68,3 +69,9 @@ src/logs.txt
 src/log.txt
 src/Log/*
 src/Logs/*
+
+# pyCharm stuff
+.idea/
+
+# eclise stuff
+.settings/
