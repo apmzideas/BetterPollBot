@@ -30,7 +30,7 @@ class TelegramApi(object):
         Each bot is given a unique authentication token when it is 
         created. The token looks something like 
         ``123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11``, but we'll use simply 
-        <token> in this document instead. You can learn about obtaining 
+        ``<token>`` in this document instead. You can learn about obtaining
         tokens and generating new ones in this document.
         
         Making requests
@@ -90,27 +90,28 @@ class TelegramApi(object):
                 }
         
         Variables:
-            ApiToken                      string
+            ApiToken                      ``string``
                 contains the token to contact the background information
                 of the bot\n
                 Each bot is given a unique authentication token when it 
                 is created.
             
-            RequestTimer                  integer
+            RequestTimer                  ``integer``
                 set's the sleeping time between requests to the bot API
                 
-            OptionalObjects               dictionary
+            OptionalObjects               ``dictionary``
                 contains the optional objects
                 like:
-                    LanguageObject        object
+                    LanguageObject        ``object``
                         contains the translation object
                         
-                    LoggingObject         object
+                    LoggingObject         ``object``
                         contains the logging object needed to log
                         
-                    ExitOnError           boolean
-                        determines if the system should shut down 
-                        if an exception or error ocourse 
+                    ExitOnError           ``boolean``
+                        Determines if the system should shut down
+                        if an exception or error occurs.
+                        The default value is False.
                         
         """
         self.ApiToken = ApiToken
@@ -154,8 +155,8 @@ class TelegramApi(object):
 
         self.Headers = {
                         'User-agent': (
-                                       GlobalObjects.__AppName__ + '/' + str(GlobalObjects.__version__)
-                                       + ' (' +
+                                       GlobalObjects.__AppName__ + '/' +
+                                       str(GlobalObjects.__version__) + ' (' +
                                        '; '.join(platform.system_alias(
                                                             platform.system(),
                                                             platform.release(),
@@ -163,8 +164,8 @@ class TelegramApi(object):
                                                             )
                                                  ) +
                                        ') Python-urllib/' +
-                                        str(platform.python_build()) +
-                                        ' from ' + GlobalObjects.__hosted__
+                                       str(platform.python_build()) +
+                                       ' from ' + GlobalObjects.__hosted__
                                         ),
                         "Content-Type":
                         "application/x-www-form-urlencoded;charset=utf-8"
@@ -225,7 +226,7 @@ class TelegramApi(object):
 
     def GetMe(self):
         """
-        A method to confirm the ApiToken exists
+        A method to confirm the ApiToken exists.
         
         It returns the response from the request, this includes the
         bot name.
@@ -244,10 +245,10 @@ class TelegramApi(object):
         It does as well to confirm the old comments so that only 
         new responses have to be processed.
         
-        Notes
-        1. This method will not work if an outgoing webhook is set up.
-        2. In order to avoid getting duplicate updates, recalculate
-        offset after each server response.
+        Notes:\n
+        1. This method will not work if an outgoing web hook is set up.
+        2. In order to avoid getting duplicate updates, recalculate offset
+           after each server response.
         
         Variables:
             CommentNumber                 ``None or integer``
@@ -272,10 +273,7 @@ class TelegramApi(object):
         # send Request and get JSONData    
         JSONData = self.SendRequest(Request,)
 
-#         import pprint
-#         pprint.PrettyPrinter(indent=4).pprint(JSONData)
-
-        if not JSONData is None:
+        if JSONData is not None:
             if JSONData["ok"]:
                 return JSONData
 
@@ -302,7 +300,7 @@ class TelegramApi(object):
 
     def ForwardMessage(self, ChatId, FromChatId, MessageId):
         """
-        A method to forward a recived message
+        A method to forward a received message
         
         This function will maybe be build in the future for now
         it's not doing anything.

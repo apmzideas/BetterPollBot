@@ -6,22 +6,20 @@ A additional MySql-interface needed for the DatabaseConnection.
 
 It's a third party software developed by `oracle <http://www.oracle.com>`_.
 
-some usefull links:\n
+some useful links:\n
     - download:\n
         http://dev.mysql.com/downloads/connector/python/
     - documentation:\n
         http://dev.mysql.com/doc/connector-python/en/index.html
 """
-
+# standard library
 import sys
-
+# third party requirements
 import mysql.connector
-
 # The custom modules
 import GlobalObjects
 import LoggingClass
-# import the _() function!
-import language.LanguageClass
+import language.LanguageClass # import the _() function!
 
 
 class SqlApi(object):
@@ -29,7 +27,7 @@ class SqlApi(object):
     This class is user a mysql interface.
     
     It is a interface between the mysql connector that talks with 
-    the database and the python code. As well dynamicaly creates 
+    the database and the python code. As well dynamically creates
     the queries that have to be executed.
     
     DATABASE STRUCTURE:
@@ -73,10 +71,10 @@ class SqlApi(object):
         |Id_Option         |contains the id of |Integer              |
         |                  |the question       |(auto_increment)     |    
         +------------------+-------------------+---------------------+        
-        |Id-PollTable      |containsthe id of  |Integer              |  
+        |Id-PollTable      |contains the id of |Integer              |
         |                  |the question       |                     |
         |                  |(from the          |                     |
-        |                  |polltable)         |                     |   
+        |                  |poll table)        |                     |
         +------------------+-------------------+---------------------+       
         |Option_Name       |contains the option|Varchar(128)         |                          
         |                  |to be displayed    |                     |
@@ -181,7 +179,7 @@ class SqlApi(object):
         |                  |id                 |(auto_increment)     |
         +------------------+-------------------+---------------------+      
         |By_User           |contains the user  |Integer              |
-        |                  |id the anwser has  |                     |
+        |                  |id the answer has  |                     |
         |                  |been submitted from|                     |
         +------------------+-------------------+---------------------+                
         |By_Group          |contains the group |  Integer            |
@@ -191,7 +189,7 @@ class SqlApi(object):
         +------------------+-------------------+---------------------+        
         |Poll_Id           |contains the poll  |Integer              |
         |                  |id for that the    |                     |
-        |                  |anwser has been    |                     |
+        |                  |answer has been    |                     |
         |                  |submitted for      |                     |
         +------------------+-------------------+---------------------+
         |Option_ID         |contains the id of |Integer              |
@@ -216,13 +214,13 @@ class SqlApi(object):
     
         VARIABLES:
             User                     ``string``                             
-                contains the databaseuser
+                contains the database user
             Password                 ``string``                               
-                contains the databaseuserpassword
+                contains the database user password
             DatabaseName             ``string``                             
-                contains the databasename
+                contains the database name
             Host                     ``string``
-                contains the databasehost ip
+                contains the database host ip
             Port                     ``string``
                 contains the database port 
             OptionalObjects          ``dictionary``
@@ -236,7 +234,7 @@ class SqlApi(object):
         self.DatabaseName = DatabaseName
         self.Port = Port
         
-        #Predefining attribute so that it later can be used for evil.
+        # Predefining some attributes so that they later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
         
@@ -259,10 +257,10 @@ class SqlApi(object):
         
     def CreateConnection(self):
         """
-        This methode creates the mysql connection database.
+        This method creates the mysql connection database.
         
-        This methode will return a mysql connection object if the
-        connection could be created successesfully. If not it will 
+        This method will return a mysql connection object if the
+        connection could be created successfully. If not it will
         catch the error and make a log entry. 
         
         Variables:
@@ -319,15 +317,15 @@ class SqlApi(object):
 
     def CreateCursor(self, Buffered=False, Dictionary=True):
         """
-        This methode creates the connection cursor
+        This method creates the connection cursor
         
         It returns the connection cursor.
         
-        Varibles:
+        Variables:
             Buffered            ``boolean``
-                if the cursor is bufferd or not default False
+                If the cursor is buffered or not default to False.
            Dictionary           ``boolean``
-               if the cursor should return a dictionary or not.
+               If the cursor should return a dictionary or not.
         """
         return self.DatabaseConnection.cursor(
                                               buffered=Buffered, 
@@ -336,7 +334,7 @@ class SqlApi(object):
     
     def GetLastRowId(self, Cursor):
         """
-        This methode returns the last used row id of the cursor.
+        This method returns the last used row id of the cursor.
         
         Variables:
             Cursor                ``object``
@@ -356,10 +354,10 @@ class SqlApi(object):
     
     def ExecuteTrueQuery(self, Cursor, Query, Data=None):
         """
-        A methode to execute the query statements.
+        A method to execute the query statements.
         
         All the query will be passed over this method so that the 
-        exceptions can be catched at one central place. This methode
+        exceptions can be catched at one central place. This method
         will return the results from the database.
         
         Variables:
@@ -411,7 +409,7 @@ class SqlApi(object):
             
     def CreateDatabase(self, Cursor, DatabaseName):
         """
-        This methode will create a database. Use with caution!
+        This method will create a database. Use with caution!
         
         Variables:
             Cursor                ``object``
@@ -428,13 +426,13 @@ class SqlApi(object):
     
     def DeleteDatabase(self, Cursor, DatabaseName):
         """
-        This methode will drop a database. Use with caution!
+        This method will drop a database. Use with caution!
         
         Variables:
             Cursor                ``object``
                 contains the cursor object
             DatabaseName          ``string``
-                contains the database name that has to be droped
+                contains the database name that has to be dropped
         """        
         Query = "DROP DATABASE {DatabaseName};".format(DatabaseName = DatabaseName)
         
@@ -445,7 +443,7 @@ class SqlApi(object):
         
     def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True, Engine="InnoDB"):
         """
-        A methode to dynamicaly create a table entry to the database.
+        A method to dynamically create a table entry to the database.
         
         HOW TO USE:\n
         .. code-block:: python\n
@@ -468,7 +466,7 @@ class SqlApi(object):
                 ``IF NOT EXISTS`` is used as a default since it doesn't 
                 really matter
             Engine                ``string``
-                determince what mysql engine will be used
+                determine what mysql engine will be used
                 
         """
             
@@ -498,19 +496,19 @@ class SqlApi(object):
                     elif TableData[i][0].lower() == 'foreign key':
                         ForeignKeyId = i
             
-            #If a unique key has been added.
+            # If a unique key has been added.
             if UniqueKeyId:
                 if Query[-1] != ",":
                     Query += ","
                 Query += " " + TableData[UniqueKeyId][0] + " (" + TableData[UniqueKeyId][1] + ")"
             
-            #If a PrimatyKey has been added.
+            # If a Primary Key has been added.
             if PrimaryKeyId:
                 if Query[-1] != ",":
                     Query += ","
                 Query += " " + TableData[PrimaryKeyId][0] + " (" + TableData[PrimaryKeyId][1] + ")"
            
-            #If a Foreign Key has been added.
+            #  If a Foreign Key has been added.
             if ForeignKeyId:
                 if Query[-1] != ",":
                     Query += ","
@@ -533,15 +531,15 @@ class SqlApi(object):
     
     def CreateMainDatabase(self, Cursor):
         """
-        This methode will create all the default tables and data.
+        This method will create all the default tables and data.
         
         Variables:
             Cursor                ``object``
                 contains the cursor object        
         """
         
-        #First all the tables 
-        #UserTable
+        # First all the tables
+        # UserTable
         TableData = (
                      ("Internal_User_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_User_Id", "Integer"),
@@ -554,7 +552,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Table", TableData,) 
             
-        #SessionHandling saves the last send command 
+        # SessionHandling saves the last send command
         TableData = (
                      ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Command_By_User", "Integer"), #is the internal id of the user
@@ -566,7 +564,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "Session_Table", TableData,)         
         
-        #Settings 
+        # Settings
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -579,7 +577,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "Setting_Table", TableData,)
                 
-        #UserSetSetting
+        # UserSetSetting
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -595,7 +593,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Setting_Table", TableData,)
         
-        #GroupTable
+        # GroupTable
         TableData = (
                      ("Internal_Group_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_Group_Id", "Integer"),
@@ -607,7 +605,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "Group_Table", TableData,)
                           
-        #The PollTable
+        # The PollTable
         TableData = (
                      ("Internal_Poll_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("External_Poll_Id", "BINARY(32) DEFAULT NULL"),
@@ -622,7 +620,7 @@ class SqlApi(object):
          
         self.CreateTable(Cursor, "Poll_Table", TableData,)
          
-        #Options for the Poll themself
+        # Options for the Polls themselves
         TableData = (
                      ("Id_Option", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -636,7 +634,7 @@ class SqlApi(object):
          
         self.CreateTable(Cursor, "Options_Table", TableData,)
          
-        #all settings of the poll
+        # All the available settings of the poll
         TableData = (
                      ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -668,7 +666,7 @@ class SqlApi(object):
         
         self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData,)
         
-        # User anwser to the poll
+        # User answer to the poll
         TableData = (
                      ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
                      ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
@@ -726,7 +724,7 @@ class SqlApi(object):
          
     def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
         """
-        a simple SQL SELECT builder
+        A simple SQL SELECT builder method
         
         This method will be replaces in the future by the query class
         generator.
@@ -736,14 +734,14 @@ class SqlApi(object):
                 contains the cursor object  
                 
             FromTable,            ``string``
-                contains the table name from wich the system takes 
+                contains the table name from which the system takes
                 the information
             
             Columns               ``array (list or tuple)``
-                contains the columns to be intertet into
+                contains the columns to be inserted into
             
             OrderBy               ``array (list or tuple)``
-                contains the order in wich the data will be returnd
+                contains the order in which the data will be returned
                 
                 .. code-block:: python\n
                     Example
@@ -763,7 +761,7 @@ class SqlApi(object):
                         ] 
                 
             Amount                ``None or integer``
-                is the limit of entrys that will be returned
+                is the limit of entries that will be returned
                 
             Where                 ``array (list or tuple)`` 
                 contains the filter of the query
@@ -786,7 +784,7 @@ class SqlApi(object):
                     ]
                     
             Data                 ``array (list or tuple)``
-                contains the data that will be inseted into the query
+                contains the data that will be inserted into the query
                 
             Distinct             ``boolean``
                 determines if the search is distinct or not
@@ -797,17 +795,17 @@ class SqlApi(object):
         if Distinct:
             Query.append("DISTINCT")
         
-        #columns
+        # columns
         for i in range(len(Columns)):
             if i+1 < len(Columns):
                 Query.append(Columns[i] + ",")
             else:
                 Query.append(Columns[i])
         
-        #from Table
+        # from Table
         Query.append("FROM " + FromTable)
         
-        #Where
+        # Where
         if Where != []:
             Query.append("WHERE")
             for i in range(len(Where)):
@@ -825,7 +823,7 @@ class SqlApi(object):
                 
                 #Query.append(Where[i])
                              
-        #Order By
+        # Order By
         if OrderBy[0] is not None:
             Query.append("ORDER BY")
             
@@ -841,16 +839,14 @@ class SqlApi(object):
         
         
         
-        #Limit
+        # Limit
         if (Amount is not None) and (isinstance( Amount, int )):
             Query.append("LIMIT " + str(Amount))
         
         Query.append(";")
         
         Query = ' '.join([str(i) for i in Query])
-#         
-#         print(Query)
-#         print(Data)
+
         if Data == ():
             return (self.ExecuteTrueQuery(Cursor, Query, ))
         else:
@@ -858,9 +854,9 @@ class SqlApi(object):
 
     def UpdateEntry(self, Cursor, TableName, Columns, Where=[], Autocommit = False):
         """
-        This Methode will update a record in the database.
+        This method will update a record in the database.
         
-        This methode will return something like this:\n
+        This method will return something like this:\n
         .. code-block:: sql\n
             UPDATE table_name
             SET column1=value1,column2=value2,...
@@ -875,7 +871,7 @@ class SqlApi(object):
                 insert the information 
                 
             Columns               ``dictionary``
-                contains the columns into that will be inseted
+                contains the columns into that will be inserted
                 Example\n
                 .. code-block:: python\n
                     {
@@ -907,7 +903,7 @@ class SqlApi(object):
                     ]
                 
             Autocommit            ``boolean``
-                If autocommit is true the methode will automatically 
+                If autocommit is true the method will automatically
                 commit the values to the database.
             
         """
@@ -930,7 +926,7 @@ class SqlApi(object):
             Query += " WHERE "
             
             # This variable is used to ensure that no 2 operator will 
-            # follow eachother
+            # follow each other
             LastTypeAnOperator = False
             for i in range(len(Where)):    
 
@@ -961,7 +957,7 @@ class SqlApi(object):
 #         print(Query % Columns)
         
         self.ExecuteTrueQuery(Cursor, Query, Columns)
-        if Autocommit == True:
+        if Autocommit is True:
             # Autocommit the update to the server
             self.Commit(Cursor)
         return True
@@ -970,7 +966,7 @@ class SqlApi(object):
         """
         This method will insert any type of entry into the database.
         
-        This methode will return something like this:\n
+        This method will return something like this:\n
         .. code-block:: sql\n
             UPDATE table_name
             SET column1=value1,column2=value2,...
@@ -985,7 +981,7 @@ class SqlApi(object):
                 insert the information 
                 
             Columns               ``dictionary``
-                contains the columns into that will be inseted
+                contains the columns into that will be inserted
                 Example\n
                 .. code-block:: python\n
                     {
@@ -997,7 +993,7 @@ class SqlApi(object):
                 values exist
                 
             Autocommit            ``boolean``
-                If autocommit is true the methode will automatically 
+                If autocommit is true the method will automatically
                 commit the values to the database.
         """
         
@@ -1028,13 +1024,13 @@ class SqlApi(object):
         Cursor.execute(Query, Columns)
             
         if AutoCommit:
-             # Make sure data is committed to the database
+            # Make sure data is committed to the database
             self.Commit(Cursor)
         return True
 
     def Commit(self, Cursor):
         """
-        This methode will commit the changens to the database.
+        This method will commit the changes to the database.
         
         Variables:
             Cursor                ``object``

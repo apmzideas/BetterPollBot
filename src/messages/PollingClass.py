@@ -7,7 +7,7 @@ import LoggingClass
 
 class Poll(object):
     """
-    In this class all the methodes needed for the poll will be stored.
+    In this class all the methods needed for the poll will be stored.
     """
 
     def __init__(self, 
@@ -88,7 +88,7 @@ class Poll(object):
     
     def GetPollByName(self):
         """
-        This methode will set the self.InternalPollId with the id.
+        This method will set the self.InternalPollId with the id.
         
         Variables:
             \-
@@ -136,7 +136,7 @@ class Poll(object):
 
     def GetPollName(self):
         """
-        This methode will return the poll name if given.
+        This method will return the poll name if given.
         
         Variables:
             \-
@@ -145,19 +145,19 @@ class Poll(object):
         
         return PollName   
          
-    def AddAnwser(self, Anwser):
+    def AddAnwser(self, Answer):
         """
-        This method adds an anwser to the poll.
+        This method adds an answer to the poll.
         
         Variables:
-            Anwser                        ``string``
+            Answer                        ``string``
                 the answer or option to be added
         """
         self.SqlObject.InserEntry(
                                   self.SqlCursor,
                                   TableName = "Options_Table",
                                   Columns = {
-                                             "Option_Name": Anwser,
+                                             "Option_Name": Answer,
                                              "Id_Poll_Table": self.InternalPollId,
                                              "Master_User_Id": self.InternalUserId,
                                              },
@@ -182,8 +182,8 @@ class Poll(object):
         """
         Generates and returns the url needed to add a poll to a group.
         
-        The telegram 
-        https://telegram.me/<bot name>?startgroup=<external group id>
+        The telegram link:
+            ``https://telegram.me/<bot name>?startgroup=<external group id>``
         
         Variables:
             NameOfApp                     ``string``

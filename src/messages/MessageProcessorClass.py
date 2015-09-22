@@ -16,6 +16,7 @@ from . import PollingClass
 from . import MessageClass
 from . import EmojiClass
 
+
 class MessageProcessor(object):
     """
     This class is used as the user message analyser.
@@ -31,14 +32,14 @@ class MessageProcessor(object):
                                    'date': 1439471738, 
                                    'text': '/newpoll',
                                    'from': {
-                                            'id': 32301786, 
-                                            'last_name': 'Hornung', 
-                                            'first_name': 'Adrian', 
-                                            'username': 'TheRedFireFox'
+                                            'id': 3xxxxxx6,
+                                            'last_name': 'Sample',
+                                            'first_name': 'Max',
+                                            'username': 'TheUserName'
                                             }, 
                                    'message_id': 111, 
                                    'chat': {
-                                            'id': -7903240, 
+                                            'id': -xxxxxxx,
                                             'title': 'Drive'
                                             }
                                    },
@@ -329,7 +330,7 @@ class MessageProcessor(object):
         The following query will return a 1 if a user with the 
         specified username exists a 0 otherwise. From that on
         the system will return True if the group exists and if it
-        doens't False.\n
+        doesn't False.\n
         .. code-block:: sql\n
             SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'username')
         
@@ -391,8 +392,8 @@ class MessageProcessor(object):
         """
         This method interprets the user text.
         
-        This method is used as an preinterpreter of the user send text. 
-        It premarly chooses if the user send text is a command or not.
+        This method is used as an pre interpreter of the user send text.
+        It primarily chooses if the user send text is a command or not.
         It will choose the correct interpretation system.
         It returns the MessageObject after letting it get modified.
         
@@ -430,8 +431,8 @@ class MessageProcessor(object):
         the user Text.
         
         Variables:
-            MessageObejct                 object   
-                is the message obejct that has to be modified
+            MessageObject                 ``object??
+                is the message object that has to be modified
         """
          # register the command in the database for later use
         if self.Text == "/start":
@@ -547,7 +548,7 @@ class MessageProcessor(object):
         after modifying it.
         
         Variables:
-            MessageObejct                 object
+            MessageObject                 ``object``
                 is the message obejct that has to be modified
         """
         
@@ -663,18 +664,18 @@ class MessageProcessor(object):
         """
         This method will save the last user command into the database.
         
-        The commands used can be set manuely from the programmer 
-        so that it can be user for flow controll.
+        The commands used can be set manually from the programmer
+        so that it can be user for flow control.
         
         Example:\n
         .. code-block:: guess\n
             /Command option
             
         Variables:
-            Command                       string 
+            Command                       ``string``
                 this is the used command with the option
                 
-            LastUsedId                    integer
+            LastUsedId                    ``integer``
                 This is the last used id, it can be every id, depending 
                 the situation.
         """
@@ -707,7 +708,7 @@ class MessageProcessor(object):
         This method will get the last user command.
         
         This method will get the last user command from the database,
-        so that the last command can be used for flow controll. 
+        so that the last command can be used for flow control.
         The command are mostly set by the system and not by the user,
         at least not direct.
         
@@ -760,7 +761,7 @@ class MessageProcessor(object):
         
         This method is responsible for initialising the language change, 
         as well as activating the new language. It will return True
-        if the new language could be initialied and False if there has 
+        if the new language could be initialised and False if there has
         been an error.
         
         Variables:
@@ -850,7 +851,7 @@ class MessageProcessor(object):
         """ 
         Get all user polls and return them in a list.
         
-        This method will get all the allready created polls and 
+        This method will get all the already created polls and
         will return them, if the user has no polls the system will
         return a None.
         

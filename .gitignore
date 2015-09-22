@@ -69,3 +69,9 @@ src/logs.txt
 src/log.txt
 src/Log/*
 src/Logs/*
+
+# pyCharm stuff
+.idea/
+
+# eclise stuff
+.settings/
