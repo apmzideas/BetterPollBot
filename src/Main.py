@@ -10,7 +10,7 @@
 import GlobalObjects
 
 # standard modules import 
-# import argparse
+import os
 import getpass
 import time
 import platform
@@ -56,8 +56,8 @@ def Main():
         maxy, maxx = CursesMasterObject.getmaxyx()
         begin_x = 0
         begin_y = 0
-        height = 10
-        width = maxx - 4
+        height = maxy
+        width = maxx
         CursesObject = curses.newwin(height, width, begin_y, begin_x)
         CursesObject.nodelay(1)
         curses.setsyx(-1, -1)

@@ -12,7 +12,7 @@ import multiprocessing
 import os
 import platform
 
-
+# if python 2 is used
 try:
     unicode
     _unicode = True
@@ -64,7 +64,7 @@ class CursesHandler(logging.Handler):
         try:
             msg = self.format(record)
             fs = "%s\n"
-            if not _unicode: #if no unicode support...
+            if not _unicode:  # if no unicode support...
                 self.screen.addstr(fs % msg)
                 self.screen.refresh()
             else:
