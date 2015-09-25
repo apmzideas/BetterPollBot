@@ -234,6 +234,10 @@ class SqlApi(object):
         self.DatabaseName = DatabaseName
         self.Port = Port
 
+        # This variable defines if the system should shutdown if no connection
+        # was created.
+        self._DieOnLostConnection = False
+
         # Predefining some attributes so that they later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
@@ -287,29 +291,34 @@ class SqlApi(object):
                     self._("The database connector returned following"
                            " error: {Error}").format(Error=err) + " " + self._(
                         "Something is wrong with your user name or password."), )
-                raise SystemExit
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.error(
                     self._("The database connector returned following"
                            " error: {Error}").format(Error=err) + " " + self._(
                         "The database does not exist, please contact"
                         " your administrator."))
-                raise SystemExit
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
             elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
                 self.LoggingObject.critical(
                     self._("The database connector returned following"
                            " error: {Error}").format(Error=err) + " " + self._(
                         "The database server seems to be offline,"
                         " please contact your administrator."))
-                raise SystemExit
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
             else:
                 self.LoggingObject.error(err)
-                raise SystemExit
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
         except:
             self.LoggingObject.critical(
                 self._("The database connector returned following "
                        "error: {Error}").format(Error=sys.exc_info()[0]))
-            raise SystemExit
+            if self._DieOnLostConnection is True:
+                raise SystemExit
 
         else:
             self.CloseConnection()
@@ -329,10 +338,80 @@ class SqlApi(object):
                        "{Error}").format(Error=err) + " " + self._(
                     "The database connection could not be closed correctly,"
                     " please contact your administrator!"))
-        except:
+        except Exception:
             self.LoggingObject.critical(
                 self._("The database connector returned following error: "
                        "{Error}").format(Error=sys.exc_info()[0]))
+
+    def DetectConnection(self):
+        """
+        This method will check if the database connection is open.
+
+        It return True if the connection exists else False.
+        It as well tries to reconnect if no connection is available.
+
+        Variables:
+            \-
+        """
+        import time
+        # This is needed to sleep while trying
+        # to reconnect to the server.
+#        print(self.DatabaseConnection.is_connected())
+        Connection = True
+        while True:
+            if self.DatabaseConnection is not None:
+                try:
+                    self.DatabaseConnection.reconnect()
+                except mysql.connector.Error as err:
+                    if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+                        self.LoggingObject.warning(
+                            self._("The database connector returned following"
+                                   " error: {Error}").format(Error=err) + " " + self._(
+                                "Something is wrong with your user name or password."), )
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                    elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+                        self.LoggingObject.error(
+                            self._("The database connector returned following"
+                                   " error: {Error}").format(Error=err) + " " + self._(
+                                "The database does not exist, please contact"
+                                " your administrator."))
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                    elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
+                        self.LoggingObject.critical(
+                            self._("The database connector returned following"
+                                   " error: {Error}").format(Error=err) + " " + self._(
+                                "The database server seems to be offline,"
+                                " please contact your administrator."))
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                    else:
+                        self.LoggingObject.error(err)
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                except Exception as Error:
+                    self.LoggingObject.critical(
+                        self._("The database connector returned following "
+                               "error: {Error}").format(Error=Error))
+                    if self._DieOnLostConnection is True:
+                        raise SystemExit
+
+                if self.DatabaseConnection.is_connected() is True:
+                    if Connection is False:
+                        self.LoggingObject.info(self._("The connection to the database server "
+                                                       "has been reestablished."))
+                    return True
+                else:
+                    Connection = False
+                    self.LoggingObject.critical(self._("There is no connection to the database, "
+                                                "please contact your administrator!"))
+            else:
+                self.DatabaseConnection = self.CreateConnection()
+
+            # sleep for three seconds
+            time.sleep(3)
+
 
     def CreateCursor(self, Buffered=False, Dictionary=True):
         """
@@ -746,7 +825,7 @@ class SqlApi(object):
         self.InsertEntry(Cursor, "Setting_Table", Columns)
 
         # commit all the changes
-        self.Commit(Cursor)
+        self.Commit()
 
         return True
 
@@ -997,7 +1076,7 @@ class SqlApi(object):
         self.ExecuteTrueQuery(Cursor, Query, Columns)
         if Autocommit is True:
             # Autocommit the update to the server
-            self.Commit(Cursor)
+            self.Commit()
         return True
 
     def InsertEntry(self, Cursor, TableName, Columns={}, Duplicate=None, AutoCommit=False):
@@ -1063,10 +1142,10 @@ class SqlApi(object):
 
         if AutoCommit:
             # Make sure data is committed to the database
-            self.Commit(Cursor)
+            self.Commit()
         return True
 
-    def Commit(self, Cursor):
+    def Commit(self, ):
         """
         This method will commit the changes to the database.
         

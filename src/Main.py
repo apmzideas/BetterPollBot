@@ -23,7 +23,7 @@ except ImportError:
 # for now these imports are not need
 # import threading
 # import queue
-
+import multiprocessing
 # personal imports
 import parsers.ParserClass
 import parsers.ConfigurationClass
@@ -97,7 +97,7 @@ def Main():
             LoggingLevel="debug",
             CursesObject=CursesObject)
 
-        MasterLogger.info(_("{AppName} has been startet.").format(AppName=GlobalObjects.__AppName__))
+        MasterLogger.info(_("{AppName} has been started.").format(AppName=GlobalObjects.__AppName__))
 
         if ParserArguments.ApiToken == "":
             MasterLogger.critical(_("No telegram token has been added to the system!"))
@@ -145,27 +145,35 @@ def Main():
                 else:
                     TryAgain = _("too bad")
 
-                MasterLogger.warning(_("You have used {NrTry} of 3 times:").format(NrTry=str(NrTry)) + " " + TryAgain, )
+                MasterLogger.warning(_("You have used {NrTry} of 3 times:").format(NrTry=str(NrTry)) +
+                                     " " + TryAgain, )
                 NrTry += 1
             else:
                 NoConnection = False
 
         if NrTry == 3:
             MasterLogger.info(
-                _("{AppName} has been stopped, because you didn't input the correct user name of password.").format(
+                _("{AppName} has been stopped, because you didn't input the correct user name"
+                  " of password.").format(
                     AppName=GlobalObjects.__AppName__))
             raise SystemExit
 
         # This will be used if the database will be installed.
         if ParserArguments.InstallDatabaseStructure is True:
-            InstallDatabase = input(_("Are you sure you want to install the database structure?") + " Yes/No ")
-            if InstallDatabase.lower() == "yes":
+            InstallDatabaseDefault = _("YES")
+            InstallDatabase = input(_("Are you sure you want to install the database structure?") +
+                                    _("YES/NO [{Default}]").format(Default=InstallDatabaseDefault))
+
+            if InstallDatabase == "":
+                InstallDatabase = InstallDatabaseDefault
+
+            if InstallDatabase.lower() == _("YES").lower():
                 MasterLogger.info(_("{AppName} will now start to install the database structure").format(
                     AppName=GlobalObjects.__AppName__))
                 SqlCursor = SqlObject.CreateCursor()
                 SqlObject.CreateMainDatabase(SqlCursor)
                 MasterLogger.info(_("The database has been installed, please restart system."))
-            elif InstallDatabase.lower() == "no":
+            elif InstallDatabase.lower() == _("NO").lower():
                 MasterLogger.info(_("Database will not be installed terminating process."))
             raise SystemExit
 
@@ -175,7 +183,8 @@ def Main():
         MasterLogger.info(_("Exit loop by pressing <Esc>, <q> or <Space>"))
         MasterLogger.info(_("Getting updates from the telegram api."))
         # Add a comment number to the telegram request, so that the old messages will be sorted out.
-        CommentNumber = None
+        Queue = multiprocessing.Queue()
+        Queue.put(None)
 
         while True:
             # check if a key is pressed by user and stop if pressed.
@@ -201,28 +210,44 @@ def Main():
             # Process the requests
 
             # Get the updates from the telegram serves.
-            Results = TelegramObject.GetUpdates(CommentNumber)
+            if SqlObject.DetectConnection() is True:
+                # check if queue has something for us in it
+                CommentNumber = []
+                while True:
+                    if Queue.empty() is False:
+                        CommentNumber.append((Queue.get()))
+                    else:
+                        break
 
-            # Do
-            if Results != None:
-                for Message in Results["result"]:
-                    MessageProcessor = messages.MessageProcessorClass.MessageProcessor(Message,
-                                                                                       LanguageObject=LanguageMasterObject,
-                                                                                       SqlObject=SqlObject,
-                                                                                       LoggingObject=MasterLogger,
-                                                                                       ConfigurationObject=Configuration,
-                                                                                       BotName=BotName
-                                                                                       )
+                if len(CommentNumber)==1:
+                    CommentNumber = CommentNumber[0]
+                elif len(CommentNumber) > 1:
+                    CommentNumber = max(CommentNumber)
+                else:
+                    CommentNumber = None
 
-                    # This command sends the message to the user
-                    InterpretedMessage = MessageProcessor.InterpretMessage()
-                    if InterpretedMessage != None:
-                        TelegramObject.SendMessage(InterpretedMessage)
+                Results = TelegramObject.GetUpdates(CommentNumber)
 
-                    # Set the CommentNumber to a actual ChatId number,
-                    # so that the incomming list is allways actuel.
-                    # This number has to be 1 bigger than the oldest unit
-                    CommentNumber = MessageProcessor.UpdateId + 1
+                # Do
+                if Results is not None:
+                    for Message in Results["result"]:
+                        MessageProcessor = messages.MessageProcessorClass.MessageProcessor(Message,
+                                                                                            LanguageObject=LanguageMasterObject,
+                                                                                            SqlObject=SqlObject,
+                                                                                            LoggingObject=MasterLogger,
+                                                                                            ConfigurationObject=Configuration,
+                                                                                            BotName=BotName
+                                                                                               )
+
+                         # This command sends the message to the user
+                        InterpretedMessage = MessageProcessor.InterpretMessage()
+                        if InterpretedMessage != None:
+                            TelegramObject.SendMessage(InterpretedMessage)
+
+                        # Set the CommentNumber to a actual ChatId number,
+                        # so that the incoming list is always actual.
+                        # This number has to be 1 bigger than the oldest unit
+                        Queue.put(MessageProcessor.UpdateId + 1)
 
             # Waits until the next loop should start.
             # Sleep need a second to be parsed, so the given value is transformed
@@ -233,6 +258,7 @@ def Main():
                 time.sleep((TelegramObject.RequestTimer / 1000))
 
     finally:
+        Queue.close()
         if platform.system() != "Windows":
             # clean after the curses module
             time.sleep(1)
@@ -247,4 +273,5 @@ def Main():
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     Main()
