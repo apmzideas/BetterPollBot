@@ -2,12 +2,10 @@
 # -*- coding: utf-8 -*-
 
 
-""" The master file that will hold all the initiated classes and will be used
-     as the thread or multiprocess initiator.
 """
-
-# supper import needed by other classes
-import GlobalObjects
+The master file that will hold all the initiated classes and will be used
+as the thread or multiprocess initiator.
+"""
 
 # standard modules import 
 import os
@@ -15,14 +13,14 @@ import getpass
 import time
 import platform
 import multiprocessing
-# if only windows is supported else use the curses module on linux
-# :(
+# if only windows is supported else use the curses module on linux (-.-)
 try:
     import msvcrt
 except ImportError:
     import curses
 
 # personal imports
+import GlobalObjects
 import parsers.ParserClass
 import parsers.ConfigurationClass
 import LoggingClass

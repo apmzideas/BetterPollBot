@@ -7,6 +7,7 @@ import ErrorClasses
 import LoggingClass
 import language.LanguageClass  # imports the _() function! (the translation feature).
 import parsers.ConfigurationClass
+import TelegramClass
 from . import PollingClass  # imports in the same folder (module)
 from . import MessageClass
 from . import EmojiClass
@@ -73,7 +74,9 @@ class MessageProcessor(object):
         if "ConfigurationObject" in OptionalObjects:
             self.ConfigurationObject = OptionalObjects["ConfigurationObject"]
         else:
-            self.ConfigurationObject = parsers.ConfigurationClass.ConfigurationParser()
+            self.ConfigurationObject = (
+                parsers.ConfigurationClass.ConfigurationParser()
+            )
 
         if "SqlObject" in OptionalObjects:
             self.SqlObject = OptionalObjects["SqlObject"]
@@ -83,10 +86,12 @@ class MessageProcessor(object):
             self.SqlCursor = self.SqlObject.CreateCursor()
 
         else:
-            self.LoggingObject.error(self._("The sql object is missing, please contact"
-                                            " your administrator."))
-            raise ValueError(self._("The sql object is missing, please contact your "
-                                    "administrator."))
+            self.LoggingObject.error(self._("The sql object is missing, please"
+                                            " contact your administrator.")
+                                     )
+            raise ValueError(self._("The sql object is missing, please contact"
+                                    " your administrator.")
+                             )
 
         # This variable is needed for the logger so that the log end up 
         # getting printed in the correct language.
@@ -104,9 +109,9 @@ class MessageProcessor(object):
         if "update_id" in MessageObject:
             # The update‘s unique identifier. Update identifiers start from a
             # certain positive number and increase sequentially. This ID
-            # becomes especially handy if you’re using web hooks, since it allows
-            # you to ignore repeated updates or to restore the correct update
-            # sequence, should they get out of order.
+            # becomes especially handy if you’re using web hooks, since it
+            # allows you to ignore repeated updates or to restore the correct
+            # update sequence, should they get out of order.
             self.UpdateId = MessageObject["update_id"]
 
         if "message_id" in MessageObject["message"]:
@@ -146,19 +151,26 @@ class MessageProcessor(object):
 
         # Here we are initialising the function for the translations.
         # Get the user settings from the user that has send the message
-        Query = "SELECT User_Setting_Table.User_String FROM User_Setting_Table " \
-                "INNER JOIN Setting_Table " \
-                "ON User_Setting_Table.Master_Setting_Id=Setting_Table.Setting_Id " \
-                "WHERE Setting_Table.Setting_Name=%s " \
-                "AND User_Setting_Table.Master_User_Id=%s;"
+        Query = ("SELECT User_Setting_Table.User_String FROM "
+                 "User_Setting_Table INNER JOIN Setting_Table ON "
+                 "User_Setting_Table.Master_Setting_Id="
+                 "Setting_Table.Setting_Id WHERE Setting_Table.Setting_Name=%s"
+                 " AND User_Setting_Table.Master_User_Id=%s;"
+                 )
 
         Data = ("Language", self.InternalUserId)
 
-        self.LanguageName = self.SqlObject.ExecuteTrueQuery(self.SqlCursor,
-                                                            Query,
-                                                            Data)[0]["User_String"]
+        self.LanguageName = (
+            self.SqlObject.ExecuteTrueQuery(
+                self.SqlCursor,
+                Query,
+                Data
+            )[0]["User_String"])
 
-        self.LanguageObject = language.LanguageClass.CreateTranslationObject(Languages=[self.LanguageName])
+        self.LanguageObject = language.LanguageClass.CreateTranslationObject(
+            Languages=[self.LanguageName]
+        )
+
         # create the translator        
         self._ = self.LanguageObject.gettext
 
@@ -240,29 +252,40 @@ class MessageProcessor(object):
         if "new_chat_participant" in MessageObject["message"]:
             # Optional. A new member was added to the group, information
             #  about them (this member may be bot itself)
-            self.MessageNewChatParticipant = MessageObject["message"]["new_chat_participant"]
+            self.MessageNewChatParticipant = (
+                MessageObject["message"]["new_chat_participant"]
+            )
 
         if "left_chat_participant" in MessageObject["message"]:
             # Optional. A member was removed from the group, information
             # about them (this member may be bot itself)
-            self.MessageLeftChatParticipant = MessageObject["message"]["left_chat_participant"]
+            self.MessageLeftChatParticipant = (
+                MessageObject["message"]["left_chat_participant"]
+            )
 
         if "new_chat_title" in MessageObject["message"]:
             # Optional. A group title was changed to this value
-            self.MessageNewChatTitle = MessageObject["message"]["new_chat_title"]
+            self.MessageNewChatTitle = (
+                MessageObject["message"]["new_chat_title"]
+            )
 
         if "new_chat_photo" in MessageObject["message"]:
             # Optional. A group photo was change to this value
-            self.MessageNewChatPhoto = MessageObject["message"]["new_chat_photo"]
+            self.MessageNewChatPhoto = (
+                MessageObject["message"]["new_chat_photo"]
+            )
 
         if "delete_chat_photo" in MessageObject["message"]:
             # Optional. Informs that the group photo was deleted
-            self.MessageDeleteChatPhoto = MessageObject["message"]["delete_chat_photo"]
+            self.MessageDeleteChatPhoto = (
+                MessageObject["message"]["delete_chat_photo"]
+            )
 
         if "group_chat_created" in MessageObject["message"]:
             # Optional. Informs that the group has been created
-            self.MessageGroupChatCreated = MessageObject["message"]["group_chat_created"]
-
+            self.MessageGroupChatCreated = (
+                MessageObject["message"]["group_chat_created"]
+            )
 
     def UserExists(self, ):
         """
@@ -282,7 +305,9 @@ class MessageProcessor(object):
 
         exists = self.SqlObject.ExecuteTrueQuery(
             self.SqlObject.CreateCursor(Dictionary=False),
-            Query="SELECT EXISTS(SELECT 1 FROM User_Table WHERE External_User_Id = %s);",
+            Query=("SELECT EXISTS(SELECT 1 FROM User_Table WHERE"
+                   " External_User_Id = %s);"
+                   ),
             Data=self.UserId
         )[0][0]
 
@@ -381,7 +406,8 @@ class MessageProcessor(object):
             \-
         """
 
-        # This method checks in the database if the group (if it is one) exists.
+        # This method checks in the database if the group (if it is one)
+        # exists.
 
 
         Exists = self.SqlObject.ExecuteTrueQuery(
@@ -495,12 +521,14 @@ class MessageProcessor(object):
         Columns = ["Command", "Last_Used_Id"]
         Where = [["Command_By_User", "=", "%s"]]
         Data = (self.InternalUserId,)
-        LastSendCommand = self.SqlObject.SelectEntry(self.SqlCursor,
-                                                     FromTable=FromTable,
-                                                     Columns=Columns,
-                                                     Where=Where,
-                                                     Data=Data
-                                                     )
+        LastSendCommand = self.SqlObject.SelectEntry(
+            self.SqlCursor,
+            FromTable=FromTable,
+            Columns=Columns,
+            Where=Where,
+            Data=Data
+        )
+
         if len(LastSendCommand) > 0:
             return LastSendCommand[0]
 
@@ -553,16 +581,25 @@ class MessageProcessor(object):
         )
         try:
             self.LanguageName = Language
-            self.LanguageObject = language.LanguageClass.CreateTranslationObject(self.LanguageName)
+            self.LanguageObject = (
+                language.LanguageClass.CreateTranslationObject(
+                    self.LanguageName
+                )
+            )
+
             self._ = self.LanguageObject.gettext
             if self.LanguageObject.info()["language"] != Language:
-                raise ErrorClasses.LanguageImportError(self.M_("Unnokown Error"))
+                raise ErrorClasses.LanguageImportError(
+                    self.M_("Unknown Error")
+                )
             return True
         except ErrorClasses.LanguageImportError as Error:
-            self.LoggingObject.error(self.M_(
-                "There has been an error with the changing of the language class, this error has been returned: {Error}").format(
-                Error=Error)
-                                     + " " + self.M_("Please, contact your administrator."))
+            self.LoggingObject.error(
+                self.M_("There has been an error with the changing of the "
+                        "language class, this error has been returned: {Error}"
+                        ).format(Error=Error) +
+                " " + self.M_("Please, contact your administrator.")
+            )
             return False
 
     def AddPoll(self, ):
@@ -580,7 +617,9 @@ class MessageProcessor(object):
         """
         IfExists = self.SqlObject.ExecuteTrueQuery(
             self.SqlObject.CreateCursor(Dictionary=False),
-            Query="SELECT EXISTS(SELECT 1 FROM Poll_Table WHERE `Poll_Name` = %(PollName)s AND `Master_User_Id` = %(UserID)s);",
+            Query=("SELECT EXISTS(SELECT 1 FROM Poll_Table WHERE `Poll_Name`"
+                   " = %(PollName)s AND `Master_User_Id` = %(UserID)s);"
+                   ),
             Data={
                 "PollName": self.Text,
                 "UserID": self.InternalUserId
@@ -686,9 +725,12 @@ class MessageProcessor(object):
                 if self.Text.startswith("/"):
                     MessageObject = self.InterpretGroupCommand(MessageObject)
                 else:
-                    MessageObject = self.InterpretGroupNonCommand(MessageObject)
+                    MessageObject = self.InterpretGroupNonCommand(
+                        MessageObject
+                    )
         else:
             MessageObject = None
+
         return MessageObject
 
     def InterpretUserCommand(self, MessageObject):
@@ -708,8 +750,9 @@ class MessageProcessor(object):
         if self.Text.startswith("/start"):
             Parts = self.Text.split(" ")
             if len(Parts) <= 1:
-                MessageObject.Text = self._("Welcome.\nWhat can I do for you?\nPress /help for "
-                                            "all my commands")
+                MessageObject.Text = self._("Welcome.\nWhat can I do for you?"
+                                            "\nPress /help for all my commands"
+                                            )
             else:
                 if Parts[1] == "addpoll":
                     self.Text = "/newpoll"
@@ -726,20 +769,24 @@ class MessageProcessor(object):
                 Data=self.InternalUserId
             )[0][0]
             if temp is False:
-                MessageObject.Text = self._("Welcome to the poll creation, please follow"
-                                            " the following steps.\n") + self._("Please "
-                                                                                "enter the "
-                                                                                "name of the"
-                                                                                " new poll.")
+                MessageObject.Text = self._(
+                    "Welcome to the poll creation, please follow the following"
+                    " steps.\n") + self._("Please enter the name of the new"
+                                          " poll."
+                                          )
             else:
-                MessageObject.Text = self._("Please enter the name of the new poll.")
+                MessageObject.Text = self._("Please enter the name of the new "
+                                            "poll."
+                                            )
             self.SetLastSendCommand("/newpoll")
 
         elif self.Text == "/addanswer":
             # Get the polls
             Polls = self.GetUserPolls()
             if len(Polls)>0:
-                MessageObject.Text = self._("Please choose the poll to add the answer to:")
+                MessageObject.Text = self._("Please choose the poll to add the"
+                                            " answer to:"
+                                            )
                 MessageObject.ReplyKeyboardMarkup(
                     [Polls],
                     OneTimeKeyboard=True
@@ -747,8 +794,10 @@ class MessageProcessor(object):
                 self.SetLastSendCommand("/addanswer pollsearch")
             else:
                 # there are no polls to add to a group
-                MessageObject.Text = self._("Sorry but there are no poll in your database.\n"
-                                            "Do you want to add some?")
+                MessageObject.Text = self._("Sorry but there are no poll in "
+                                            "your database.\n Do you want to "
+                                            "add some?"
+                                            )
                 MessageObject.ReplyKeyboardMarkup([
                     [self._("YES")],
                     [self._("NO")]
@@ -761,33 +810,43 @@ class MessageProcessor(object):
             Polls = self.GetUserPolls()
 
             if len(Polls)>0:
-                MessageObject.Text = self._("Please choose the poll to delete the answer from.\n"
-                                            "Attention if you delete the answer to the poll, "
-                                            "the results to from that poll will be false.")
+                MessageObject.Text = self._(
+                    "Please choose the poll to delete the answer from.\n"
+                    "Attention if you delete the answer to the poll, the "
+                    "results to from that poll will be false."
+                )
                 MessageObject.ReplyKeyboardMarkup(
                     [Polls],
                     OneTimeKeyboard=True
                 )
                 self.SetLastSendCommand("/delanswer poll")
             else:
-                MessageObject.Text = self._("Sorry, you have no polls with answers to delete...\n"
-                                            "Please add a poll with answers so that you can "
-                                            "delete them again.")
+                MessageObject.Text = self._(
+                    "Sorry, you have no polls with answers to delete...\n"
+                    "Please add a poll with answers so that you can delete "
+                    "them again."
+                )
 
 
         elif self.Text == "/listpoll":
             Polllist = "\n".join(["-" + i for i in self.GetUserPolls()])
-            MessageObject.Text = self._("Here is the list with all your polls:\n{Polllist}").format(Polllist = Polllist)
+            MessageObject.Text = self._("Here is the list with all your polls:"
+                                        "\n{Polllist}").format(
+                Polllist = Polllist
+            )
         elif self.Text == "/delpoll":
             pass
         elif self.Text == "/polllink":
-            # This command will give the system the chance to include itself into a group
-            # first check if user has a poll to add to a group
+            # This command will give the system the chance to include itself
+            # into a group.
+            # First check if user has a poll to add to a group.
             Polls = self.GetUserPolls()
 
             if len(Polls)>1:
                 # if some polls exist add them to the system
-                MessageObject.Text = self._("Please choose the poll to add to the group:")
+                MessageObject.Text = self._("Please choose the poll to add to "
+                                            "the group:"
+                                            )
                 MessageObject.ReplyKeyboardMarkup(
                     [Polls],
                     OneTimeKeyboard=True
@@ -797,8 +856,10 @@ class MessageProcessor(object):
 
             elif len(Polls)<1:
                 # there are no polls to add to a group
-                MessageObject.Text = self._("Sorry but there are no poll in your database.\n"
-                                            "Do you want to add some?")
+                MessageObject.Text = self._("Sorry but there are no poll in "
+                                            "your database.\nDo you want to "
+                                            "add some?"
+                                            )
                 MessageObject.ReplyKeyboardMarkup([
                     [self._("YES")],
                     [self._("NO")]
@@ -812,8 +873,10 @@ class MessageProcessor(object):
             LastUsedId = LastSendCommand["Last_Used_Id"]
             LastCommand = LastSendCommand["Command"]
             if LastCommand == "/addanswer answer":
-                MessageObject.Text = self._("Thank you very much for adding the commands.\n"
-                                            "Do you want to add this poll to a group?")
+                MessageObject.Text = self._(
+                    "Thank you very much for adding the commands.\nDo you want"
+                    " to add this poll to a group?"
+                )
                 MessageObject.ReplyKeyboardMarkup(
                     [
                         [self._("YES")],
@@ -823,21 +886,23 @@ class MessageProcessor(object):
                 )
                 self.SetLastSendCommand("/polllink unclear", LastUsedId)
         elif self.Text == "/help":
-            MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot similar to "
-                                        "@PollBot, with more features and less spamming in groups."
-                                        "\n\ngeneral commands\n /help - display's this message\n "
-                                        "/settings - display's you're own settings\n\npoll related "
-                                        "commands\n /newpoll - creates a new poll\n /delpoll - "
-                                        "deletes a selected poll\n /addanswer - adds a new answer"
-                                        " to the selected poll\n /delanswer - deletes a selected "
-                                        "answer\n /listpoll - see all your polls\n /polllink - "
-                                        "get's the link to a selected poll\n /endpoll - ends a"
-                                        " poll in a group\n /pollsettings - display's all the "
-                                        "settings for a selected poll")
+            MessageObject.Text = self._(
+                "Work in progress! @BetterPollBot is a bot similar to @PollBot"
+                ", with more features and less spamming in groups.\n\ngeneral"
+                " commands\n /help - display's this message\n /settings - "
+                "display's you're own settings\n\npoll related commands\n "
+                "/newpoll - creates a new poll\n /delpoll - deletes a selected"
+                " poll\n /addanswer - adds a new answer to the selected poll"
+                "\n /delanswer - deletes a selected answer\n /listpoll - see "
+                "all your polls\n /polllink - get's the link to a selected "
+                "poll\n /endpoll - ends a poll in a group\n /pollsettings - "
+                "display's all the settings for a selected poll"
+            )
         elif self.Text == "/settings":
             # This command will send the possible setting to the user
             self.SetLastSendCommand("/settings", None)
-            MessageObject.Text = self._("Please, choose the setting to change:")
+            MessageObject.Text = self._("Please, choose the setting to change:"
+                                        )
             MessageObject.ReplyKeyboardMarkup(
                 [
                     ["/language"],
@@ -851,7 +916,9 @@ class MessageProcessor(object):
 
             self.SetLastSendCommand("/language")
 
-            MessageObject.Text = self._("Please choose your preferred language:")
+            MessageObject.Text = self._(
+                "Please choose your preferred language:"
+            )
             MessageObject.ReplyKeyboardMarkup([
                 ["English"],
                 ["Deutsch"],
@@ -902,9 +969,11 @@ class MessageProcessor(object):
                     SqlObject=self.SqlObject
                 )
                 Poll.AddAnwser(self.Text)
-                MessageObject.Text = self._("The answer has been added, please add a "
-                                            "additional answer to stop adding answers "
-                                            "press /done or enter it.")
+                MessageObject.Text = self._(
+                    "The answer has been added, please add a additional answer"
+                    " to stop adding answers press /done or enter it."
+                )
+
                 self.SetLastSendCommand("/addanswer answer", Poll.InternalPollId)
 
             elif LastCommand == "/addanswer pollsearch":
@@ -915,19 +984,27 @@ class MessageProcessor(object):
                     SqlObject=self.SqlObject
                 )
                 Poll.GetPollByName()
-                self.SetLastSendCommand("/addanswer answer", Poll.InternalPollId)
+                self.SetLastSendCommand("/addanswer answer",
+                                        Poll.InternalPollId
+                                        )
                 MessageObject = self.InterpretMessage()
 
         elif LastCommand.startswith("/newpoll"):
             if LastCommand == "/newpoll":
                 Id = self.AddPoll()
                 if Id != False:
-                    MessageObject.Text = self._("The poll \"{PollName}\" has been created,"
-                                                " please enter the question to the poll.").format(PollName=self.Text)
+                    MessageObject.Text = self._("The poll \"{PollName}\" has"
+                                                " been created, please enter "
+                                                "the question to the poll."
+                                                ).format(PollName=self.Text)
+
                     self.SetLastSendCommand("/newpoll question", Id)
                 else:
-                    MessageObject.Text = self._("The poll {PollName} already exists.\nPress"
-                                                " /list and on the poll to modify it.")
+                    MessageObject.Text = self._("The poll {PollName} already "
+                                                "exists.\nPress /list and on "
+                                                "the poll to modify it."
+                                                )
+
             elif LastCommand == "/newpoll unclear":
                 if self.Text == self._("YES"):
                     MessageObject.Text = self._("")
@@ -944,9 +1021,10 @@ class MessageProcessor(object):
                 )
 
                 if Poll.UpdateQuestion(self.Text):
-                    MessageObject.Text = self._("The question has been added.\nDo "
-                                                "you want to add some answers to "
-                                                "the question?")
+                    MessageObject.Text = self._("The question has been added."
+                                                "\nDo you want to add some "
+                                                "answers to the question?"
+                                                )
                     MessageObject.ReplyKeyboardMarkup(
                         [
                             [self._("YES")],
@@ -959,17 +1037,20 @@ class MessageProcessor(object):
                     raise Exception
             elif LastCommand.startswith("/newpoll answer"):
                 if self.Text == self._("YES"):
-                    # add the first possible answer to the system and arrange the rest of the
-                    # process
-                    MessageObject.Text = self._("Please enter your first possible answer"
-                                                " to the question.")
+                    # add the first possible answer to the system and arrange
+                    # the rest of the process.
+                    MessageObject.Text = self._("Please enter your first "
+                                                "possible answer to the "
+                                                "question."
+                                                )
                     MessageObject.ReplyKeyboardHide()
 
                     self.SetLastSendCommand("/addanswer answer", LastUsedId)
 
                 elif self.Text == self._("NO"):
-                    MessageObject.Text = self._("You can add an answer later via the "
-                                                "/addanswer command.")
+                    MessageObject.Text = self._("You can add an answer later "
+                                                "via the /addanswer command."
+                                                )
                     MessageObject.ReplyKeyboardHide()
                     self.ClearLastCommand()
 
@@ -996,7 +1077,9 @@ class MessageProcessor(object):
                     )
                     URL = Poll.GenerateURL(self.BotName)
                 elif self.Text == self._("NO"):
-                    MessageObject.Text = self._("You can add the poll later via the /polllink command.")
+                    MessageObject.Text = self._(
+                        "You can add the poll later via the /polllink command."
+                    )
                     MessageObject.ReplyKeyboardHide()
             else:
                 Poll = PollingClass.Poll(
@@ -1007,8 +1090,9 @@ class MessageProcessor(object):
                 )
                 URL = Poll.GenerateURL(self.BotName)
 
-            MessageObject.Text = self._("Press the following link to add the poll"
-                                        " to a group:\n{GroupURL}").format(GroupURL=URL)
+            MessageObject.Text = self._("Press the following link to add the"
+                                        " poll to a group:\n{GroupURL}"
+                                        ).format(GroupURL=URL)
             self.ClearLastCommand()
 
         return MessageObject
@@ -1038,31 +1122,43 @@ class MessageProcessor(object):
                 Poll.GetPollByExternalId()
                 PollQuestion = Poll.GetPollQuestion()
                 OptionsOrg = Poll.GetAllOptions()
-                Options = "\n".join([str((i+1))+". " + " ".join(OptionsOrg[i]) for i in range(len(OptionsOrg))])
+                Options = (
+                    "\n".join([str((i+1))+". " + " ".join(OptionsOrg[i])
+                               for i in range(len(OptionsOrg))])
+                )
 
-                MessageObject.Text = self._("{Question}\n{Options}").format(Question=PollQuestion,
-                                                                            Options=Options)
-                MessageObject.ReplyKeyboardMarkup(OptionsOrg, OneTimeKeyboard=True)
+                MessageObject.Text = self._(
+                    "{Question}\n{Options}").format(
+                    Question=PollQuestion,
+                    Options=Options
+                )
+                MessageObject.ReplyKeyboardMarkup(
+                    OptionsOrg,
+                    OneTimeKeyboard=True
+                )
                 MessageObject.ForceReply()
 
             else:
-                URL = "https://telegram.me/{AppName}?start=addpoll".format(AppName=self.BotName)
-                MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot"
-                                            " similar to @PollBot, with more "
-                                            "features and less spamming in groups.\n"
-                                            "Press here to add a new poll\n"
-                                            "{BetterPollBotURL}").format(BetterPollBotURL=URL)
+                URL = "{BaseUrl}/{AppName}?start=addpoll".format(
+                    BaseUrl = TelegramClass.TelegramAPI.BASE_URL,
+                    AppName=self.BotName
+                )
+                MessageObject.Text = self._(
+                    "Work in progress! @BetterPollBot is a bot similar to "
+                    "@PollBot, with more features and less spamming in groups."
+                    "\nPress here to add a new poll\n{BetterPollBotURL}"
+                ).format(BetterPollBotURL=URL)
+
         elif self.Text == "/help":
-            MessageObject.Text = self._("Work in progress! @BetterPollBot is a bot"
-                                        " similar to @PollBot, with more "
-                                        "features and less spamming in groups.\n"
-                                        "general commands\n "
-                                        "/help - display's this message\n \n poll "
-                                        "related commands\n /polls – displays all "
-                                        "the available polls for this group\n "
-                                        "/results – shows the temporary results\n "
-                                        "/endpoll - close poll and show final "
-                                        "results\n")
+            MessageObject.Text = self._(
+                "Work in progress! @BetterPollBot is a bot similar to "
+                "@PollBot, with more features and less spamming in groups.\n"
+                "general commands\n /help - display's this message\n \n poll "
+                "related commands\n /polls – displays all "
+                "the available polls for this group\n /results – shows the"
+                " temporary results\n /endpoll - close poll and show final "
+                "results\n"
+            )
 
         elif self.Text == "/results":
             pass
@@ -1079,4 +1175,5 @@ class MessageProcessor(object):
             MessageObject                 ``object``
                 is the message object that has to be modified
         """
-        pass
+        raise NotImplementedError
+        return MessageObject

@@ -66,7 +66,7 @@ class TelegramApi(object):
         the documentation is online under:
             https://core.telegram.org/bots/api
     """
-    DEFAULT_URL = "https://api.telegram.org/bot"
+    BASE_URL = "https://api.telegram.org/bot"
 
     def __init__(self,
                  ApiToken,
@@ -118,7 +118,7 @@ class TelegramApi(object):
                         
         """
         self.ApiToken = ApiToken
-        self.BotApiUrl = TelegramApi.DEFAULT_URL + self.ApiToken
+        self.BotApiUrl = TelegramApi.BASE_URL + self.ApiToken
 
         # Predefining attribute so that it later can be used for evil.
         self.LanguageObject = None
