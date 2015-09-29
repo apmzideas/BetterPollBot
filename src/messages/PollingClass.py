@@ -10,6 +10,12 @@ class Poll(object):
     In this class all the methods needed for the poll will be stored.
     """
 
+
+    BASE_URL = "https://telegram.me/"
+    """
+    The base of the telegram api url.
+    """
+
     def __init__(self,
                  InternalUserId=None,
                  InternalPollId=None,
@@ -98,19 +104,20 @@ class Poll(object):
         Variables:
             \-
         """
-        self.InternalPollId = self.SqlObject.SelectEntry(self.SqlCursor,
-                                                         FromTable="Poll_Table",
-                                                         Columns=("Internal_Poll_Id",),
-                                                         Where=[
-                                                             ["Poll_Name", "=", "%s"],
-                                                             "AND",
-                                                             ["Master_User_Id", "=", "%s"]
-                                                         ],
-                                                         Data=(
-                                                             self.PollName,
-                                                             self.InternalUserId
-                                                         )
-                                                         )[0]["Internal_Poll_Id"]
+        self.InternalPollId = self.SqlObject.SelectEntry(
+            self.SqlCursor,
+            FromTable="Poll_Table",
+            Columns=("Internal_Poll_Id",),
+            Where=[
+                ["Poll_Name", "=", "%s"],
+                "AND",
+                ["Master_User_Id", "=", "%s"]
+            ],
+            Data=(
+                self.PollName,
+                self.InternalUserId
+            )
+        )[0]["Internal_Poll_Id"]
 
     def GetExternalPollId(self):
         """
@@ -134,6 +141,7 @@ class Poll(object):
         Variables:
             \-
         """
+        raise NotImplementedError
         PollName = ""
 
         return PollName
@@ -162,7 +170,8 @@ class Poll(object):
         This method will set the internal poll id by using the external one.
 
         .. code-block:: sql\n
-            SELECT * FROM `poll_table` WHERE `External_Poll_Id`=CAST('c4ca4238a0b923820dcc509a6f75849b' AS BINARY);
+            SELECT * FROM `poll_table` WHERE `External_Poll_Id`=
+            CAST('c4ca4238a0b923820dcc509a6f75849b' AS BINARY);
 
         Variables:
             \-
@@ -170,12 +179,13 @@ class Poll(object):
         # 
         #
 
-        self.InternalPollId = self.SqlObject.SelectEntry(Cursor=self.SqlCursor,
-                                                         FromTable="Poll_Table",
-                                                         Columns=("Internal_Poll_Id",),
-                                                         Where=[["External_Poll_Id", "=", "CAST(%s AS BINARY)"]],
-                                                         Data=(self.ExternalPollId,)
-                                                         )[0]["Internal_Poll_Id"]
+        self.InternalPollId = self.SqlObject.SelectEntry(
+            Cursor=self.SqlCursor,
+            FromTable="Poll_Table",
+            Columns=("Internal_Poll_Id",),
+            Where=[["External_Poll_Id", "=", "CAST(%s AS BINARY)"]],
+            Data=(self.ExternalPollId,)
+        )[0]["Internal_Poll_Id"]
 
     def GenerateURL(self, NameOfApp):
         """
@@ -191,7 +201,7 @@ class Poll(object):
                 parameter to add to a user chosen group.
         """
         URL = [
-            "https://telegram.me/",
+            Poll.BASE_URL,
             NameOfApp,
         ]
 
@@ -213,20 +223,19 @@ class Poll(object):
         Variables:
             \-
         """
-
-        Question = self.SqlObject.SelectEntry(self.SqlCursor,
-                                             FromTable="Poll_Table",
-                                             Columns=("Question",),
-                                             Where=[
-                                                    ["Internal_Poll_Id", "=", "%s"],
-                                                    "AND",
-                                                    ["Master_User_Id", "=", "%s"]
-                                                    ],
-                                             Data=(self.InternalPollId,
-                                                   self.InternalUserId,
-                                                   ),
-                                             )[0]["Question"]
-        return Question
+        return self.SqlObject.SelectEntry(
+            self.SqlCursor,
+            FromTable="Poll_Table",
+            Columns=("Question",),
+            Where=[
+                ["Internal_Poll_Id", "=", "%s"],
+                "AND",
+                ["Master_User_Id", "=", "%s"]
+            ],
+            Data=(self.InternalPollId,
+                  self.InternalUserId,
+                  ),
+        )[0]["Question"]
 
     def GetAllOptions(self):
         """
@@ -239,17 +248,35 @@ class Poll(object):
             \-
         """
 
-        Options = self.SqlObject.SelectEntry(self.SqlCursor,
-                                             FromTable="Options_Table",
-                                             Columns=("Option_Name",),
-                                             OrderBy=[["Option_Name"]],
-                                             Where=[
-                                                    ["Id_Poll_Table", "=", "%s"],
-                                                    "AND",
-                                                    ["Master_User_Id", "=", "%s"]
-                                                    ],
-                                             Data=(self.InternalPollId,
-                                                   self.InternalUserId,
-                                                   ),
-                                             )
+        Options = self.SqlObject.SelectEntry(
+            self.SqlCursor,
+            FromTable="Options_Table",
+            Columns=("Option_Name",),
+            OrderBy=[["Option_Name"]],
+            Where=[
+                ["Id_Poll_Table", "=", "%s"],
+                "AND",
+                ["Master_User_Id", "=", "%s"]
+            ],
+            Data=(self.InternalPollId,
+                  self.InternalUserId,
+                  ),
+        )
         return [list(Parts.values()) for Parts in Options]
+
+    def GetAllResults(self, GroupId):
+        """
+        This method will query the database for all the poll results.
+
+        It will return in the end a list of all the results of the
+        poll in the correct group.
+
+        Variables:
+            \-
+        """
+        raise NotImplementedError
+        self.SqlObject.SelectEntry(
+            self.SqlCursor,
+
+        )
+

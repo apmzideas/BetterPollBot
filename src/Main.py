@@ -14,16 +14,14 @@ import os
 import getpass
 import time
 import platform
-# if windows only windows is supported :(
+import multiprocessing
+# if only windows is supported else use the curses module on linux
+# :(
 try:
     import msvcrt
 except ImportError:
     import curses
 
-# for now these imports are not need
-# import threading
-# import queue
-import multiprocessing
 # personal imports
 import parsers.ParserClass
 import parsers.ConfigurationClass
@@ -242,8 +240,8 @@ def Main():
                          # This command sends the message to the user
                         InterpretedMessage = MessageProcessor.InterpretMessage()
                         if InterpretedMessage != None:
+                            #print(TelegramObject.SendMessage(InterpretedMessage))
                             TelegramObject.SendMessage(InterpretedMessage)
-
                         # Set the CommentNumber to a actual ChatId number,
                         # so that the incoming list is always actual.
                         # This number has to be 1 bigger than the oldest unit

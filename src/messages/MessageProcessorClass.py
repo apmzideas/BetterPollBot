@@ -386,7 +386,8 @@ class MessageProcessor(object):
 
         Exists = self.SqlObject.ExecuteTrueQuery(
             self.SqlObject.CreateCursor(Dictionary=False),
-            Query="SELECT EXISTS(SELECT 1 FROM Group_Table WHERE External_Group_Id = %s);",
+            Query="SELECT EXISTS(SELECT 1 FROM Group_Table WHERE"
+                  " External_Group_Id = %s);",
             Data=self.ChatId
         )[0][0]
 
@@ -471,7 +472,7 @@ class MessageProcessor(object):
             TableName=TableName,
             Columns=Columns,
             Duplicate=Duplicate)
-        self.SqlObject.Commit(self.SqlCursor)
+        self.SqlObject.Commit()
 
     def GetLastSendCommand(self):
         """
@@ -493,7 +494,7 @@ class MessageProcessor(object):
         FromTable = "Session_Table"
         Columns = ["Command", "Last_Used_Id"]
         Where = [["Command_By_User", "=", "%s"]]
-        Data = (self.InternalUserId)
+        Data = (self.InternalUserId,)
         LastSendCommand = self.SqlObject.SelectEntry(self.SqlCursor,
                                                      FromTable=FromTable,
                                                      Columns=Columns,
@@ -1034,16 +1035,14 @@ class MessageProcessor(object):
                     LoggingObject=self.LanguageObject,
                     SqlObject=self.SqlObject
                 )
-
                 Poll.GetPollByExternalId()
-
                 PollQuestion = Poll.GetPollQuestion()
                 OptionsOrg = Poll.GetAllOptions()
                 Options = "\n".join([str((i+1))+". " + " ".join(OptionsOrg[i]) for i in range(len(OptionsOrg))])
 
                 MessageObject.Text = self._("{Question}\n{Options}").format(Question=PollQuestion,
                                                                             Options=Options)
-                MessageObject.ReplyKeyboardMarkup(OptionsOrg,)
+                MessageObject.ReplyKeyboardMarkup(OptionsOrg, OneTimeKeyboard=True)
                 MessageObject.ForceReply()
 
             else:
@@ -1064,6 +1063,11 @@ class MessageProcessor(object):
                                         "/results – shows the temporary results\n "
                                         "/endpoll - close poll and show final "
                                         "results\n")
+
+        elif self.Text == "/results":
+            pass
+        elif self.Text == "/endpoll":
+            pass
 
         return MessageObject
 
