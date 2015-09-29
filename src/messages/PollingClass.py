@@ -1,10 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
-import LoggingClass
-
-
 class Poll(object):
     """
     In this class all the methods needed for the poll will be stored.
@@ -126,13 +122,16 @@ class Poll(object):
         Variables:
             \-
         """
-        Query = "SELECT CAST(`External_Poll_Id` AS CHARACTER) AS `External_Poll_Id`" \
-                " FROM `poll_table` WHERE `Internal_Poll_Id`=%s;"
+        Query = ("SELECT CAST(`External_Poll_Id` AS CHARACTER) AS "
+                 "`External_Poll_Id` FROM `poll_table` WHERE "
+                 "`Internal_Poll_Id`=%s;"
+                 )
         Data = (self.InternalPollId,)
-        self.ExternalPollId = self.SqlObject.ExecuteTrueQuery(self.SqlCursor,
-                                                              Query,
-                                                              Data
-                                                              )[0]["External_Poll_Id"]
+        self.ExternalPollId = self.SqlObject.ExecuteTrueQuery(
+            self.SqlCursor,
+            Query,
+            Data
+        )[0]["External_Poll_Id"]
 
     def GetPollName(self):
         """
@@ -279,4 +278,3 @@ class Poll(object):
             self.SqlCursor,
 
         )
-

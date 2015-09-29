@@ -17,11 +17,13 @@ __credits__ = ["Jonas Löw", "Adrian Hornung"]
 #: 
 __translation__ = ["Jonas Löw", "Adrian Hornung"]
 #: 
-__license__ = "License GNU General Public License https://www.gnu.org/copyleft/gpl.html"
+__license__ = ("License GNU General Public License "
+               "https://www.gnu.org/copyleft/gpl.html"
+               )
 #: 
 __version__ = 0.1
 #: 
-__release__ = 20150929182823
+__release__ = 20150929223146
 #: 
 __maintainer__ = "Adrian Hornung"
 #: 

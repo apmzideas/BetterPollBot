@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 '''
-This module defines functions and classes which implement a flexible 
-event logging system for applications and libraries.
+    This module defines functions and classes which implement a flexible
+    event logging system for applications and libraries.
 '''
 
 import logging
@@ -105,7 +105,8 @@ class Logger(logging.Logger):
                  LogToConsole=False,
                  FileName = "log.txt",
                  MaxLogs = 20,
-                 LoggingFormat = "[%(asctime)s] - [%(levelname)s] - %(message)s",
+                 LoggingFormat = ("[%(asctime)s] - [%(levelname)s] -"
+                                 " %(message)s"),
                  Dateformat = "%d.%m.%Y %H:%M:%S",
                  LoggingLevel = "debug",
                  CursesObject = None  
@@ -206,17 +207,19 @@ class Logger(logging.Logger):
         # to app.log.2, app.log.3 etc. respectively.
         
         FileHandler = logging.handlers.RotatingFileHandler(
-                                                  filename=FilePath,
-                                                  mode='a',
-                                                  # exacly 20 kilobites
-                                                  maxBytes=20480,
-                                                  backupCount=MaxLogs
-                                                  )
+            filename=FilePath,
+            mode='a',
+            # exacly 20 kilobites
+            maxBytes=20480,
+            backupCount=MaxLogs
+        )
 
 
-        Formatter = logging.Formatter(fmt = LoggingFormat,
-                                       datefmt=Dateformat,
-                                       style="%")
+        Formatter = logging.Formatter(
+            fmt = LoggingFormat,
+            datefmt=Dateformat,
+            style="%"
+        )
 
         FileHandler.setFormatter(Formatter)
         

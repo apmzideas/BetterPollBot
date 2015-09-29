@@ -142,8 +142,11 @@ class Parser(argparse.ArgumentParser):
         self.add_argument(
             "-c",
             "--console",
-            help=self._("Toggles the type of logging from the set settings in the config.ini."),
-            action=("store_false" if self.Configuration.getboolean("Logging", "LogToConsole")
+            help=self._("Toggles the type of logging from the set settings in "
+                        "the config.ini."
+                        ),
+            action=("store_false"
+                    if self.Configuration.getboolean("Logging", "LogToConsole")
                     else "store_true"),
             dest="PrintToConsole"
         )
@@ -152,7 +155,9 @@ class Parser(argparse.ArgumentParser):
         self.add_argument(
             "-f",
             # "--FileToLog",
-            help=self._("Set the file to log into temporary to the set destination."),
+            help=self._("Set the file to log into temporary to the set"
+                        " destination."
+                        ),
             action="store",
             # metavar="\b",
             dest="File",
@@ -173,7 +178,9 @@ class Parser(argparse.ArgumentParser):
         self.add_argument(
             "-t",
             # "--time",
-            help=self._("Set's the time for the main loop to wait until the next request."),
+            help=self._("Set's the time for the main loop to wait until the"
+                        " next request."
+                        ),
             action="store",
             type=int,
             # metavar="\b",
@@ -199,45 +206,61 @@ class Parser(argparse.ArgumentParser):
             action="store",
             # metavar="\b",
             dest="DatabaseName",
-            default=self.Configuration["MySQLConnectionParameter"]["DatabaseName"]
+            default=(self.Configuration["MySQLConnectionParameter"]
+                     ["DatabaseName"])
         )
 
         self.add_argument(
             "-du",
             # "--DatabaseUser",
-            help=self._("Set the database user, needed to connect to the database.") + " "
-                 + self._("Attention use this option instead of the config.ini!"),
+            help=self._("Set the database user, needed to connect to the "
+                        "database.") + " " +
+                 self._("Attention use this option instead of the config.ini!"
+                        ),
             action="store",
             # metavar="\b",
             dest="DatabaseUser",
-            default=self.Configuration["MySQLConnectionParameter"]["DatabaseUser"]
+            default=(self.Configuration["MySQLConnectionParameter"]
+                     ["DatabaseUser"]
+                     )
         )
 
         self.add_argument(
             "-dp",
             # "--DatabasePassword",
-            help=self._("Set the database password, needed to connect to the database.") + " "
-                 + self._("Attention use this option instead of the config.ini!"),
+            help=self._("Set the database password, needed to connect to the "
+                        "database.") + " " +
+                 self._("Attention use this option instead of the config.ini!"
+                        ),
             action="store",
             dest="DatabasePassword",
-            default=self.Configuration["MySQLConnectionParameter"]["DatabasePassword"]
+            default=(self.Configuration["MySQLConnectionParameter"]
+                     ["DatabasePassword"]
+                     )
         )
 
         self.add_argument(
             "-dh",
             # "--DatabaseHost",
-            help=self._("Set the database host, needed to connect to the database."),
+            help=self._("Set the database host, needed to connect to the "
+                        "database."
+                        ),
             action="store",
             dest="DatabaseHost",
-            default=self.Configuration["MySQLConnectionParameter"]["DatabaseHost"]
+            default=(self.Configuration["MySQLConnectionParameter"]
+                     ["DatabaseHost"]
+                     )
         )
 
         self.add_argument(
             "-dhp",
             # "--DatabaseHostPort",
-            help=self._("Set the database port, needed to connect to the database."),
+            help=self._("Set the database port, needed to connect to the "
+                        "database."),
             dest="DatabaseHostPort",
-            default=self.Configuration["MySQLConnectionParameter"]["DatabasePort"]
+            default=(self.Configuration["MySQLConnectionParameter"]
+                     ["DatabasePort"]
+                     )
         )
 
         # A hidden option to install the Database

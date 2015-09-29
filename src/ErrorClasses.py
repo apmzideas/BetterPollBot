@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 ''' 
-    Some error classes needed for error and exception hangling.
+    Some error classes needed for error and exception handling.
 '''
 
 class TokenError(Exception):
     """
-    An error handling class for an wrong API token or conection error.
+    An error handling class for an wrong API token or connection error.
     """
     
     def __init__(self, value):

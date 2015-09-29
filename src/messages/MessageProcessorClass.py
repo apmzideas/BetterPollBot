@@ -974,7 +974,9 @@ class MessageProcessor(object):
                     " to stop adding answers press /done or enter it."
                 )
 
-                self.SetLastSendCommand("/addanswer answer", Poll.InternalPollId)
+                self.SetLastSendCommand("/addanswer answer",
+                                        Poll.InternalPollId
+                                        )
 
             elif LastCommand == "/addanswer pollsearch":
                 Poll = PollingClass.Poll(

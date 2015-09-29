@@ -47,13 +47,14 @@ class ConfigurationParser(configparser.RawConfigParser):
         self.DefaultSelection = configparser.DEFAULTSECT
         self.Interpolation = configparser.ExtendedInterpolation()
 
-
         # the Configuration directory is to be filled with the
         # parameters of the configparser
         if 0 < len(Configuration):
             # for the own class
             if "reset_configuration" in Configuration:
-                self.ResetConfigurationFile = Configuration["reset_configuration"]
+                self.ResetConfigurationFile = (
+                    Configuration["reset_configuration"]
+                )
 
             # for the super class the configparser
             if "defaults" in Configuration:
@@ -67,7 +68,9 @@ class ConfigurationParser(configparser.RawConfigParser):
             if "comment_prefixes" in Configuration:
                 self.CommentPrefixes = Configuration["comment_prefixes"]
             if "inline_comment_prefixes" in Configuration:
-                self.InlineCommentPrefixes = Configuration["inline_comment_prefixes"]
+                self.InlineCommentPrefixes = (
+                    Configuration["inline_comment_prefixes"]
+                )
             if "strict" in Configuration:
                 self.Strict = Configuration["strict"]
             if "empty_lines_in_values" in Configuration:
@@ -77,18 +80,20 @@ class ConfigurationParser(configparser.RawConfigParser):
             if "interpolation" in Configuration:
                 self.Interpolation = Configuration["interpolation"]
 
-        # This method initializes the superclass with all the possible parameters.
-        super(ConfigurationParser, self).__init__(defaults=self.Default,
-                                                  dict_type=self.DictType,
-                                                  allow_no_value=self.AllowNoValue,
-                                                  delimiters=self.Delimiters,
-                                                  comment_prefixes=self.CommentPrefixes,
-                                                  inline_comment_prefixes=self.InlineCommentPrefixes,
-                                                  strict=self.Strict,
-                                                  empty_lines_in_values=self.EmtyLineInValues,
-                                                  default_section=self.DefaultSelection,
-                                                  interpolation=self.Interpolation
-                                                  )
+        # This method initializes the superclass with all the possible
+        # parameters.
+        super(ConfigurationParser, self).__init__(
+            defaults=self.Default,
+            dict_type=self.DictType,
+            allow_no_value=self.AllowNoValue,
+            delimiters=self.Delimiters,
+            comment_prefixes=self.CommentPrefixes,
+            inline_comment_prefixes=self.InlineCommentPrefixes,
+            strict=self.Strict,
+            empty_lines_in_values=self.EmtyLineInValues,
+            default_section=self.DefaultSelection,
+            interpolation=self.Interpolation
+        )
 
         # This commands sets the parser sensitive to upper- and lowercase.
         self.optionxform = lambda option: option
@@ -115,7 +120,8 @@ class ConfigurationParser(configparser.RawConfigParser):
         self["CONFIGURATION"] = collections.OrderedDict(())
 
         self["Telegram"] = collections.OrderedDict((
-            # This is the value needed for the main loop it states how long we need to wait
+            # This is the value needed for the main loop it states how long we
+            # need to wait
             # until to state a request the telegram server.
             # It's in miliseconds
             ("RequestTimer", 1000),

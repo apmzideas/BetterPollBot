@@ -245,7 +245,9 @@ class SqlApi(object):
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
-            self.LanguageObject = language.LanguageClass.CreateTranslationObject()
+            self.LanguageObject = (
+                language.LanguageClass.CreateTranslationObject()
+            )
 
         # This is the language objects only value. 
         # It enables the translation of the texts. 
@@ -289,24 +291,30 @@ class SqlApi(object):
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.warning(
                     self._("The database connector returned following"
-                           " error: {Error}").format(Error=err) + " " + self._(
-                        "Something is wrong with your user name or password."), )
+                           " error: {Error}").format(Error=err) + " " +
+                    self._("Something is wrong with your user name or "
+                           "password."),
+                )
                 if self._DieOnLostConnection is True:
                     raise SystemExit
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.error(
                     self._("The database connector returned following"
-                           " error: {Error}").format(Error=err) + " " + self._(
-                        "The database does not exist, please contact"
-                        " your administrator."))
+                           " error: {Error}").format(Error=err) + " " +
+                    self._(
+                        "The database does not exist, please contact your "
+                        "administrator.")
+                )
                 if self._DieOnLostConnection is True:
                     raise SystemExit
             elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
                 self.LoggingObject.critical(
                     self._("The database connector returned following"
-                           " error: {Error}").format(Error=err) + " " + self._(
-                        "The database server seems to be offline,"
-                        " please contact your administrator."))
+                           " error: {Error}").format(Error=err) + " " +
+                    self._(
+                        "The database server seems to be offline, please "
+                        "contact your administrator.")
+                )
                 if self._DieOnLostConnection is True:
                     raise SystemExit
             else:
@@ -363,27 +371,37 @@ class SqlApi(object):
                 try:
                     self.DatabaseConnection.reconnect()
                 except mysql.connector.Error as err:
-                    if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+                    if (err.errno ==
+                            mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR):
                         self.LoggingObject.warning(
                             self._("The database connector returned following"
-                                   " error: {Error}").format(Error=err) + " " + self._(
-                                "Something is wrong with your user name or password."), )
+                                   " error: {Error}").format(Error=err) + " " +
+                            self._(
+                                "Something is wrong with your user name or "
+                                "password."),
+                        )
                         if self._DieOnLostConnection is True:
                             raise SystemExit
-                    elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+                    elif (err.errno ==
+                              mysql.connector.errorcode.ER_BAD_DB_ERROR):
                         self.LoggingObject.error(
                             self._("The database connector returned following"
-                                   " error: {Error}").format(Error=err) + " " + self._(
+                                   " error: {Error}").format(Error=err) + " " +
+                            self._(
                                 "The database does not exist, please contact"
-                                " your administrator."))
+                                " your administrator.")
+                        )
                         if self._DieOnLostConnection is True:
                             raise SystemExit
-                    elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
+                    elif (err.errno ==
+                              mysql.connector.errorcode.CR_CONN_HOST_ERROR):
                         self.LoggingObject.critical(
                             self._("The database connector returned following"
-                                   " error: {Error}").format(Error=err) + " " + self._(
-                                "The database server seems to be offline,"
-                                " please contact your administrator."))
+                                   " error: {Error}").format(Error=err) + " " +
+                            self._(
+                                "The database server seems to be offline, "
+                                "please contact your administrator.")
+                        )
                         if self._DieOnLostConnection is True:
                             raise SystemExit
                     else:
@@ -399,13 +417,17 @@ class SqlApi(object):
 
                 if self.DatabaseConnection.is_connected() is True:
                     if Connection is False:
-                        self.LoggingObject.info(self._("The connection to the database server "
-                                                       "has been reestablished."))
+                        self.LoggingObject.info(self._(
+                            "The connection to the database server has been "
+                            "reestablished.")
+                        )
                     return True
                 else:
                     Connection = False
-                    self.LoggingObject.critical(self._("There is no connection to the database, "
-                                                "please contact your administrator!"))
+                    self.LoggingObject.critical(self._(
+                        "There is no connection to the database, please "
+                        "contact your administrator!")
+                    )
             else:
                 self.DatabaseConnection = self.CreateConnection()
 
@@ -413,7 +435,9 @@ class SqlApi(object):
             time.sleep(3)
 
 
-    def CreateCursor(self, Buffered=False, Dictionary=True):
+    def CreateCursor(self,
+                     Buffered=False,
+                     Dictionary=True):
         """
         This method creates the connection cursor
         
@@ -450,7 +474,10 @@ class SqlApi(object):
         """
         return Cursor.close()
 
-    def ExecuteTrueQuery(self, Cursor, Query, Data=None):
+    def ExecuteTrueQuery(self,
+                         Cursor,
+                         Query,
+                         Data=None):
         """
         A method to execute the query statements.
         
@@ -498,15 +525,25 @@ class SqlApi(object):
 
         except mysql.connector.Error as err:
             self.LoggingObject.error(
-                self._("The database returned following error: {Error}").format(Error=err) + " " + self._(
-                    "The executet query failed, please contact your administrator."))
+                self._("The database returned following error: {Error}"
+                       ).format(Error=err) + " " +
+                self._(
+                    "The executet query failed, please contact your "
+                    "administrator."
+                )
+            )
             if isinstance(Data, list):
                 Data = ', '.join((str(i) for i in Data))
             elif isinstance(Data, dict):
-                Data = ', '.join("{Key}={Value}".format(Key=Key, Value=Value) for (Key, Value) in Data.items())
+                Data = ', '.join("{Key}={Value}".format(
+                    Key=Key, Value=Value) for (Key, Value) in Data.items()
+                                 )
             self.LoggingObject.error(
-                self._("The failed query is:\nQuery:\n{Query}\n\nData:\n{Data}").format(Query=Query,
-                                                                                        Data=Data))
+                self._("The failed query is:\nQuery:\n{Query}\n\nData:\n{Data}"
+                       ).format(
+                    Query=Query,
+                    Data=Data)
+            )
 
     def CreateDatabase(self, Cursor, DatabaseName):
         """
@@ -518,8 +555,8 @@ class SqlApi(object):
             DatabaseName          ``string``
                 contains the database name that has to be created
         """
-        Query = "CREATE DATABASE IF NOT EXISTS {DatabaseName} DEFAULT CHARACTER SET 'utf8'".format(
-            DatabaseName=DatabaseName)
+        Query = ("CREATE DATABASE IF NOT EXISTS {DatabaseName} DEFAULT "
+                "CHARACTER SET 'utf8'".format(DatabaseName=DatabaseName))
 
         self.ExecuteTrueQuery(
             Cursor,
@@ -536,14 +573,21 @@ class SqlApi(object):
             DatabaseName          ``string``
                 contains the database name that has to be dropped
         """
-        Query = "DROP DATABASE {DatabaseName};".format(DatabaseName=DatabaseName)
+        Query = ("DROP DATABASE {DatabaseName};".format(
+            DatabaseName=DatabaseName)
+        )
 
         self.ExecuteTrueQuery(
             Cursor,
             Query
         )
 
-    def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True, Engine="InnoDB"):
+    def CreateTable(self,
+                    Cursor,
+                    TableName,
+                    TableData,
+                    IfNotExists=True,
+                    Engine="InnoDB"):
         """
         A method to dynamically create a table entry to the database.
         
@@ -584,8 +628,9 @@ class SqlApi(object):
             ForeignKeyId = None
 
             for i in range(len(TableData)):
-                if (TableData[i][0].lower() != 'primary key' and TableData[i][0].lower() != 'unique' and TableData[i][
-                    0].lower() != 'foreign key'):
+                if (TableData[i][0].lower() != 'primary key' and
+                            TableData[i][0].lower() != 'unique' and
+                            TableData[i][0].lower() != 'foreign key'):
                     if i == 0:
                         Query += TableData[i][0] + " " + TableData[i][1]
                     else:
@@ -603,25 +648,37 @@ class SqlApi(object):
             if UniqueKeyId:
                 if Query[-1] != ",":
                     Query += ","
-                Query += " " + TableData[UniqueKeyId][0] + " (" + TableData[UniqueKeyId][1] + ")"
+                Query += (" " + TableData[UniqueKeyId][0] + " (" +
+                          TableData[UniqueKeyId][1] + ")"
+                          )
 
             # If a Primary Key has been added.
             if PrimaryKeyId:
                 if Query[-1] != ",":
                     Query += ","
-                Query += " " + TableData[PrimaryKeyId][0] + " (" + TableData[PrimaryKeyId][1] + ")"
+                Query += (" " + TableData[PrimaryKeyId][0] + " (" +
+                          TableData[PrimaryKeyId][1] + ")"
+                          )
 
             # If a Foreign Key has been added.
             if ForeignKeyId:
                 if Query[-1] != ",":
                     Query += ","
-                Query += " " + TableData[ForeignKeyId][0] + " (" + TableData[ForeignKeyId][1] + ") REFERENCES " + \
-                         TableData[ForeignKeyId][2]
+                Query += (" " + TableData[ForeignKeyId][0] + " (" +
+                          TableData[ForeignKeyId][1] + ") REFERENCES " +
+                          TableData[ForeignKeyId][2]
+                          )
 
             Query += ")"
 
             if Engine != None:
-                if Engine in ("MRG_MYISAM", "MyISAM", "BLACKHOLE", "CSV", "MEMORY", "ARCHIVE", "InnoDB"):
+                if Engine in ("MRG_MYISAM",
+                              "MyISAM",
+                              "BLACKHOLE",
+                              "CSV",
+                              "MEMORY",
+                              "ARCHIVE",
+                              "InnoDB"):
                     Query += "ENGINE=" + Engine
 
             Query += ";"
@@ -630,13 +687,17 @@ class SqlApi(object):
 
         except mysql.connector.Error as err:
             self.LoggingObject.error(
-                self._("The database connector returned following error: {Error}").format(Error=err) + " " + self._(
-                    "The following database table \"{TableName}\" could not be created, please contact your administrator.").format(
-                    TableName=TableName), )
+                self._("The database connector returned following error: "
+                       "{Error}").format(Error=err) + " " +
+                self._("The following database table \"{TableName}\" could not"
+                       " be created, please contact your administrator."
+                       ).format(TableName=TableName),
+            )
             self.DatabaseConnection.rollback()
             return False
 
-    def CreateMainDatabase(self, Cursor):
+    def CreateMainDatabase(self,
+                           Cursor):
         """
         This method will create all the default tables and data.
         
@@ -967,7 +1028,12 @@ class SqlApi(object):
         else:
             return (self.ExecuteTrueQuery(Cursor, Query, Data))
 
-    def UpdateEntry(self, Cursor, TableName, Columns, Where=[], Autocommit=False):
+    def UpdateEntry(self,
+                    Cursor,
+                    TableName,
+                    Columns,
+                    Where=[],
+                    Autocommit=False):
         """
         This method will update a record in the database.
         
@@ -1049,25 +1115,43 @@ class SqlApi(object):
                     LastTypeAnOperator = False
                     Where[i] = [str(i) for i in Where[i]]
                     Query += str(Where[i][0])
-                    if Where[i][1].upper() in ("=", "<", ">", "<>", "!=", ">=", "<=", "BETWEEN", "LIKE", "IN"):
+                    if Where[i][1].upper() in ("=",
+                                               "<",
+                                               ">",
+                                               "<>",
+                                               "!=",
+                                               ">=",
+                                               "<=",
+                                               "BETWEEN",
+                                               "LIKE",
+                                               "IN"):
                         Query += Where[i][1]
-                        Query += "%({Where})s".format(Where=Where[i][0] + "Where")
+                        Query += "%({Where})s".format(Where=Where[i][0] +
+                                                            "Where"
+                                                      )
                         Columns[Where[i][0] + "Where"] = Where[i][2]
                     else:
-                        Query += "=%({Where})s".format(Where=Where[i][0] + "Where")
+                        Query += "=%({Where})s".format(Where=Where[i][0] +
+                                                             "Where"
+                                                       )
                         Columns[Where[i][0] + "Where"] = Where[i][1]
 
-                elif type(Where[i]) == type(""):
-                    if LastTypeAnOperator == False:
+                elif isinstance(Where[i], str):
+                    if LastTypeAnOperator is False:
                         LastTypeAnOperator = True
                         if Where[i].upper() in ("(", ")", "AND", "OR"):
                             Query += " {} ".format(Where[i])
                         else:
                             raise ValueError(self._(
-                                "The where type in your query is not in the list of valid types. {Error}").format(
-                                Error=Where[i]))
+                                "The where type in your query is not in the "
+                                "list of valid types. {Error}").format(
+                                Error=Where[i])
+                            )
                     else:
-                        raise ValueError(self._("There where two operator behind each other that doesn't work."))
+                        raise ValueError(self._("There where two operator "
+                                                "behind each other that "
+                                                "doesn't work.")
+                                         )
         Query += ";"
         #         print(Query)
         #         print(Columns)
@@ -1079,7 +1163,12 @@ class SqlApi(object):
             self.Commit()
         return True
 
-    def InsertEntry(self, Cursor, TableName, Columns={}, Duplicate=None, AutoCommit=False):
+    def InsertEntry(self,
+                    Cursor,
+                    TableName,
+                    Columns={},
+                    Duplicate=None,
+                    AutoCommit=False):
         """
         This method will insert any type of entry into the database.
         
