@@ -3,7 +3,7 @@
 
 
 """ The master file that will hold all the initiated classes and will be used
-     as the thread deployer.
+     as the thread or multiprocess initiator.
 """
 
 # supper import needed by other classes
@@ -95,10 +95,14 @@ def Main():
             LoggingLevel="debug",
             CursesObject=CursesObject)
 
-        MasterLogger.info(_("{AppName} has been started.").format(AppName=GlobalObjects.__AppName__))
+        MasterLogger.info(_("{AppName} has been started.").format(
+            AppName=GlobalObjects.__AppName__
+        ))
 
         if ParserArguments.ApiToken == "":
-            MasterLogger.critical(_("No telegram token has been added to the system!"))
+            MasterLogger.critical(_("No telegram token has been added to the"
+                                    " system!")
+                                  )
             raise SystemExit
 
         TelegramObject = TelegramClass.TelegramApi(
@@ -116,12 +120,15 @@ def Main():
         NrTry = 1
 
         while NoConnection and NrTry <= 3:
-            # If no database user or password have been sent, get them from the user.
+            # If no database user or password have been sent, get them
+            #  from the user.
             # (This is safer than other options.)
             if ParserArguments.DatabaseUser == "":
                 ParserArguments.DatabaseUser = input(_("User:") + " ")
             if ParserArguments.DatabasePassword == "":
-                ParserArguments.DatabasePassword = getpass.getpass(_("Password:") + " ")
+                ParserArguments.DatabasePassword = getpass.getpass(
+                    _("Password:") + " "
+                )
 
             SqlObject = sql.SqlClass.SqlApi(
                 ParserArguments.DatabaseUser,
@@ -143,7 +150,8 @@ def Main():
                 else:
                     TryAgain = _("too bad")
 
-                MasterLogger.warning(_("You have used {NrTry} of 3 times:").format(NrTry=str(NrTry)) +
+                MasterLogger.warning(_("You have used {NrTry} of 3 times:"
+                                       ).format(NrTry=str(NrTry)) +
                                      " " + TryAgain, )
                 NrTry += 1
             else:
@@ -151,7 +159,8 @@ def Main():
 
         if NrTry == 3:
             MasterLogger.info(
-                _("{AppName} has been stopped, because you didn't input the correct user name"
+                _("{AppName} has been stopped, because you didn't input the"
+                  " correct user name"
                   " of password.").format(
                     AppName=GlobalObjects.__AppName__))
             raise SystemExit
@@ -159,28 +168,37 @@ def Main():
         # This will be used if the database will be installed.
         if ParserArguments.InstallDatabaseStructure is True:
             InstallDatabaseDefault = _("YES")
-            InstallDatabase = input(_("Are you sure you want to install the database structure?") +
-                                    _("YES/NO [{Default}]").format(Default=InstallDatabaseDefault))
+            InstallDatabase = input(_("Are you sure you want to install the"
+                                      " database structure?") +
+                                    _("YES/NO [{Default}]").format(
+                                        Default=InstallDatabaseDefault)
+                                    )
 
             if InstallDatabase == "":
                 InstallDatabase = InstallDatabaseDefault
 
             if InstallDatabase.lower() == _("YES").lower():
-                MasterLogger.info(_("{AppName} will now start to install the database structure").format(
-                    AppName=GlobalObjects.__AppName__))
+                MasterLogger.info(_("{AppName} will now start to install "
+                                    "the database structure").format(
+                    AppName=GlobalObjects.__AppName__)
+                )
                 SqlCursor = SqlObject.CreateCursor()
                 SqlObject.CreateMainDatabase(SqlCursor)
-                MasterLogger.info(_("The database has been installed, please restart system."))
+                MasterLogger.info(_("The database has been installed, "
+                                    "please restart system."))
             elif InstallDatabase.lower() == _("NO").lower():
-                MasterLogger.info(_("Database will not be installed terminating process."))
+                MasterLogger.info(_("Database will not be installed "
+                                    "terminating process."))
             raise SystemExit
 
         ParserArguments.Time = ParserArguments.Time / 1000.0
 
-        # Initialise the main loop (it's a endless loop, it breaks when a key is pressed.)
+        # Initialise the main loop (it's a endless loop, it breaks when a
+        # key is pressed.)
         MasterLogger.info(_("Exit loop by pressing <Esc>, <q> or <Space>"))
         MasterLogger.info(_("Getting updates from the telegram api."))
-        # Add a comment number to the telegram request, so that the old messages will be sorted out.
+        # Add a comment number to the telegram request, so that the old
+        # messages will be sorted out.
         Queue = multiprocessing.Queue()
         Queue.put(None)
 
@@ -190,8 +208,10 @@ def Main():
             if platform.system() == "Windows":
                 if msvcrt.kbhit():
                     PressedKey = ord(msvcrt.getch())
-                    if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
-                        MasterLogger.info(_("A user shutdown was requested will now shutdown."))
+                    if PressedKey == 27 or PressedKey == 113 or \
+                                    PressedKey == 32:
+                        MasterLogger.info(_("A user shutdown was requested "
+                                            "will now shutdown."))
                         SqlObject.CloseConnection()
                         break
 
@@ -199,7 +219,9 @@ def Main():
             else:
                 PressedKey = CursesObject.getch()
                 if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
-                    MasterLogger.info(_("A user shutdown was requested will now shutdown."))
+                    MasterLogger.info(_("A user shutdown was requested will "
+                                        "now shutdown.")
+                                      )
                     SqlObject.CloseConnection()
                     break
                 else:
@@ -229,18 +251,24 @@ def Main():
                 # Do
                 if Results is not None:
                     for Message in Results["result"]:
-                        MessageProcessor = messages.MessageProcessorClass.MessageProcessor(Message,
-                                                                                            LanguageObject=LanguageMasterObject,
-                                                                                            SqlObject=SqlObject,
-                                                                                            LoggingObject=MasterLogger,
-                                                                                            ConfigurationObject=Configuration,
-                                                                                            BotName=BotName
-                                                                                               )
+                        MessageProcessor = (
+                            messages.MessageProcessorClass.MessageProcessor(
+                                Message,
+                                LanguageObject=LanguageMasterObject,
+                                SqlObject=SqlObject,
+                                LoggingObject=MasterLogger,
+                                ConfigurationObject=Configuration,
+                                BotName=BotName
+                            )
+                        )
 
                          # This command sends the message to the user
-                        InterpretedMessage = MessageProcessor.InterpretMessage()
+                        InterpretedMessage = (
+                            MessageProcessor.InterpretMessage()
+                        )
                         if InterpretedMessage != None:
-                            #print(TelegramObject.SendMessage(InterpretedMessage))
+                            #print(TelegramObject.SendMessage(
+                            # InterpretedMessage))
                             TelegramObject.SendMessage(InterpretedMessage)
                         # Set the CommentNumber to a actual ChatId number,
                         # so that the incoming list is always actual.
@@ -248,7 +276,8 @@ def Main():
                         Queue.put(MessageProcessor.UpdateId + 1)
 
             # Waits until the next loop should start.
-            # Sleep need a second to be parsed, so the given value is transformed
+            # Sleep need a second to be parsed, so the given value is
+            # transformed
             # from milliseconds to seconds.
             if TelegramObject.RequestTimer == ParserArguments.Time:
                 time.sleep((ParserArguments.Time))
@@ -263,7 +292,8 @@ def Main():
             curses.nocbreak()
             curses.echo()
             curses.endwin()
-            # Raise the terror of the curses module for a second time. (It's correctly formatted now)
+            # Raise the terror of the curses module for a second time.
+            # (It's correctly formatted now)
             try:
                 raise
             except RuntimeError:
