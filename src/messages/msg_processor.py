@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 
 # The custom modules
-import GlobalObjects
-import ErrorClasses
-import LoggingClass
-import language.LanguageClass  # imports the _() function! (the translation feature).
-import parsers.ConfigurationClass
-import TelegramClass
-from . import PollingClass  # imports in the same folder (module)
-from . import MessageClass
-from . import EmojiClass
+import gobjects
+import custom_logging
+import language.language  # imports the _() function! (the translation feature).
+import parsers.configuration
+import telegram
+from . import polling  # imports in the same folder (module)
+from . import message
+from . import emojis
 
 
 class MessageProcessor(object):
@@ -69,13 +68,13 @@ class MessageProcessor(object):
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
-            self.LoggingObject = LoggingClass.Logger()
+            self.LoggingObject = custom_logging.Logger()
 
         if "ConfigurationObject" in OptionalObjects:
             self.ConfigurationObject = OptionalObjects["ConfigurationObject"]
         else:
             self.ConfigurationObject = (
-                parsers.ConfigurationClass.ConfigurationParser()
+                parsers.configuration.ConfigurationParser()
             )
 
         if "SqlObject" in OptionalObjects:
@@ -98,13 +97,13 @@ class MessageProcessor(object):
         if "LanguageObject" in OptionalObjects:
             self.M_ = OptionalObjects["LanguageObject"].gettext
         else:
-            self.M_ = language.LanguageClass.CreateTranslationObject()
+            self.M_ = language.language.CreateTranslationObject()
 
         if "BotName" in OptionalObjects:
             # The name of the bot that is doing it's job.
             self.BotName = OptionalObjects["BotName"]["result"]["username"]
         else:
-            self.BotName = GlobalObjects.__AppName__
+            self.BotName = gobjects.__AppName__
 
         if "update_id" in MessageObject:
             # The update‘s unique identifier. Update identifiers start from a
@@ -167,7 +166,7 @@ class MessageProcessor(object):
                 Data
             )[0]["User_String"])
 
-        self.LanguageObject = language.LanguageClass.CreateTranslationObject(
+        self.LanguageObject = language.language.CreateTranslationObject(
             Languages=[self.LanguageName]
         )
 
@@ -582,18 +581,18 @@ class MessageProcessor(object):
         try:
             self.LanguageName = Language
             self.LanguageObject = (
-                language.LanguageClass.CreateTranslationObject(
+                language.language.CreateTranslationObject(
                     self.LanguageName
                 )
             )
 
             self._ = self.LanguageObject.gettext
             if self.LanguageObject.info()["language"] != Language:
-                raise ErrorClasses.LanguageImportError(
-                    self.M_("Unknown Error")
+                raise ImportError(
+                    self.M_("Unknown language error")
                 )
             return True
-        except ErrorClasses.LanguageImportError as Error:
+        except ImportError as Error:
             self.LoggingObject.error(
                 self.M_("There has been an error with the changing of the "
                         "language class, this error has been returned: {Error}"
@@ -701,7 +700,7 @@ class MessageProcessor(object):
             \-
         """
 
-        MessageObject = MessageClass.MessageToBeSend(ToChatId=self.ChatId)
+        MessageObject = message.MessageToBeSend(ToChatId=self.ChatId)
         MessageObject.Text = self._("Sorry, but this command could not be"
                                     " interpreted.")
         # check if message is a command
@@ -962,7 +961,7 @@ class MessageProcessor(object):
 
         elif LastCommand.startswith("/addanswer"):  # /addanswer NoPoll
             if LastCommand == "/addanswer answer":
-                Poll = PollingClass.Poll(
+                Poll = polling.Poll(
                     InternalUserId=self.InternalUserId,
                     InternalPollId=LastUsedId,
                     LoggingObject=self.LanguageObject,
@@ -979,7 +978,7 @@ class MessageProcessor(object):
                                         )
 
             elif LastCommand == "/addanswer pollsearch":
-                Poll = PollingClass.Poll(
+                Poll = polling.Poll(
                     InternalUserId=self.InternalUserId,
                     PollName=self.Text,
                     LoggingObject=self.LanguageObject,
@@ -1015,7 +1014,7 @@ class MessageProcessor(object):
 
             elif LastCommand.startswith("/newpoll question"):
 
-                Poll = PollingClass.Poll(
+                Poll = polling.Poll(
                     InternalUserId=self.InternalUserId,
                     InternalPollId=LastUsedId,
                     LoggingObject=self.LanguageObject,
@@ -1060,7 +1059,7 @@ class MessageProcessor(object):
             # Send the Url to add the poll to the group.
             URL = ""
             if LastCommand == "/polllink poll":
-                Poll = PollingClass.Poll(
+                Poll = polling.Poll(
                     InternalUserId=self.InternalUserId,
                     PollName=self.Text,
                     LoggingObject=self.LanguageObject,
@@ -1071,7 +1070,7 @@ class MessageProcessor(object):
 
             elif LastCommand == "/polllink unclear":
                 if self.Text == self._("YES"):
-                    Poll = PollingClass.Poll(
+                    Poll = polling.Poll(
                         InternalUserId=self.InternalUserId,
                         InternalPollId=LastUsedId,
                         LoggingObject=self.LanguageObject,
@@ -1084,7 +1083,7 @@ class MessageProcessor(object):
                     )
                     MessageObject.ReplyKeyboardHide()
             else:
-                Poll = PollingClass.Poll(
+                Poll = polling.Poll(
                     InternalUserId=self.InternalUserId,
                     InternalPollId=LastUsedId,
                     LoggingObject=self.LanguageObject,
@@ -1115,7 +1114,7 @@ class MessageProcessor(object):
             # I do for you?
             Parts = self.Text.split(" ")
             if len(Parts) > 1:
-                Poll = PollingClass.Poll(
+                Poll = polling.Poll(
                     InternalUserId=self.InternalUserId,
                     ExternalPollId=Parts[1],
                     LoggingObject=self.LanguageObject,
@@ -1142,7 +1141,7 @@ class MessageProcessor(object):
 
             else:
                 URL = "{BaseUrl}/{AppName}?start=addpoll".format(
-                    BaseUrl = TelegramClass.TelegramAPI.BASE_URL,
+                    BaseUrl = telegram.TelegramAPI.BASE_URL,
                     AppName=self.BotName
                 )
                 MessageObject.Text = self._(

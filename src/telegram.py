@@ -9,10 +9,10 @@ import json
 import platform
 import zlib
 # my own classes
-import GlobalObjects
-import LoggingClass
-import messages.MessageClass
-import language.LanguageClass
+import gobjects
+import custom_logging
+import messages.message
+import language.language
 # imports the _() function! (the translation feature.
 
 
@@ -135,13 +135,13 @@ class TelegramApi(object):
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = (
-                language.LanguageClass.CreateTranslationObject()
+                language.language.CreateTranslationObject()
             )
 
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
-            self.LoggingObject = LoggingClass.Logger()
+            self.LoggingObject = custom_logging.Logger()
 
         if "ExitOnError" in OptionalObjects:
             self.ExitOnError = OptionalObjects["ExitOnError"]
@@ -162,8 +162,8 @@ class TelegramApi(object):
 
         self.Headers = {
             'User-agent': (
-                GlobalObjects.__AppName__ + '/' +
-                str(GlobalObjects.__version__) + ' (' +
+                gobjects.__AppName__ + '/' +
+                str(gobjects.__version__) + ' (' +
                 '; '.join(platform.system_alias(
                     platform.system(),
                     platform.release(),
@@ -172,7 +172,7 @@ class TelegramApi(object):
                 ) +
                 ') Python-urllib/' +
                 str(platform.python_build()) +
-                ' from ' + GlobalObjects.__hosted__
+                ' from ' + gobjects.__hosted__
             ),
             "Content-Type":
                 "application/x-www-form-urlencoded;charset=utf-8",
@@ -398,7 +398,7 @@ if __name__ == "__main__":
     try:
         print(Update["result"][len(Update["result"]) - 1]["update_id"])
 
-        MessageObject = messages.MessageClass.MessageToBeSend(
+        MessageObject = messages.message.MessageToBeSend(
             Update["result"][len(Update["result"]) - 1]["message"]
             ["chat"]["id"], "1"
         )
