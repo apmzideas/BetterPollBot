@@ -21,7 +21,7 @@ except ImportError:
 
 # personal imports
 import gobjects
-import parsers.comandline
+import parsers.commandline
 import parsers.configuration
 import custom_logging
 import language.language
@@ -77,7 +77,7 @@ def Main():
 
         # init parser
 
-        Parser = parsers.comandline.CustomParser(ConfigurationObject=Configuration,
+        Parser = parsers.commandline.CustomParser(ConfigurationObject=Configuration,
                                             LanguageObject=LanguageMasterObject
                                             )
         Parser.RunParser()

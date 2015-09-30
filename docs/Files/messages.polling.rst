@@ -1,7 +1,7 @@
-messages.MessageClass
+messages.PollingClass
 =====================
 
-.. automodule:: messages.MessageClass
+.. automodule:: messages.polling
    :members:
    :undoc-members:
    :show-inheritance:

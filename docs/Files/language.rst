@@ -7,6 +7,6 @@ This package contains all the language processing modules.
    :maxdepth: 2
    :glob:
    
-   language.LanguageClass.rst
+   language.language.rst
 
    

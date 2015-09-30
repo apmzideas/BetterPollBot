@@ -12,11 +12,10 @@ Top level files:
    :maxdepth: 2
    :glob:
 
-   Files/Main.rst
-   Files/GlobalObjects.rst
-   Files/LoggingClass.rst
-   Files/TelegramClass.rst
-   Files/ErrorClasses.rst
+   Files/main.rst
+   Files/gobjects.rst
+   Files/custom_logging.rst
+   Files/telegram.rst
 
 Sub modules:
    

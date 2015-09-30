@@ -7,6 +7,6 @@ This package contains all the parsers.
    :maxdepth: 2
    :glob:
    
-   parsers.ConfigurationClass.rst
-   parsers.ParserClass.rst
+   parsers.configuration.rst
+   parsers.commandline.rst
    

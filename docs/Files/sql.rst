@@ -7,5 +7,5 @@ This package contains all the needed sql files.
    :maxdepth: 2
    :glob:
    
-   sql.SqlClass.rst
+   sql.sql_api.rst
    
