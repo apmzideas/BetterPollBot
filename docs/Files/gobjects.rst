@@ -1,7 +1,7 @@
 GlobalObjects
 =============
 
-.. automodule:: GlobalObjects
+.. automodule:: gobjects
    :members:
    :private-members:
    :special-members:

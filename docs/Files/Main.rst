@@ -3,7 +3,7 @@ Main
 
 The function to start the execution of program.
 
-.. automodule:: Main
+.. automodule:: main
    :private-members:
    :special-members:
    :undoc-members:

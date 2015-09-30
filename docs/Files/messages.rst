@@ -7,7 +7,7 @@ This package contains all the message processing modules.
    :maxdepth: 2
    :glob:
    
-   messages.MessageProcessorClass.rst
-   messages.MessageClass.rst
-   messages.PollingClass.rst
-   messages.EmojiClass.rst
+   messages.msg_processor.rst
+   messages.message.rst
+   messages.polling.rst
+   messages.emojis.rst
