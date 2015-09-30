@@ -19,7 +19,7 @@ import mysql.connector
 # The custom modules
 import GlobalObjects
 import LoggingClass
-import language.LanguageClass # import the _() function!
+import language.LanguageClass  # import the _() function!
 
 
 class SqlApi(object):
@@ -199,15 +199,15 @@ class SqlApi(object):
         |PRIMARY KEY (Answer_Id)                                     |
         +------------------------------------------------------------+  
     """
-    
+
     def __init__(self,
-                  User, 
-                  Password, 
-                  DatabaseName=None, 
-                  Host="127.0.0.1", 
-                  Port="3306",
-                  **OptionalObjects):
-            
+                 User,
+                 Password,
+                 DatabaseName=None,
+                 Host="127.0.0.1",
+                 Port="3306",
+                 **OptionalObjects):
+
         """
         This API enables an easy DatabaseConnection to the mysql driver 
         and to the server with the database .
@@ -227,34 +227,40 @@ class SqlApi(object):
                 contains optional objects like the language object, 
                 the logging object or else
         """
-        
+
         self.User = User
         self.Password = Password
         self.Host = Host
         self.DatabaseName = DatabaseName
         self.Port = Port
-        
+
+        # This variable defines if the system should shutdown if no connection
+        # was created.
+        self._DieOnLostConnection = False
+
         # Predefining some attributes so that they later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
-        
+
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
-            self.LanguageObject = language.LanguageClass.CreateTranslationObject()
-            
+            self.LanguageObject = (
+                language.LanguageClass.CreateTranslationObject()
+            )
+
         # This is the language objects only value. 
         # It enables the translation of the texts. 
         self._ = self.LanguageObject.gettext
-        
+
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
             self.LoggingObject = LoggingClass.Logger()
-            
+
         # Create the connection to the database. 
         self.DatabaseConnection = self.CreateConnection()
-        
+
     def CreateConnection(self):
         """
         This method creates the mysql connection database.
@@ -265,43 +271,67 @@ class SqlApi(object):
         
         Variables:
             \-
-        """ 
+        """
 
         try:
             config = {
-                      "user": self.User,
-                      "password": self.Password,
-                      "host": self.Host,
-                      "port": 3306,
-                      #"use_pure":False,
-                      "raise_on_warnings": True,
-                      }
+                "user": self.User,
+                "password": self.Password,
+                "host": self.Host,
+                "port": 3306,
+                # "use_pure":False,
+                "raise_on_warnings": True,
+            }
             if self.DatabaseName:
                 config['database'] = self.DatabaseName
-    
-            return  mysql.connector.connect(**config)
-        
+
+            return mysql.connector.connect(**config)
+
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-                self.LoggingObject.warning(self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("Something is wrong with your user name or password."),)
-                raise SystemExit
+                self.LoggingObject.warning(
+                    self._("The database connector returned following"
+                           " error: {Error}").format(Error=err) + " " +
+                    self._("Something is wrong with your user name or "
+                           "password."),
+                )
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database does not exist, please contact your administrator."))
-                raise SystemExit
+                self.LoggingObject.error(
+                    self._("The database connector returned following"
+                           " error: {Error}").format(Error=err) + " " +
+                    self._(
+                        "The database does not exist, please contact your "
+                        "administrator.")
+                )
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
             elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
-                self.LoggingObject.critical( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The database server seems to be offline, please contact your administrator."))
-                raise SystemExit
+                self.LoggingObject.critical(
+                    self._("The database connector returned following"
+                           " error: {Error}").format(Error=err) + " " +
+                    self._(
+                        "The database server seems to be offline, please "
+                        "contact your administrator.")
+                )
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
             else:
                 self.LoggingObject.error(err)
-                raise SystemExit
+                if self._DieOnLostConnection is True:
+                    raise SystemExit
         except:
-            self.LoggingObject.critical(self._("The database connector returned following error: {Error}").format(Error = sys.exc_info()[0]) )
-            raise SystemExit
-        
+            self.LoggingObject.critical(
+                self._("The database connector returned following "
+                       "error: {Error}").format(Error=sys.exc_info()[0]))
+            if self._DieOnLostConnection is True:
+                raise SystemExit
+
         else:
             self.CloseConnection()
-        
-    def CloseConnection(self,):
+
+    def CloseConnection(self, ):
         """
         This method will close the open connection for good.
         
@@ -311,11 +341,103 @@ class SqlApi(object):
         try:
             self.DatabaseConnection.close()
         except mysql.connection.Error as err:
-            self.LoggingObject.error(self._("The database connector returned following error: {Error}").format(Error = err) +" " + self._("The database connection could not be closed correctly, please contact your administrator!"))
-        except:
-            self.LoggingObject.critical(self._("The database connector returned following error: {Error}").format(Error = sys.exc_info()[0]) )
+            self.LoggingObject.error(
+                self._("The database connector returned following error: "
+                       "{Error}").format(Error=err) + " " + self._(
+                    "The database connection could not be closed correctly,"
+                    " please contact your administrator!"))
+        except Exception:
+            self.LoggingObject.critical(
+                self._("The database connector returned following error: "
+                       "{Error}").format(Error=sys.exc_info()[0]))
 
-    def CreateCursor(self, Buffered=False, Dictionary=True):
+    def DetectConnection(self):
+        """
+        This method will check if the database connection is open.
+
+        It return True if the connection exists else False.
+        It as well tries to reconnect if no connection is available.
+
+        Variables:
+            \-
+        """
+        import time
+        # This is needed to sleep while trying
+        # to reconnect to the server.
+#        print(self.DatabaseConnection.is_connected())
+        Connection = True
+        while True:
+            if self.DatabaseConnection is not None:
+                try:
+                    self.DatabaseConnection.reconnect()
+                except mysql.connector.Error as err:
+                    if (err.errno ==
+                            mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR):
+                        self.LoggingObject.warning(
+                            self._("The database connector returned following"
+                                   " error: {Error}").format(Error=err) + " " +
+                            self._(
+                                "Something is wrong with your user name or "
+                                "password."),
+                        )
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                    elif (err.errno ==
+                              mysql.connector.errorcode.ER_BAD_DB_ERROR):
+                        self.LoggingObject.error(
+                            self._("The database connector returned following"
+                                   " error: {Error}").format(Error=err) + " " +
+                            self._(
+                                "The database does not exist, please contact"
+                                " your administrator.")
+                        )
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                    elif (err.errno ==
+                              mysql.connector.errorcode.CR_CONN_HOST_ERROR):
+                        self.LoggingObject.critical(
+                            self._("The database connector returned following"
+                                   " error: {Error}").format(Error=err) + " " +
+                            self._(
+                                "The database server seems to be offline, "
+                                "please contact your administrator.")
+                        )
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                    else:
+                        self.LoggingObject.error(err)
+                        if self._DieOnLostConnection is True:
+                            raise SystemExit
+                except Exception as Error:
+                    self.LoggingObject.critical(
+                        self._("The database connector returned following "
+                               "error: {Error}").format(Error=Error))
+                    if self._DieOnLostConnection is True:
+                        raise SystemExit
+
+                if self.DatabaseConnection.is_connected() is True:
+                    if Connection is False:
+                        self.LoggingObject.info(self._(
+                            "The connection to the database server has been "
+                            "reestablished.")
+                        )
+                    return True
+                else:
+                    Connection = False
+                    self.LoggingObject.critical(self._(
+                        "There is no connection to the database, please "
+                        "contact your administrator!")
+                    )
+            else:
+                self.DatabaseConnection = self.CreateConnection()
+
+            # sleep for three seconds
+            time.sleep(3)
+
+
+    def CreateCursor(self,
+                     Buffered=False,
+                     Dictionary=True):
         """
         This method creates the connection cursor
         
@@ -328,10 +450,10 @@ class SqlApi(object):
                If the cursor should return a dictionary or not.
         """
         return self.DatabaseConnection.cursor(
-                                              buffered=Buffered, 
-                                              dictionary=Dictionary
-                                              )
-    
+            buffered=Buffered,
+            dictionary=Dictionary
+        )
+
     def GetLastRowId(self, Cursor):
         """
         This method returns the last used row id of the cursor.
@@ -341,7 +463,7 @@ class SqlApi(object):
                 cursor object.
         """
         return Cursor.lastrowid
-    
+
     def DestroyCursor(self, Cursor):
         """
         This method closes the cursor.
@@ -351,8 +473,11 @@ class SqlApi(object):
                 cursor object.
         """
         return Cursor.close()
-    
-    def ExecuteTrueQuery(self, Cursor, Query, Data=None):
+
+    def ExecuteTrueQuery(self,
+                         Cursor,
+                         Query,
+                         Data=None):
         """
         A method to execute the query statements.
         
@@ -386,7 +511,7 @@ class SqlApi(object):
                         Data = (Data,)
                     elif isinstance(Data, str):
                         Data = (Data,)
-                    Data = [str(i) for i in list(Data)] 
+                    Data = [str(i) for i in list(Data)]
                     Cursor.execute(Query, Data)
                 else:
                     Cursor.execute(Query, Data)
@@ -397,16 +522,29 @@ class SqlApi(object):
             for Item in Cursor:
                 CursorContent.append(Item)
             return CursorContent
-        
+
         except mysql.connector.Error as err:
-            self.LoggingObject.error(self._("The database returned following error: {Error}").format(Error=err) +" "+ self._("The executet query failed, please contact your administrator."))
+            self.LoggingObject.error(
+                self._("The database returned following error: {Error}"
+                       ).format(Error=err) + " " +
+                self._(
+                    "The executet query failed, please contact your "
+                    "administrator."
+                )
+            )
             if isinstance(Data, list):
                 Data = ', '.join((str(i) for i in Data))
             elif isinstance(Data, dict):
-                Data = ', '.join("{Key}={Value}".format(Key = Key, Value = Value) for (Key, Value) in Data.items())
-            self.LoggingObject.error(self._("The failed query is:\nQuery:\n{Query}\n\nData:\n{Data}").format(Query = Query,
-                                                                                            Data = Data))
-            
+                Data = ', '.join("{Key}={Value}".format(
+                    Key=Key, Value=Value) for (Key, Value) in Data.items()
+                                 )
+            self.LoggingObject.error(
+                self._("The failed query is:\nQuery:\n{Query}\n\nData:\n{Data}"
+                       ).format(
+                    Query=Query,
+                    Data=Data)
+            )
+
     def CreateDatabase(self, Cursor, DatabaseName):
         """
         This method will create a database. Use with caution!
@@ -417,13 +555,14 @@ class SqlApi(object):
             DatabaseName          ``string``
                 contains the database name that has to be created
         """
-        Query = "CREATE DATABASE IF NOT EXISTS {DatabaseName} DEFAULT CHARACTER SET 'utf8'".format(DatabaseName = DatabaseName)
-        
+        Query = ("CREATE DATABASE IF NOT EXISTS {DatabaseName} DEFAULT "
+                "CHARACTER SET 'utf8'".format(DatabaseName=DatabaseName))
+
         self.ExecuteTrueQuery(
-                              Cursor,
-                              Query
-                              )
-    
+            Cursor,
+            Query
+        )
+
     def DeleteDatabase(self, Cursor, DatabaseName):
         """
         This method will drop a database. Use with caution!
@@ -433,15 +572,22 @@ class SqlApi(object):
                 contains the cursor object
             DatabaseName          ``string``
                 contains the database name that has to be dropped
-        """        
-        Query = "DROP DATABASE {DatabaseName};".format(DatabaseName = DatabaseName)
-        
+        """
+        Query = ("DROP DATABASE {DatabaseName};".format(
+            DatabaseName=DatabaseName)
+        )
+
         self.ExecuteTrueQuery(
-                              Cursor,
-                              Query
-                              )
-        
-    def CreateTable(self, Cursor, TableName, TableData, IfNotExists=True, Engine="InnoDB"):
+            Cursor,
+            Query
+        )
+
+    def CreateTable(self,
+                    Cursor,
+                    TableName,
+                    TableData,
+                    IfNotExists=True,
+                    Engine="InnoDB"):
         """
         A method to dynamically create a table entry to the database.
         
@@ -469,25 +615,27 @@ class SqlApi(object):
                 determine what mysql engine will be used
                 
         """
-            
+
         try:
             Query = "CREATE TABLE "
             if IfNotExists:
                 Query += "IF NOT EXISTS "
-                
+
             Query += TableName + " ("
-                
+
             PrimaryKeyId = None
             UniqueKeyId = None
             ForeignKeyId = None
-            
+
             for i in range(len(TableData)):
-                if (TableData[i][0].lower() != 'primary key' and TableData[i][0].lower() != 'unique' and TableData[i][0].lower() != 'foreign key' ):
+                if (TableData[i][0].lower() != 'primary key' and
+                            TableData[i][0].lower() != 'unique' and
+                            TableData[i][0].lower() != 'foreign key'):
                     if i == 0:
                         Query += TableData[i][0] + " " + TableData[i][1]
                     else:
-                        Query += ", " +TableData[i][0] + " " + TableData[i][1]
-                
+                        Query += ", " + TableData[i][0] + " " + TableData[i][1]
+
                 else:
                     if (TableData[i][0].lower() == 'primary key'):
                         PrimaryKeyId = i
@@ -495,41 +643,61 @@ class SqlApi(object):
                         UniqueKeyId = i
                     elif TableData[i][0].lower() == 'foreign key':
                         ForeignKeyId = i
-            
+
             # If a unique key has been added.
             if UniqueKeyId:
                 if Query[-1] != ",":
                     Query += ","
-                Query += " " + TableData[UniqueKeyId][0] + " (" + TableData[UniqueKeyId][1] + ")"
-            
+                Query += (" " + TableData[UniqueKeyId][0] + " (" +
+                          TableData[UniqueKeyId][1] + ")"
+                          )
+
             # If a Primary Key has been added.
             if PrimaryKeyId:
                 if Query[-1] != ",":
                     Query += ","
-                Query += " " + TableData[PrimaryKeyId][0] + " (" + TableData[PrimaryKeyId][1] + ")"
-           
-            #  If a Foreign Key has been added.
+                Query += (" " + TableData[PrimaryKeyId][0] + " (" +
+                          TableData[PrimaryKeyId][1] + ")"
+                          )
+
+            # If a Foreign Key has been added.
             if ForeignKeyId:
                 if Query[-1] != ",":
                     Query += ","
-                Query += " " + TableData[ForeignKeyId][0] + " (" + TableData[ForeignKeyId][1] + ") REFERENCES " + TableData[ForeignKeyId][2]              
-            
+                Query += (" " + TableData[ForeignKeyId][0] + " (" +
+                          TableData[ForeignKeyId][1] + ") REFERENCES " +
+                          TableData[ForeignKeyId][2]
+                          )
+
             Query += ")"
-             
+
             if Engine != None:
-                if Engine in ("MRG_MYISAM", "MyISAM", "BLACKHOLE", "CSV", "MEMORY", "ARCHIVE", "InnoDB"):
-                    Query += "ENGINE="+Engine
-                
+                if Engine in ("MRG_MYISAM",
+                              "MyISAM",
+                              "BLACKHOLE",
+                              "CSV",
+                              "MEMORY",
+                              "ARCHIVE",
+                              "InnoDB"):
+                    Query += "ENGINE=" + Engine
+
             Query += ";"
             Cursor.execute(Query)
             return True
-        
-        except mysql.connector.Error as err:    
-            self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err) + " " + self._("The following database table \"{TableName}\" could not be created, please contact your administrator.").format(TableName=TableName),)
+
+        except mysql.connector.Error as err:
+            self.LoggingObject.error(
+                self._("The database connector returned following error: "
+                       "{Error}").format(Error=err) + " " +
+                self._("The following database table \"{TableName}\" could not"
+                       " be created, please contact your administrator."
+                       ).format(TableName=TableName),
+            )
             self.DatabaseConnection.rollback()
             return False
-    
-    def CreateMainDatabase(self, Cursor):
+
+    def CreateMainDatabase(self,
+                           Cursor):
         """
         This method will create all the default tables and data.
         
@@ -537,192 +705,200 @@ class SqlApi(object):
             Cursor                ``object``
                 contains the cursor object        
         """
-        
+
         # First all the tables
         # UserTable
         TableData = (
-                     ("Internal_User_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("External_User_Id", "Integer"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("User_Name", "TEXT DEFAULT NULL"),
-                     ("First_Name", "TEXT DEFAULT NULL"),
-                     ("Last_Name", "TEXT DEFAULT NULL"),
-                     ("PRIMARY KEY", "Internal_User_ID")
-                     )
-        
-        self.CreateTable(Cursor, "User_Table", TableData,) 
-            
+            ("Internal_User_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("External_User_Id", "Integer"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("User_Name", "TEXT DEFAULT NULL"),
+            ("First_Name", "TEXT DEFAULT NULL"),
+            ("Last_Name", "TEXT DEFAULT NULL"),
+            ("PRIMARY KEY", "Internal_User_ID")
+        )
+
+        self.CreateTable(Cursor, "User_Table", TableData, )
+
         # SessionHandling saves the last send command
         TableData = (
-                     ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Command_By_User", "Integer"), #is the internal id of the user
-                     ("Command", "Varchar(256)"),
-                     ("Last_Used_Id", "Integer DEFAULT NULL"),
-                     ("PRIMARY KEY", "Session_Id"),
-                     ("UNIQUE", "Command_By_User"),
-                     )
-        
-        self.CreateTable(Cursor, "Session_Table", TableData,)         
-        
+            ("Session_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Command_By_User", "Integer"),  # is the internal id of the user
+            ("Command", "Varchar(256)"),
+            ("Last_Used_Id", "Integer DEFAULT NULL"),
+            ("PRIMARY KEY", "Session_Id"),
+            ("UNIQUE", "Command_By_User"),
+        )
+
+        self.CreateTable(Cursor, "Session_Table", TableData, )
+
         # Settings
         TableData = (
-                     ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Setting_Name", "Varchar(128)"),
-                     ("Default_String", "Varchar(256)"),
-                     ("Default_Integer", "Integer"),
-                     ("Default_Boolean", "Boolean"),
-                     ("PRIMARY KEY", "Setting_Id")  
-                     )
-        
-        self.CreateTable(Cursor, "Setting_Table", TableData,)
-                
+            ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Setting_Name", "Varchar(128)"),
+            ("Default_String", "Varchar(256)"),
+            ("Default_Integer", "Integer"),
+            ("Default_Boolean", "Boolean"),
+            ("PRIMARY KEY", "Setting_Id")
+        )
+
+        self.CreateTable(Cursor, "Setting_Table", TableData, )
+
         # UserSetSetting
         TableData = (
-                     ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Master_Setting_Id", "Integer"), #This settings master entry in 
-                     ("Master_User_Id", "Integer"), #This setting has been set by
-                     ("User_Integer", "Integer"),
-                     ("User_String", "Varchar(256)"),
-                     ("User_Boolean", "Boolean"),
-                     ("PRIMARY KEY", "Setting_Id"),
-                     ("FOREIGN KEY", "Master_Setting_Id", "Setting_Table(Setting_Id)"),
-                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)"),
-                     )
-        
-        self.CreateTable(Cursor, "User_Setting_Table", TableData,)
-        
+            ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Master_Setting_Id", "Integer"),  # This settings master entry in
+            ("Master_User_Id", "Integer"),  # This setting has been set by
+            ("User_Integer", "Integer"),
+            ("User_String", "Varchar(256)"),
+            ("User_Boolean", "Boolean"),
+            ("PRIMARY KEY", "Setting_Id"),
+            ("FOREIGN KEY", "Master_Setting_Id", "Setting_Table(Setting_Id)"),
+            ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)"),
+        )
+
+        self.CreateTable(Cursor, "User_Setting_Table", TableData, )
+
         # GroupTable
         TableData = (
-                     ("Internal_Group_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("External_Group_Id", "Integer"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Group_Name", "Varchar(255)"),
-                     ("UNIQUE", "External_Group_Id"),
-                     ("PRIMARY KEY", "Internal_Group_Id")
-                     )
-        
-        self.CreateTable(Cursor, "Group_Table", TableData,)
-                          
+            ("Internal_Group_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("External_Group_Id", "Integer"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Group_Name", "Varchar(255)"),
+            ("UNIQUE", "External_Group_Id"),
+            ("PRIMARY KEY", "Internal_Group_Id")
+        )
+
+        self.CreateTable(Cursor, "Group_Table", TableData, )
+
         # The PollTable
         TableData = (
-                     ("Internal_Poll_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("External_Poll_Id", "BINARY(32) DEFAULT NULL"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Poll_Name", "Varchar(255) DEFAULT NULL"),
-                     ("Question", "Varchar(999)"),
-                     ("Master_User_Id", "Integer"),
-                     ("UNIQUE", "External_Poll_Id"),
-                     ("PRIMARY KEY", "Internal_Poll_Id"),
-                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
-                    )
-         
-        self.CreateTable(Cursor, "Poll_Table", TableData,)
-         
+            ("Internal_Poll_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("External_Poll_Id", "BINARY(32) DEFAULT NULL"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Poll_Name", "Varchar(255) DEFAULT NULL"),
+            ("Question", "Varchar(999)"),
+            ("Master_User_Id", "Integer"),
+            ("UNIQUE", "External_Poll_Id"),
+            ("PRIMARY KEY", "Internal_Poll_Id"),
+            ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
+        )
+
+        self.CreateTable(Cursor, "Poll_Table", TableData, )
+
         # Options for the Polls themselves
         TableData = (
-                     ("Id_Option", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Id_Poll_Table", "Integer"),
-                     ("Option_Name", "Varchar(128)"),
-                     ("Master_User_Id", "Integer"),
-                     ("PRIMARY KEY", "Id_Option"),
-                     ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)"),
-                     ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
-                    )
-         
-        self.CreateTable(Cursor, "Options_Table", TableData,)
-         
+            ("Id_Option", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Id_Poll_Table", "Integer"),
+            ("Option_Name", "Varchar(128)"),
+            ("Master_User_Id", "Integer"),
+            ("PRIMARY KEY", "Id_Option"),
+            ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)"),
+            ("FOREIGN KEY", "Master_User_Id", "User_Table(Internal_User_Id)")
+        )
+
+        self.CreateTable(Cursor, "Options_Table", TableData, )
+
         # All the available settings of the poll
         TableData = (
-                     ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Setting_Name", "Varchar(128)"),
-                     ("Default_Integer", "Integer"),
-                     ("Default_String", "Varchar(256)"),
-                     ("Default_Boolean", "Boolean"),
-                     ("PRIMARY KEY", "Setting_Id")               
-                     )
-         
-        self.CreateTable(Cursor, "Settings_Of_Poll_Table", TableData,)
-         
+            ("Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Setting_Name", "Varchar(128)"),
+            ("Default_Integer", "Integer"),
+            ("Default_String", "Varchar(256)"),
+            ("Default_Boolean", "Boolean"),
+            ("PRIMARY KEY", "Setting_Id")
+        )
+
+        self.CreateTable(Cursor, "Settings_Of_Poll_Table", TableData, )
+
         # User set settings for the poll, like custom language
-         
+
         TableData = (
-                     ("User_Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Setting_Id", "Integer"), 
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("Id_Poll_Table", "Integer"),
-                     ("User_Id", "Integer"),
-                     ("User_String", "VARCHAR(256)"),
-                     ("User_Integer", "Integer"),
-                     ("User_Boolean", "Boolean"),
-                     ("Primary key", "User_Setting_Id"),
-                     ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)"),
-                     ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)"),
-                     ("FOREIGN KEY", "Setting_Id", "Settings_Of_Poll_Table(Setting_Id)")
-                     )
-        
-        self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData,)
-        
+            ("User_Setting_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Setting_Id", "Integer"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("Id_Poll_Table", "Integer"),
+            ("User_Id", "Integer"),
+            ("User_String", "VARCHAR(256)"),
+            ("User_Integer", "Integer"),
+            ("User_Boolean", "Boolean"),
+            ("Primary key", "User_Setting_Id"),
+            ("FOREIGN KEY", "Id_Poll_Table", "Poll_Table(Internal_Poll_Id)"),
+            ("FOREIGN KEY", "User_Id", "User_Table(Internal_User_Id)"),
+            ("FOREIGN KEY", "Setting_Id", "Settings_Of_Poll_Table(Setting_Id)")
+        )
+
+        self.CreateTable(Cursor, "User_Setting_Of_Poll_Table", TableData, )
+
         # User answer to the poll
         TableData = (
-                     ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
-                     ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
-                     ("By_User", "Integer"),
-                     ("By_Group", "Integer"),
-                     ("Poll_Id", "Integer"),
-                     ("Option_Id", "Integer"),
-                     ("PRIMARY KEY", "Answer_Id"),
-                     ("FOREIGN KEY", "By_User", "User_Table(Internal_User_Id)"),
-                     ("FOREIGN KEY", "By_Group", "Group_Table(Internal_Group_Id)"),
-                     ("FOREIGN KEY", "Poll_Id", "Poll_Table(Internal_Poll_Id)"),
-                     ("FOREIGN KEY", "Option_Id", "Options_Table(Id_Option)")
-                     )
-        
-        self.CreateTable(Cursor, "User_Answers_To_Poll_Table", TableData,)
-        
+            ("Answer_Id", "Integer NOT NULL AUTO_INCREMENT"),
+            ("Creation_Date", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"),
+            ("By_User", "Integer"),
+            ("By_Group", "Integer"),
+            ("Poll_Id", "Integer"),
+            ("Option_Id", "Integer"),
+            ("PRIMARY KEY", "Answer_Id"),
+            ("FOREIGN KEY", "By_User", "User_Table(Internal_User_Id)"),
+            ("FOREIGN KEY", "By_Group", "Group_Table(Internal_Group_Id)"),
+            ("FOREIGN KEY", "Poll_Id", "Poll_Table(Internal_Poll_Id)"),
+            ("FOREIGN KEY", "Option_Id", "Options_Table(Id_Option)")
+        )
+
+        self.CreateTable(Cursor, "User_Answers_To_Poll_Table", TableData, )
+
         # Second all the inserts
         # The Settings for the default polls
-        
+
         # The default language for the polls
         Columns = {
-                   "Setting_Name": "Language",
-                   "Default_String": "en_US"
-                   }
-        
+            "Setting_Name": "Language",
+            "Default_String": "en_US"
+        }
+
         self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
-        
+
         # The setting to define if a response should be forced
         Columns = {
-                   "Setting_Name": "ForceResponce",
-                   "Default_Boolean": False
-                   }
-        
+            "Setting_Name": "ForceResponce",
+            "Default_Boolean": False
+        }
+
         self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
-        
+
         # The setting to define if multiple answer per persons are 
         # allowed.
         Columns = {
-                   "Setting_Name": "MultiAnswer",
-                   "Default_Boolean": False
-                   }
-        
+            "Setting_Name": "MultiAnswer",
+            "Default_Boolean": False
+        }
+
         self.InsertEntry(Cursor, "Settings_Of_Poll_Table", Columns)
         # the inserts for the settings 
         Columns = {
-                   "Setting_Name": "Language",
-                   "Default_String": "en_US"
-                   }
+            "Setting_Name": "Language",
+            "Default_String": "en_US"
+        }
         self.InsertEntry(Cursor, "Setting_Table", Columns)
-        
+
         # commit all the changes
-        self.Commit(Cursor)
-        
+        self.Commit()
+
         return True
-         
-    def SelectEntry(self, Cursor, FromTable, Columns, OrderBy = [None] , Amount = None, Where = [], Data = (), Distinct = False, ):
+
+    def SelectEntry(self,
+                    Cursor,
+                    FromTable,
+                    Columns,
+                    OrderBy=[None],
+                    Amount=None,
+                    Where=[],
+                    Data=(),
+                    Distinct=False, ):
         """
         A simple SQL SELECT builder method
         
@@ -789,62 +965,62 @@ class SqlApi(object):
             Distinct             ``boolean``
                 determines if the search is distinct or not
         """
-        
+
         Query = ["SELECT"]
-        
+
         if Distinct:
             Query.append("DISTINCT")
-        
+
         # columns
         for i in range(len(Columns)):
-            if i+1 < len(Columns):
+            if i + 1 < len(Columns):
                 Query.append(Columns[i] + ",")
             else:
                 Query.append(Columns[i])
-        
+
         # from Table
         Query.append("FROM " + FromTable)
-        
+
         # Where
         if Where != []:
             Query.append("WHERE")
             for i in range(len(Where)):
                 if type(Where[i]) == type([]):
-                    Query.append( Where[i][0] )
-                    Query.append( Where[i][1] )
-                    Query.append("{0}".format( Where[i][2]) )
+                    Query.append(Where[i][0])
+                    Query.append(Where[i][1])
+                    Query.append("{0}".format(Where[i][2]))
                 elif type(Where[i]) == type(""):
-                    Query.append(Where[i])   
-                
-#                 if i+1 != len(Where):
-#                     Query.append(",")
-                
-                #print(Where[i])
-                
-                #Query.append(Where[i])
-                             
+                    Query.append(Where[i])
+
+                #                 if i+1 != len(Where):
+                #                     Query.append(",")
+
+                # print(Where[i])
+
+                # Query.append(Where[i])
+
         # Order By
         if OrderBy[0] is not None:
             Query.append("ORDER BY")
-            
+
             for i in range(len(OrderBy)):
                 for x in range(len(OrderBy[i])):
-                    if not OrderBy[i] in ("and", "or"): 
+                    if not OrderBy[i] in ("and", "or"):
                         Query.append(OrderBy[i][x])
                     else:
                         Query.append(OrderBy[i])
-                
-                if i+1 < len(OrderBy):
+
+                if i + 1 < len(OrderBy):
                     Query.append(",")
-        
-        
-        
+
+
+
         # Limit
-        if (Amount is not None) and (isinstance( Amount, int )):
+        if (Amount is not None) and (isinstance(Amount, int)):
             Query.append("LIMIT " + str(Amount))
-        
+
         Query.append(";")
-        
+
         Query = ' '.join([str(i) for i in Query])
 
         if Data == ():
@@ -852,7 +1028,12 @@ class SqlApi(object):
         else:
             return (self.ExecuteTrueQuery(Cursor, Query, Data))
 
-    def UpdateEntry(self, Cursor, TableName, Columns, Where=[], Autocommit = False):
+    def UpdateEntry(self,
+                    Cursor,
+                    TableName,
+                    Columns,
+                    Where=[],
+                    Autocommit=False):
         """
         This method will update a record in the database.
         
@@ -907,62 +1088,87 @@ class SqlApi(object):
                 commit the values to the database.
             
         """
-        
+
         Query = "UPDATE "
-            
+
         Query += TableName
-            
+
         Query += " SET "
-    
+
         # Create the key value pair 
         temp = []
         for Key in Columns.keys():
-            temp.append("{Key}=%({Key})s".format(Key = str(Key)))
-        
+            temp.append("{Key}=%({Key})s".format(Key=str(Key)))
+
         Query += ', '.join(temp)
-    
+
         if Where != []:
-            
+
             Query += " WHERE "
-            
+
             # This variable is used to ensure that no 2 operator will 
             # follow each other
             LastTypeAnOperator = False
-            for i in range(len(Where)):    
+            for i in range(len(Where)):
 
                 if type(Where[i]) == type([]):
                     LastTypeAnOperator = False
                     Where[i] = [str(i) for i in Where[i]]
                     Query += str(Where[i][0])
-                    if Where[i][1].upper() in ("=", "<", ">", "<>", "!=", ">=", "<=", "BETWEEN", "LIKE", "IN"):
+                    if Where[i][1].upper() in ("=",
+                                               "<",
+                                               ">",
+                                               "<>",
+                                               "!=",
+                                               ">=",
+                                               "<=",
+                                               "BETWEEN",
+                                               "LIKE",
+                                               "IN"):
                         Query += Where[i][1]
-                        Query += "%({Where})s".format( Where = Where[i][0] + "Where") 
+                        Query += "%({Where})s".format(Where=Where[i][0] +
+                                                            "Where"
+                                                      )
                         Columns[Where[i][0] + "Where"] = Where[i][2]
                     else:
-                        Query += "=%({Where})s".format(Where = Where[i][0]+"Where")
+                        Query += "=%({Where})s".format(Where=Where[i][0] +
+                                                             "Where"
+                                                       )
                         Columns[Where[i][0] + "Where"] = Where[i][1]
-                    
-                elif type(Where[i]) == type(""):
-                    if LastTypeAnOperator == False:
+
+                elif isinstance(Where[i], str):
+                    if LastTypeAnOperator is False:
                         LastTypeAnOperator = True
                         if Where[i].upper() in ("(", ")", "AND", "OR"):
                             Query += " {} ".format(Where[i])
                         else:
-                            raise ValueError( self._("The where type in your query is not in the list of valid types. {Error}").format(Error = Where[i]))
+                            raise ValueError(self._(
+                                "The where type in your query is not in the "
+                                "list of valid types. {Error}").format(
+                                Error=Where[i])
+                            )
                     else:
-                        raise ValueError( self._("There where two operator behind each other that doesn't work."))
+                        raise ValueError(self._("There where two operator "
+                                                "behind each other that "
+                                                "doesn't work.")
+                                         )
         Query += ";"
-#         print(Query)
-#         print(Columns)
-#         print(Query % Columns)
-        
+        #         print(Query)
+        #         print(Columns)
+        #         print(Query % Columns)
+
         self.ExecuteTrueQuery(Cursor, Query, Columns)
         if Autocommit is True:
             # Autocommit the update to the server
-            self.Commit(Cursor)
+            self.Commit()
         return True
-        
-    def InsertEntry(self, Cursor, TableName, Columns={}, Duplicate = None, AutoCommit = False):
+
+    def InsertEntry(self,
+                    Cursor,
+                    TableName,
+                    Columns={},
+                    Duplicate=None,
+                    AutoCommit=False):
         """
         This method will insert any type of entry into the database.
         
@@ -996,39 +1202,39 @@ class SqlApi(object):
                 If autocommit is true the method will automatically
                 commit the values to the database.
         """
-        
+
         Query = "INSERT INTO "
-             
+
         Query += TableName + " ("
-             
-        Query += ', '.join( Columns.keys())     
-        Query += ") VALUES (" 
-        Query += ", ".join(["%("+str(i) + ")s" for i in  Columns.keys() ])
-            
+
+        Query += ', '.join(Columns.keys())
+        Query += ") VALUES ("
+        Query += ", ".join(["%(" + str(i) + ")s" for i in Columns.keys()])
+
         Query += ")"
-        
+
         if Duplicate != None:
-            Query +=  " ON DUPLICATE KEY UPDATE "
+            Query += " ON DUPLICATE KEY UPDATE "
             Duplicates = []
             for Key in Duplicate.keys():
-                Duplicates.append("{Key} = %({Value})s".format(Key = str(Key),
-                                                   Value = str(Key)
-                                                   )
+                Duplicates.append("{Key} = %({Value})s".format(Key=str(Key),
+                                                               Value=str(Key)
+                                                               )
                                   )
-                
+
             Query += ', '.join(Duplicates)
         Query += ";"
-        
-        #print(Query)
-        
+
+        # print(Query)
+
         Cursor.execute(Query, Columns)
-            
+
         if AutoCommit:
             # Make sure data is committed to the database
-            self.Commit(Cursor)
+            self.Commit()
         return True
 
-    def Commit(self, Cursor):
+    def Commit(self, ):
         """
         This method will commit the changes to the database.
         
@@ -1039,52 +1245,7 @@ class SqlApi(object):
         try:
             self.DatabaseConnection.commit()
         except mysql.DatabaseConnection.Error as Error:
-            self.LoggingObject.error( self._("The database connector returned following error: {Error}").format(Error = err))
+            self.LoggingObject.error(
+                self._("The database connector returned following error:"
+                       " {Error}").format(Error=Error))
             self.DatabaseConnection.rollback()
-            
-if __name__ == "__main__":
-    print("online")
-    import Main
-    #import pprint
-    Main.ObjectInitialiser()
-    Cursor = GlobalObjects.ObjectHolder["SqlClass"].CreateCursor(Buffered=False, Dictionary=True,)
-    print(GlobalObjects.ObjectHolder["SqlClass"].SelectEntry(
-                                                       Cursor, 
-                                                       FromTable="User_Table", 
-                                                       Columns = ("External_User_Id",
-                                                                  "Creation_Date",
-                                                                  "User_Name",
-                                                                  "First_Name",
-                                                                  "Last_Name"),
-                                                       Where = ["Internal_User_Id", "=", "%s"],
-                                                       Data = (4,),
-                                                       Distinct = False,))
-#     GlobalObjects.ObjectHolder["SqlClass"].CreateMainDatabase(Cursor)
-#     
-#     
-# 
-#     GlobalObjects.ObjectHolder["SqlClass"].InsertEntry(Cursor, "user_table", {
-#                                                                               "External_User_Id" : 32301786,
-#                                                                               "First_Name" : "Adrian",
-#                                                                               "Last_Name" : "Hornung",
-#                                                                               "User_Name" : "TheRedFireFox"
-#                                                                             }
-#                                                        )
-#     GlobalObjects.ObjectHolder["SqlClass"].InsertEntry(Cursor, "user_table", {
-#                                                                               "External_User_Id" : 105654068,
-#                                                                               "First_Name" : "Robin",
-#                                                                               "Last_Name" : "",
-#                                                                               "User_Name" : ""
-#                                                                             }
-#                                                        )
-#     GlobalObjects.ObjectHolder["SqlClass"].InsertEntry(Cursor, "user_table", {
-#                                                                               "External_User_Id" : 10620786,
-#                                                                               "First_Name" : "Jonas",
-#                                                                               "Last_Name" : "Löw",
-#                                                                               "User_Name" : "kiritjom"
-#                                                                             }
-#                                                        )
-    GlobalObjects.ObjectHolder["SqlClass"].DestroyCursor(Cursor)
-    print("offline")
-    
-    

@@ -245,7 +245,8 @@ class MessageToBeSend(object):
         if self.ReplyToMessageId is not None:
             DataToBeSend["reply_to_message_id"] = self.ReplyToMessageId
         if self.ReplyMarkup != {}:
-            DataToBeSend["reply_markup"] = json.JSONEncoder(separators=(',', ':')).encode(self.ReplyMarkup)
+            DataToBeSend["reply_markup"] = json.JSONEncoder(
+                separators=(',', ':')).encode(self.ReplyMarkup)
             
         return DataToBeSend
     

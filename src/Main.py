@@ -2,29 +2,25 @@
 # -*- coding: utf-8 -*-
 
 
-""" The master file that will hold all the initiated classes and will be used
-     as the thread deployer.
+"""
+The master file that will hold all the initiated classes and will be used
+as the thread or multiprocess initiator.
 """
 
-# supper import needed by other classes
-import GlobalObjects
-
 # standard modules import 
-# import argparse
+import os
 import getpass
 import time
 import platform
-# if windows only windows is supported :(
+import multiprocessing
+# if only windows is supported else use the curses module on linux (-.-)
 try:
     import msvcrt
 except ImportError:
     import curses
 
-# for now these imports are not need
-# import threading
-# import queue
-
 # personal imports
+import GlobalObjects
 import parsers.ParserClass
 import parsers.ConfigurationClass
 import LoggingClass
@@ -56,8 +52,8 @@ def Main():
         maxy, maxx = CursesMasterObject.getmaxyx()
         begin_x = 0
         begin_y = 0
-        height = 10
-        width = maxx - 4
+        height = maxy
+        width = maxx
         CursesObject = curses.newwin(height, width, begin_y, begin_x)
         CursesObject.nodelay(1)
         curses.setsyx(-1, -1)
@@ -97,10 +93,14 @@ def Main():
             LoggingLevel="debug",
             CursesObject=CursesObject)
 
-        MasterLogger.info(_("{AppName} has been startet.").format(AppName=GlobalObjects.__AppName__))
+        MasterLogger.info(_("{AppName} has been started.").format(
+            AppName=GlobalObjects.__AppName__
+        ))
 
         if ParserArguments.ApiToken == "":
-            MasterLogger.critical(_("No telegram token has been added to the system!"))
+            MasterLogger.critical(_("No telegram token has been added to the"
+                                    " system!")
+                                  )
             raise SystemExit
 
         TelegramObject = TelegramClass.TelegramApi(
@@ -118,12 +118,15 @@ def Main():
         NrTry = 1
 
         while NoConnection and NrTry <= 3:
-            # If no database user or password have been sent, get them from the user.
+            # If no database user or password have been sent, get them
+            #  from the user.
             # (This is safer than other options.)
             if ParserArguments.DatabaseUser == "":
                 ParserArguments.DatabaseUser = input(_("User:") + " ")
             if ParserArguments.DatabasePassword == "":
-                ParserArguments.DatabasePassword = getpass.getpass(_("Password:") + " ")
+                ParserArguments.DatabasePassword = getpass.getpass(
+                    _("Password:") + " "
+                )
 
             SqlObject = sql.SqlClass.SqlApi(
                 ParserArguments.DatabaseUser,
@@ -145,37 +148,57 @@ def Main():
                 else:
                     TryAgain = _("too bad")
 
-                MasterLogger.warning(_("You have used {NrTry} of 3 times:").format(NrTry=str(NrTry)) + " " + TryAgain, )
+                MasterLogger.warning(_("You have used {NrTry} of 3 times:"
+                                       ).format(NrTry=str(NrTry)) +
+                                     " " + TryAgain, )
                 NrTry += 1
             else:
                 NoConnection = False
 
         if NrTry == 3:
             MasterLogger.info(
-                _("{AppName} has been stopped, because you didn't input the correct user name of password.").format(
+                _("{AppName} has been stopped, because you didn't input the"
+                  " correct user name"
+                  " of password.").format(
                     AppName=GlobalObjects.__AppName__))
             raise SystemExit
 
         # This will be used if the database will be installed.
         if ParserArguments.InstallDatabaseStructure is True:
-            InstallDatabase = input(_("Are you sure you want to install the database structure?") + " Yes/No ")
-            if InstallDatabase.lower() == "yes":
-                MasterLogger.info(_("{AppName} will now start to install the database structure").format(
-                    AppName=GlobalObjects.__AppName__))
+            InstallDatabaseDefault = _("YES")
+            InstallDatabase = input(_("Are you sure you want to install the"
+                                      " database structure?") +
+                                    _("YES/NO [{Default}]").format(
+                                        Default=InstallDatabaseDefault)
+                                    )
+
+            if InstallDatabase == "":
+                InstallDatabase = InstallDatabaseDefault
+
+            if InstallDatabase.lower() == _("YES").lower():
+                MasterLogger.info(_("{AppName} will now start to install "
+                                    "the database structure").format(
+                    AppName=GlobalObjects.__AppName__)
+                )
                 SqlCursor = SqlObject.CreateCursor()
                 SqlObject.CreateMainDatabase(SqlCursor)
-                MasterLogger.info(_("The database has been installed, please restart system."))
-            elif InstallDatabase.lower() == "no":
-                MasterLogger.info(_("Database will not be installed terminating process."))
+                MasterLogger.info(_("The database has been installed, "
+                                    "please restart system."))
+            elif InstallDatabase.lower() == _("NO").lower():
+                MasterLogger.info(_("Database will not be installed "
+                                    "terminating process."))
             raise SystemExit
 
         ParserArguments.Time = ParserArguments.Time / 1000.0
 
-        # Initialise the main loop (it's a endless loop, it breaks when a key is pressed.)
+        # Initialise the main loop (it's a endless loop, it breaks when a
+        # key is pressed.)
         MasterLogger.info(_("Exit loop by pressing <Esc>, <q> or <Space>"))
         MasterLogger.info(_("Getting updates from the telegram api."))
-        # Add a comment number to the telegram request, so that the old messages will be sorted out.
-        CommentNumber = None
+        # Add a comment number to the telegram request, so that the old
+        # messages will be sorted out.
+        Queue = multiprocessing.Queue()
+        Queue.put(None)
 
         while True:
             # check if a key is pressed by user and stop if pressed.
@@ -183,8 +206,10 @@ def Main():
             if platform.system() == "Windows":
                 if msvcrt.kbhit():
                     PressedKey = ord(msvcrt.getch())
-                    if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
-                        MasterLogger.info(_("A user shutdown was requested will now shutdown."))
+                    if PressedKey == 27 or PressedKey == 113 or \
+                                    PressedKey == 32:
+                        MasterLogger.info(_("A user shutdown was requested "
+                                            "will now shutdown."))
                         SqlObject.CloseConnection()
                         break
 
@@ -192,7 +217,9 @@ def Main():
             else:
                 PressedKey = CursesObject.getch()
                 if PressedKey == 27 or PressedKey == 113 or PressedKey == 32:
-                    MasterLogger.info(_("A user shutdown was requested will now shutdown."))
+                    MasterLogger.info(_("A user shutdown was requested will "
+                                        "now shutdown.")
+                                      )
                     SqlObject.CloseConnection()
                     break
                 else:
@@ -201,31 +228,54 @@ def Main():
             # Process the requests
 
             # Get the updates from the telegram serves.
-            Results = TelegramObject.GetUpdates(CommentNumber)
+            if SqlObject.DetectConnection() is True:
+                # check if queue has something for us in it
+                CommentNumber = []
+                while True:
+                    if Queue.empty() is False:
+                        CommentNumber.append((Queue.get()))
+                    else:
+                        break
 
-            # Do
-            if Results != None:
-                for Message in Results["result"]:
-                    MessageProcessor = messages.MessageProcessorClass.MessageProcessor(Message,
-                                                                                       LanguageObject=LanguageMasterObject,
-                                                                                       SqlObject=SqlObject,
-                                                                                       LoggingObject=MasterLogger,
-                                                                                       ConfigurationObject=Configuration,
-                                                                                       BotName=BotName
-                                                                                       )
+                if len(CommentNumber)==1:
+                    CommentNumber = CommentNumber[0]
+                elif len(CommentNumber) > 1:
+                    CommentNumber = max(CommentNumber)
+                else:
+                    CommentNumber = None
 
-                    # This command sends the message to the user
-                    InterpretedMessage = MessageProcessor.InterpretMessage()
-                    if InterpretedMessage != None:
-                        TelegramObject.SendMessage(InterpretedMessage)
+                Results = TelegramObject.GetUpdates(CommentNumber)
 
-                    # Set the CommentNumber to a actual ChatId number,
-                    # so that the incomming list is allways actuel.
-                    # This number has to be 1 bigger than the oldest unit
-                    CommentNumber = MessageProcessor.UpdateId + 1
+                # Do
+                if Results is not None:
+                    for Message in Results["result"]:
+                        MessageProcessor = (
+                            messages.MessageProcessorClass.MessageProcessor(
+                                Message,
+                                LanguageObject=LanguageMasterObject,
+                                SqlObject=SqlObject,
+                                LoggingObject=MasterLogger,
+                                ConfigurationObject=Configuration,
+                                BotName=BotName
+                            )
+                        )
+
+                         # This command sends the message to the user
+                        InterpretedMessage = (
+                            MessageProcessor.InterpretMessage()
+                        )
+                        if InterpretedMessage != None:
+                            #print(TelegramObject.SendMessage(
+                            # InterpretedMessage))
+                            TelegramObject.SendMessage(InterpretedMessage)
+                        # Set the CommentNumber to a actual ChatId number,
+                        # so that the incoming list is always actual.
+                        # This number has to be 1 bigger than the oldest unit
+                        Queue.put(MessageProcessor.UpdateId + 1)
 
             # Waits until the next loop should start.
-            # Sleep need a second to be parsed, so the given value is transformed
+            # Sleep need a second to be parsed, so the given value is
+            # transformed
             # from milliseconds to seconds.
             if TelegramObject.RequestTimer == ParserArguments.Time:
                 time.sleep((ParserArguments.Time))
@@ -233,13 +283,15 @@ def Main():
                 time.sleep((TelegramObject.RequestTimer / 1000))
 
     finally:
+        Queue.close()
         if platform.system() != "Windows":
             # clean after the curses module
             time.sleep(1)
             curses.nocbreak()
             curses.echo()
             curses.endwin()
-            # Raise the terror of the curses module for a second time. (It's correctly formatted now)
+            # Raise the terror of the curses module for a second time.
+            # (It's correctly formatted now)
             try:
                 raise
             except RuntimeError:
@@ -247,4 +299,5 @@ def Main():
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     Main()

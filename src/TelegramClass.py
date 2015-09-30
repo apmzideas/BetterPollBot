@@ -7,12 +7,13 @@ import urllib.parse
 import ssl
 import json
 import platform
-
+import zlib
 # my own classes
 import GlobalObjects
 import LoggingClass
 import messages.MessageClass
-import language.LanguageClass  # imports the _() function! (the translation feature.
+import language.LanguageClass
+# imports the _() function! (the translation feature.
 
 
 class TelegramApi(object):
@@ -65,6 +66,8 @@ class TelegramApi(object):
         the documentation is online under:
             https://core.telegram.org/bots/api
     """
+    BASE_URL = "https://api.telegram.org/bot"
+
     def __init__(self,
                  ApiToken,
                  RequestTimer,
@@ -115,22 +118,26 @@ class TelegramApi(object):
                         
         """
         self.ApiToken = ApiToken
-        self.BotApiUrl = "https://api.telegram.org/bot" + self.ApiToken
+        self.BotApiUrl = TelegramApi.BASE_URL + self.ApiToken
 
         # Predefining attribute so that it later can be used for evil.
         self.LanguageObject = None
         self.LoggingObject = None
         self.ExitOnError = False
 
-        # This timer is needed to see if there is a problem with the telegram server
-        # if so the interval should be bigger (1 min instead given time 1 sec)
+        # This timer is needed to see if there is a problem with the telegram
+        # server. If so the interval should be bigger (1 min instead given
+        # time 1 sec)
         self.RequestTimer = RequestTimer
         self.GivenRequestTimer = RequestTimer
 
         if "LanguageObject" in OptionalObjects:
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
-            self.LanguageObject = language.LanguageClass.CreateTranslationObject()
+            self.LanguageObject = (
+                language.LanguageClass.CreateTranslationObject()
+            )
+
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
@@ -154,23 +161,26 @@ class TelegramApi(object):
 #         }
 
         self.Headers = {
-                        'User-agent': (
-                                       GlobalObjects.__AppName__ + '/' +
-                                       str(GlobalObjects.__version__) + ' (' +
-                                       '; '.join(platform.system_alias(
-                                                            platform.system(),
-                                                            platform.release(),
-                                                            platform.version()
-                                                            )
-                                                 ) +
-                                       ') Python-urllib/' +
-                                       str(platform.python_build()) +
-                                       ' from ' + GlobalObjects.__hosted__
-                                        ),
-                        "Content-Type":
-                        "application/x-www-form-urlencoded;charset=utf-8"
-                        }
+            'User-agent': (
+                GlobalObjects.__AppName__ + '/' +
+                str(GlobalObjects.__version__) + ' (' +
+                '; '.join(platform.system_alias(
+                    platform.system(),
+                    platform.release(),
+                    platform.version()
+                )
+                ) +
+                ') Python-urllib/' +
+                str(platform.python_build()) +
+                ' from ' + GlobalObjects.__hosted__
+            ),
+            "Content-Type":
+                "application/x-www-form-urlencoded;charset=utf-8",
+            "Accept-Encoding": "gzip"
+        }
 
+        # Test if the content can be compressed or nor
+        self.Compressed = True
         self.LoggingObject.info(self._("Starting self check"))
         self.BotName = self.GetMe()
 
@@ -200,29 +210,90 @@ class TelegramApi(object):
         if self.RequestTimer != self.GivenRequestTimer:
             self.RequestTimer = self.GivenRequestTimer
         try:
-            with urllib.request.urlopen(Request, context=self.SSLEncryption) as Request:
-                TheResponse = Request.read()
+            with urllib.request.urlopen(
+                    Request,
+                    context=self.SSLEncryption
+            ) as Request:
+                if self.Compressed is True:
+                    if Request.info().get("Accept-Encoding") == "gzip":
+                        TheResponse=zlib.decompress(Request.read(),
+                                                    16+zlib.MAX_WBITS)
+                    else:
+                        self.Compressed = False
+                        del self.Headers["Accept-Encoding"]
+
+                        TheResponse = Request.read()
+                else:
+                    TheResponse = Request.read()
             return json.loads(TheResponse.decode("utf-8"))
 
         except urllib.error.HTTPError as Error:
             if Error.code == 400:
-                self.LoggingObject.error(self._("The webserver returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."),)
+                self.LoggingObject.error(
+                    self._("The web server returned the HTTPError \"{Error}\"."
+                           ).format(Error=(str(Error.code) + " " + Error.reason
+                                           )
+                                    ) + " " +
+                    self._("The server cannot or will not process the request "
+                           "due to something that is perceived to be a client "
+                           "error (e.g., malformed request syntax, invalid "
+                           "request message framing, or deceptive request "
+                           "routing)."
+                           ),
+                )
             elif Error.code == 401:
-                self.LoggingObject.critical(self._("The web server returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."),)
+                self.LoggingObject.critical(
+                    self._("The web server returned the HTTPError \"{Error}\"."
+                           ).format(Error=(str(Error.code) + " " + Error.reason
+                                           )) + " " +
+                    self._("The ApiToken you are using has not been found in "
+                           "the system. Try later or check the ApiToken for "
+                           "spelling errors."),
+                )
             elif Error.code == 403:
-                self.LoggingObject.error(self._("The web server returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The address is forbidden to access, please try later."),)
+                self.LoggingObject.error(
+                    self._("The web server returned the HTTPError \"{Error}\"."
+                           ).format(Error=(str(Error.code) + " " + Error.reason
+                                           )) + " " +
+                    self._("The address is forbidden to access, please try "
+                           "later."),
+                )
             elif Error.code == 404:
-                self.LoggingObject.error(self._("The web server returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."),)
+                self.LoggingObject.error(
+                    self._("The web server returned the HTTPError \"{Error}\"."
+                           ).format(Error=(str(Error.code) + " " + Error.reason
+                                           )) + " " +
+                    self._("The requested resource was not found. This status "
+                           "code can also be used to reject a request without "
+                           "closer reason. Links, which refer to those error "
+                           "pages, also referred to as dead links."),
+                )
             elif Error.code == 502:
-                self.LoggingObject.error(self._("The web server returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."),)
+                self.LoggingObject.error(
+                    self._("The web server returned the HTTPError \"{Error}\"."
+                           ).format(Error=(str(Error.code) + " " + Error.reason
+                                           )) + " " +
+                    self._("The server could not fulfill its function as a "
+                           "gateway or proxy, because it has itself obtained "
+                           "an invalid response. Please try later."),
+                )
                 self.RequestTimer = 60000.0
             elif Error.code == 504:
-                self.LoggingObject.error(self._("The web server returned the HTTPError \"{Error}\".").format(Error=(str(Error.code) + " " + Error.reason)) + " " + self._("The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."))
+                self.LoggingObject.error(
+                    self._("The web server returned the HTTPError \"{Error}\"."
+                           ).format(Error=(str(Error.code) + " " + Error.reason
+                                           )) + " " +
+                    self._("The server could not fulfill its function as a "
+                           "gateway or proxy, because it has not received a "
+                           "reply from it's servers or services within a "
+                           "specified period of time.")
+                )
 
-            # For the recursive loop, so that the system can handel itself better
+            # For the recursive loop, so that the system can handel itself
+            # better
             if self.ExitOnError:
                 self.LoggingObject.info(self._("Exiting the system!"))
-                exit()
+                raise SystemExit
 
     def GetMe(self):
         """
@@ -234,7 +305,10 @@ class TelegramApi(object):
         Variables:
            \ -
         """
-        request = urllib.request.Request(self.BotApiUrl + "/getMe", headers=self.Headers)
+        request = urllib.request.Request(
+            self.BotApiUrl + "/getMe",
+            headers=self.Headers
+        )
 
         return self.SendRequest(request)
 
@@ -263,8 +337,8 @@ class TelegramApi(object):
 
         if CommentNumber:
             DataToBeSend["offset"] = CommentNumber
-
-        MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8')  # data should be bytes
+        # data have to be bytes
+        MessageData = urllib.parse.urlencode(DataToBeSend).encode('utf-8')
 
         Request = urllib.request.Request(self.BotApiUrl + "/getUpdates",
                                               data=MessageData,
@@ -289,7 +363,9 @@ class TelegramApi(object):
                 message to be send, as well as other options.
         """
 
-        MessageData = urllib.parse.urlencode(MessageObject.GetMessage()).encode('utf-8')  # data should be bytes
+        # data have to be bytes
+        MessageData = urllib.parse.urlencode(
+            MessageObject.GetMessage()).encode('utf-8')
 
         Request = urllib.request.Request(self.BotApiUrl + "/sendMessage",
                                          data=MessageData,
@@ -311,7 +387,6 @@ class TelegramApi(object):
 if __name__ == "__main__":
     print('online')
     import pprint
-    import Main
 
     OrgTok = "80578257:AAEt5tHodsbD6P3hqumKYFJAyHTGWEgcyEY"
     FalTok = "80578257:AAEt5aH64bD6P3hqumKYFJAyHTGWEgcyEY"
@@ -323,10 +398,16 @@ if __name__ == "__main__":
     try:
         print(Update["result"][len(Update["result"]) - 1]["update_id"])
 
-        MessageObject = messages.MessageClass.MessageToBeSend(Update["result"][len(Update["result"]) - 1]["message"]["chat"]["id"], "1"
-                                             )
+        MessageObject = messages.MessageClass.MessageToBeSend(
+            Update["result"][len(Update["result"]) - 1]["message"]
+            ["chat"]["id"], "1"
+        )
         MessageObject.ReplyKeyboardMarkup(
-                                          Keybord=[ [ "Top Left", "Top Right" ], [ "Bottom Left", "Bottom Right" ] ],
+                                          Keybord=[["Top Left",
+                                                    "Top Right"],
+                                                   ["Bottom Left",
+                                                    "Bottom Right" ]
+                                                   ],
                                           ResizeKeyboard=True,
                                           OneTimeKeyboard=True,
                                           Selective=False
