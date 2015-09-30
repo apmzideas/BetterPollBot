@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import GlobalObjects
+import gobjects
 import argparse
 
 
 
-class Parser(argparse.ArgumentParser):
+class CustomParser(argparse.ArgumentParser):
     """
     This module it a preconfigured extended version of the argparser.
     
@@ -44,16 +44,16 @@ class Parser(argparse.ArgumentParser):
                   "\nVersion:\t\t{Version}\nRelease:\t\t"
                   "{Release}\nLicense:\t\t{License}\n"
                   "Copyright:\t\t{Copyright}".format(
-            Author=GlobalObjects.__author__,
-            Credits=", ".join(GlobalObjects.__credits__),
-            Version=GlobalObjects.__version__,
-            Release=GlobalObjects.__release__,
-            License=GlobalObjects.__license__,
-            Copyright=GlobalObjects.__copyright__)
+            Author=gobjects.__author__,
+            Credits=", ".join(gobjects.__credits__),
+            Version=gobjects.__version__,
+            Release=gobjects.__release__,
+            License=gobjects.__license__,
+            Copyright=gobjects.__copyright__)
         )
 
         super().__init__(
-            prog=GlobalObjects.__AppName__,
+            prog=gobjects.__AppName__,
             formatter_class=argparse.RawDescriptionHelpFormatter,
             description=Description,
             epilog=Epilog
@@ -136,7 +136,7 @@ class Parser(argparse.ArgumentParser):
             "-v",
             "--version",
             action="version",
-            version="%(prog)s " + str(GlobalObjects.__version__)
+            version="%(prog)s " + str(gobjects.__version__)
         )
 
         self.add_argument(

@@ -20,14 +20,14 @@ except ImportError:
     import curses
 
 # personal imports
-import GlobalObjects
-import parsers.ParserClass
-import parsers.ConfigurationClass
-import LoggingClass
-import language.LanguageClass
-import TelegramClass
-import sql.SqlClass
-import messages.MessageProcessorClass
+import gobjects
+import parsers.comandline
+import parsers.configuration
+import custom_logging
+import language.language
+import telegram
+import sql.sql_api
+import messages.msg_processor
 
 
 def Main():
@@ -66,10 +66,10 @@ def Main():
     try:
 
         # Create the configuration class and read the configuration class.
-        Configuration = parsers.ConfigurationClass.ConfigurationParser()
+        Configuration = parsers.configuration.ConfigurationParser()
 
         # Create the language processor
-        LanguageMasterObject = language.LanguageClass.CreateTranslationObject(
+        LanguageMasterObject = language.language.CreateTranslationObject(
             Configuration["Telegram"]["DefaultLanguage"].split(","))
 
         # This is the language objects only value
@@ -77,14 +77,14 @@ def Main():
 
         # init parser
 
-        Parser = parsers.ParserClass.Parser(ConfigurationObject=Configuration,
+        Parser = parsers.comandline.CustomParser(ConfigurationObject=Configuration,
                                             LanguageObject=LanguageMasterObject
                                             )
         Parser.RunParser()
         ParserArguments = Parser.GetArguments()
 
         # Initialise the rest of the objects.
-        MasterLogger = LoggingClass.Logger(
+        MasterLogger = custom_logging.Logger(
             LogToConsole=ParserArguments.PrintToConsole,
             FileName=Configuration["Logging"]["LoggingFileName"],
             MaxLogs=Configuration["Logging"]["MaxLogs"],
@@ -94,7 +94,7 @@ def Main():
             CursesObject=CursesObject)
 
         MasterLogger.info(_("{AppName} has been started.").format(
-            AppName=GlobalObjects.__AppName__
+            AppName=gobjects.__AppName__
         ))
 
         if ParserArguments.ApiToken == "":
@@ -103,7 +103,7 @@ def Main():
                                   )
             raise SystemExit
 
-        TelegramObject = TelegramClass.TelegramApi(
+        TelegramObject = telegram.TelegramApi(
             ApiToken=ParserArguments.ApiToken,
             RequestTimer=ParserArguments.Time,
             LoggingObject=MasterLogger,
@@ -128,7 +128,7 @@ def Main():
                     _("Password:") + " "
                 )
 
-            SqlObject = sql.SqlClass.SqlApi(
+            SqlObject = sql.sql_api.Api(
                 ParserArguments.DatabaseUser,
                 ParserArguments.DatabasePassword,
                 ParserArguments.DatabaseName,
@@ -160,7 +160,7 @@ def Main():
                 _("{AppName} has been stopped, because you didn't input the"
                   " correct user name"
                   " of password.").format(
-                    AppName=GlobalObjects.__AppName__))
+                    AppName=gobjects.__AppName__))
             raise SystemExit
 
         # This will be used if the database will be installed.
@@ -178,7 +178,7 @@ def Main():
             if InstallDatabase.lower() == _("YES").lower():
                 MasterLogger.info(_("{AppName} will now start to install "
                                     "the database structure").format(
-                    AppName=GlobalObjects.__AppName__)
+                    AppName=gobjects.__AppName__)
                 )
                 SqlCursor = SqlObject.CreateCursor()
                 SqlObject.CreateMainDatabase(SqlCursor)
@@ -250,7 +250,7 @@ def Main():
                 if Results is not None:
                     for Message in Results["result"]:
                         MessageProcessor = (
-                            messages.MessageProcessorClass.MessageProcessor(
+                            messages.msg_processor.MessageProcessor(
                                 Message,
                                 LanguageObject=LanguageMasterObject,
                                 SqlObject=SqlObject,

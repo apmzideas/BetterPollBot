@@ -5,7 +5,7 @@
 
 class Emoji(object):
     """
-    In this class will be nothing except the unicode emjois.
+    In this class will be nothing except  a container for the unicode emjois.
     
     The emoji can simply be inserted into the system by adding the 
     variable name.

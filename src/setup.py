@@ -11,22 +11,24 @@ import subprocess
 
 def LogPrint(Message, Type = "INFO"):
 
-    print("[{DateOfMessage}] - [{TypeOfMessage}] - {Message}".format(
-                                                                   DateOfMessage = time.strftime("%d.%m.%Y %H:%M:%S", time.gmtime()),
-                                                                   TypeOfMessage = Type.upper(),
-                                                                   Message = Message
-                                                                   ))
+    print("[{DateOfMessage}] - [{TypeOfMessage}] - "
+          "{Message}".format(
+        DateOfMessage = time.strftime("%d.%m.%Y %H:%M:%S", time.gmtime()),
+        TypeOfMessage = Type.upper(),
+        Message = Message
+    )
+    )
 
 # Set the compiler time
 DateOfCompiling = time.strftime("%Y%m%d%H%M%S", time.gmtime())
 
 
-# Modification of the GlobalObjects.py
-if os.path.isfile("GlobalObjects.py"):
-    os.rename("GlobalObjects.py", "GlobalObjects_old.py")
+# Modification of the gobjects.py
+if os.path.isfile("gobjects.py"):
+    os.rename("gobjects.py", "GlobalObjects_old.py")
 
     with open("GlobalObjects_old.py") as FileInput:
-        with open("GlobalObjects.py", "w") as FileOutPut:
+        with open("gobjects.py", "w") as FileOutPut:
             for Line in FileInput:
                 if Line.startswith("__release__"):
                     FileOutPut.write("__release__ = {Date}\n".format(Date = DateOfCompiling))
@@ -54,9 +56,9 @@ if os.path.isfile(File):
         os.remove(FileOld)        
 
 # This Module will be modified befor the import.
-import GlobalObjects
+import gobjects
 
-LogPrint("release build: " + str(GlobalObjects.__release__))
+LogPrint("release build: " + str(gobjects.__release__))
 #sets the current directory in to a variable
 DirectoryOfSetup = os.path.abspath("./")
  
@@ -68,7 +70,7 @@ if not os.path.exists(DirectoryToBuild):
 LogPrint("Building language files")
 
 # Get the stupid __pycache__ folder
-LanguageFilesArray = [i for i in os.listdir(".\\language") if i != "__pycache__" and i != "LanguageClass.py" and i != "__init__.py"]
+LanguageFilesArray = [i for i in os.listdir(".\\language") if i != "__pycache__" and i != "language.py" and i != "__init__.py"]
 
 #creating the directorys for the language files
 LogPrint("creating the directorys for the language files")
@@ -102,11 +104,11 @@ for i in LanguageFilesArray:
 setup(
       console=[{
                # Main Python script
-               "script": "Main.py",                      
+               "script": "main.py",
                # Icon to embed into the PE file.  
                "icon_resources": [(0, "icons\\photo_2015-09-03_20-15-23.ico")],
                # The application name
-               "dest_base" : GlobalObjects.__AppName__
+               "dest_base" : gobjects.__AppName__
                }],
       zipfile = "library.zip",
       options = {

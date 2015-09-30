@@ -17,12 +17,12 @@ import sys
 # third party requirements
 import mysql.connector
 # The custom modules
-import GlobalObjects
-import LoggingClass
-import language.LanguageClass  # import the _() function!
+import gobjects
+import custom_logging
+import language.language  # import the _() function!
 
 
-class SqlApi(object):
+class Api(object):
     """
     This class is user a mysql interface.
     
@@ -246,7 +246,7 @@ class SqlApi(object):
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = (
-                language.LanguageClass.CreateTranslationObject()
+                language.language.CreateTranslationObject()
             )
 
         # This is the language objects only value. 
@@ -256,7 +256,7 @@ class SqlApi(object):
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
-            self.LoggingObject = LoggingClass.Logger()
+            self.LoggingObject = custom_logging.Logger()
 
         # Create the connection to the database. 
         self.DatabaseConnection = self.CreateConnection()
