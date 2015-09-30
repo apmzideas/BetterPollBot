@@ -1,5 +1,5 @@
-messages.PollingClass
-=====================
+messages.polling
+================
 
 .. automodule:: messages.polling
    :members:

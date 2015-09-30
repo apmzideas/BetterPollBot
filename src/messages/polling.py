@@ -145,25 +145,6 @@ class Poll(object):
 
         return PollName
 
-    def AddAnwser(self, Answer):
-        """
-        This method adds an answer to the poll.
-        
-        Variables:
-            Answer                        ``string``
-                the answer or option to be added
-        """
-        self.SqlObject.InsertEntry(
-            self.SqlCursor,
-            TableName="Options_Table",
-            Columns={
-                "Option_Name": Answer,
-                "Id_Poll_Table": self.InternalPollId,
-                "Master_User_Id": self.InternalUserId,
-            },
-            AutoCommit=True
-        )
-
     def GetPollByExternalId(self):
         """
         This method will set the internal poll id by using the external one.
@@ -277,4 +258,42 @@ class Poll(object):
         self.SqlObject.SelectEntry(
             self.SqlCursor,
 
+        )
+
+    def DeletePoll(self):
+        """
+        This method will delete the selected poll from the database.
+
+        If successful returns True else False.
+
+        Variables:
+            \-
+        """
+
+        return self.SqlObject.DeleteEntry(
+            Cursor=self.SqlCursor,
+            TableName="Poll_Table",
+            Where={
+                "Internal_Poll_Id":self.InternalPollId,
+                "Master_User_Id": self.InternalUserId
+            }
+        )
+
+    def AddAnwser(self, Answer):
+        """
+        This method adds an answer to the poll.
+
+        Variables:
+            Answer                        ``string``
+                the answer or option to be added
+        """
+        self.SqlObject.InsertEntry(
+            self.SqlCursor,
+            TableName="Options_Table",
+            Columns={
+                "Option_Name": Answer,
+                "Id_Poll_Table": self.InternalPollId,
+                "Master_User_Id": self.InternalUserId,
+            },
+            AutoCommit=True
         )

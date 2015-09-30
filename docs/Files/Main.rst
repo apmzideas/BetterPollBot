@@ -1,4 +1,4 @@
-Main
+main
 ====
 
 The function to start the execution of program.

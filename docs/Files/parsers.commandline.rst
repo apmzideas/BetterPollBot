@@ -1,4 +1,4 @@
-parsers.ParserClass
+parsers.commandline
 ===================
 
 .. automodule:: parsers.commandline

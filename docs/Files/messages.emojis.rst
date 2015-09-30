@@ -1,5 +1,5 @@
-messages.EmojiClass
-===================
+messages.emojis
+===============
 
 .. automodule:: messages.emojis
    :members:

@@ -1,5 +1,5 @@
-parsers.ConfigurationClass
-==========================
+parsers.configuration
+=====================
 
 .. automodule:: parsers.configuration
    :members:

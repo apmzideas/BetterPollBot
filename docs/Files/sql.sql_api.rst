@@ -1,5 +1,5 @@
-sql.SqlClass
-============
+sql.sql_api
+===========
 
 .. automodule:: sql.sql_api
    :members:

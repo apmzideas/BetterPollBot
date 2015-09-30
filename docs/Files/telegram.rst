@@ -1,5 +1,5 @@
-TelegramClass
-=============
+telegram
+========
 
 .. automodule:: telegram
    :members:

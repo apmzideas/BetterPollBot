@@ -1,5 +1,5 @@
-messages.MessageProcessorClass
-===============================
+messages.msg_processor
+======================
 
 .. automodule:: messages.msg_processor
    :members:

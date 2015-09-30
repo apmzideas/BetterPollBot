@@ -1,5 +1,5 @@
-LoggingClass
-============
+custom_logging
+==============
 
 .. automodule:: custom_logging
    :members:

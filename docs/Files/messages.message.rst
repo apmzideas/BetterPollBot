@@ -1,5 +1,5 @@
-messages.MessageClass
-=====================
+messages.message
+================
 
 .. automodule:: messages.message
    :members:

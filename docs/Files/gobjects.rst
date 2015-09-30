@@ -1,4 +1,4 @@
-GlobalObjects
+gobjects
 =============
 
 .. automodule:: gobjects

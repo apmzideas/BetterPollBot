@@ -1024,9 +1024,9 @@ class Api(object):
         Query = ' '.join([str(i) for i in Query])
 
         if Data == ():
-            return (self.ExecuteTrueQuery(Cursor, Query, ))
+            return self.ExecuteTrueQuery(Cursor, Query, )
         else:
-            return (self.ExecuteTrueQuery(Cursor, Query, Data))
+            return self.ExecuteTrueQuery(Cursor, Query, Data)
 
     def UpdateEntry(self,
                     Cursor,
@@ -1227,12 +1227,71 @@ class Api(object):
 
         # print(Query)
 
-        Cursor.execute(Query, Columns)
+        self.ExecuteTrueQuery(Cursor, Query, Columns)
 
         if AutoCommit:
             # Make sure data is committed to the database
             self.Commit()
         return True
+
+    def DeleteEntry(self,
+                    Cursor,
+                    TableName,
+                    Where={},
+                    AutoCommit=False ):
+        """
+        This method will delete the selected entry.
+
+        .. code-block:: sql\n
+            DELETE FROM table_name WHERE some_column=some_value;
+
+        .. code-block:: python\n
+            Where = {
+                some_column:some_value,
+                some_column2:some_value2;
+            }
+        """
+
+        try:
+            Query = ["DELETE",
+                     "FROM",
+                     TableName,
+                     "WHERE"
+                     ]
+
+            if not Where:
+                raise AttributeError(self._("The where clause is not "
+                                            "available")
+                                     )
+
+            for Key, Value in Where:
+                Query.append("{Value}=%({Key})s".format(
+                    Value=Value,
+                    Key=Value
+                )
+                )
+
+            # Join the query to a string and append a semicolon.
+            Query = " ".join(Query)+";"
+            self.ExecuteTrueQuery(Cursor, Query, Where)
+
+            if AutoCommit:
+                # Make sure data is committed to the database
+                self.Commit()
+
+            return True
+
+        except AttributeError as Error:
+            self.LoggingObject.error(Error)
+            raise
+
+        except Exception as Error:
+            self.LoggingObject.error(
+                self._("The database connector returned following error: "
+                       "{Error}").format(Error = Error)
+            )
+
+            return False
 
     def Commit(self, ):
         """

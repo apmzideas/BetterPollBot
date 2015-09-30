@@ -4,7 +4,7 @@
 # The custom modules
 import gobjects
 import custom_logging
-import language.language  # imports the _() function! (the translation feature).
+import language.language  # imports the _() function! the translation feature).
 import parsers.configuration
 import telegram
 from . import polling  # imports in the same folder (module)

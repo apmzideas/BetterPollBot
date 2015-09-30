@@ -1,5 +1,5 @@
-language.LanguageClass
-======================
+language.language
+=================
 
 .. automodule:: language.language
    :members:
