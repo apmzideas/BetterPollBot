@@ -8,12 +8,10 @@ import ssl
 import json
 import platform
 import zlib
-# my own classes
-import gobjects
+import gobjects  # my own classes
 import custom_logging
 import messages.message
-import language.language
-# imports the _() function! (the translation feature.
+import language  # imports the _() function! (the translation feature)
 
 
 class TelegramApi(object):
@@ -101,6 +99,9 @@ class TelegramApi(object):
             
             RequestTimer                  ``integer``
                 set's the sleeping time between requests to the bot API
+
+            Queue                         ``object``
+                The queue to the main process.
                 
             OptionalObjects               ``dictionary``
                 contains the optional objects
@@ -117,6 +118,7 @@ class TelegramApi(object):
                         The default value is False.
                         
         """
+
         self.ApiToken = ApiToken
         self.BotApiUrl = TelegramApi.BASE_URL + self.ApiToken
 
@@ -135,7 +137,7 @@ class TelegramApi(object):
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = (
-                language.language.CreateTranslationObject()
+                language.CreateTranslationObject()
             )
 
         if "LoggingObject" in OptionalObjects:

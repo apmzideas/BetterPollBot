@@ -4,7 +4,7 @@
 # The custom modules
 import gobjects
 import custom_logging
-import language.language  # imports the _() function! the translation feature).
+import language  # imports the _() function! the translation feature).
 import parsers.configuration
 import telegram
 from . import polling  # imports in the same folder (module)
@@ -97,7 +97,7 @@ class MessageProcessor(object):
         if "LanguageObject" in OptionalObjects:
             self.M_ = OptionalObjects["LanguageObject"].gettext
         else:
-            self.M_ = language.language.CreateTranslationObject()
+            self.M_ = language.CreateTranslationObject()
 
         if "BotName" in OptionalObjects:
             # The name of the bot that is doing it's job.
@@ -794,7 +794,7 @@ class MessageProcessor(object):
             else:
                 # there are no polls to add to a group
                 MessageObject.Text = self._("Sorry but there are no poll in "
-                                            "your database.\n Do you want to "
+                                            "your database.\nDo you want to "
                                             "add some?"
                                             )
                 MessageObject.ReplyKeyboardMarkup([
@@ -822,10 +822,9 @@ class MessageProcessor(object):
             else:
                 MessageObject.Text = self._(
                     "Sorry, you have no polls with answers to delete...\n"
-                    "Please add a poll with answers so that you can delete "
-                    "them again."
+                    "Please add a poll /newpoll with answers so that you "
+                    "can delete them again."
                 )
-
 
         elif self.Text == "/listpoll":
             Polllist = "\n".join(["-" + i for i in self.GetUserPolls()])
@@ -834,7 +833,23 @@ class MessageProcessor(object):
                 Polllist = Polllist
             )
         elif self.Text == "/delpoll":
-            pass
+            Polls = self.GetUserPolls()
+            if len(Polls)>0:
+                MessageObject.Text = self._(
+                    "Please choose the poll to delete the answer from.\n"
+                    "Attention if you delete the answer to the poll, the "
+                    "results to from that poll will be false."
+                )
+                MessageObject.ReplyKeyboardMarkup(
+                    [Polls],
+                    OneTimeKeyboard=True
+                )
+                self.SetLastSendCommand("/delanswer poll")
+            else:
+                MessageObject.Text = self._(
+                    "Sorry, you have no polls to delete... Please, add some "
+                    "new ones to delete them again."
+                )
         elif self.Text == "/polllink":
             # This command will give the system the chance to include itself
             # into a group.
@@ -961,18 +976,34 @@ class MessageProcessor(object):
 
         elif LastCommand.startswith("/addanswer"):  # /addanswer NoPoll
             if LastCommand == "/addanswer answer":
-                Poll = polling.Poll(
-                    InternalUserId=self.InternalUserId,
-                    InternalPollId=LastUsedId,
-                    LoggingObject=self.LanguageObject,
-                    SqlObject=self.SqlObject
-                )
-                Poll.AddAnwser(self.Text)
-                MessageObject.Text = self._(
-                    "The answer has been added, please add a additional answer"
-                    " to stop adding answers press /done or enter it."
-                )
 
+                Exists = self.SqlObject.ExecuteTrueQuery(
+                    self.SqlObject.CreateCursor(Dictionary=False),
+                    Query=("SELECT EXISTS(SELECT 1 FROM Options_Table WHERE"
+                           " Option_Name = %s and Id_Poll_Table = %s "
+                           "and Master_User_Id = %s);"
+                           ),
+
+                    Data=(self.Text, LastUsedId, self.UserId, )
+                )[0][0]
+                if Exists:
+                    Poll = polling.Poll(
+                        InternalUserId=self.InternalUserId,
+                        InternalPollId=LastUsedId,
+                        LoggingObject=self.LanguageObject,
+                        SqlObject=self.SqlObject
+                    )
+                    Poll.AddAnwser(self.Text)
+                    MessageObject.Text = self._(
+                        "The answer has been added, please add a additional"
+                        " answer to stop adding answers press /done or enter "
+                        "it."
+                    )
+                else:
+                    MessageObject.Text = self._(
+                        "The answer already exists, please change the answer"
+                        " or to stop adding answers press /done or enter it."
+                    )
                 self.SetLastSendCommand("/addanswer answer",
                                         Poll.InternalPollId
                                         )

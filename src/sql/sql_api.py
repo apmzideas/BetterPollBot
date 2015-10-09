@@ -19,7 +19,7 @@ import mysql.connector
 # The custom modules
 import gobjects
 import custom_logging
-import language.language  # import the _() function!
+import language  # import the _() function!
 
 
 class Api(object):
@@ -246,7 +246,7 @@ class Api(object):
             self.LanguageObject = OptionalObjects["LanguageObject"]
         else:
             self.LanguageObject = (
-                language.language.CreateTranslationObject()
+                language.CreateTranslationObject()
             )
 
         # This is the language objects only value. 

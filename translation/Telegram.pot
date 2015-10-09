@@ -2,11 +2,10 @@
 # Copyright (C) YEAR ORGANIZATION
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: 2015-09-25 16:16+0200\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2015-10-08 20:35+Mitteleuropäische Sommerzeit\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,94 +13,103 @@ msgstr ""
 "Content-Type: text/plain; charset=cp1252\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 1.8.5\n"
 
-#: src/language\LanguageClass.py:38 src/language\LanguageClass.py:39
-#: src/messages\MessageProcessorClass.py:704
-#: src/messages\MessageProcessorClass.py:738
-#: src/messages\MessageProcessorClass.py:754
-#: src/messages\MessageProcessorClass.py:867
-#: src/messages\MessageProcessorClass.py:887
-#: src/messages\MessageProcessorClass.py:896
-#: src/messages\MessageProcessorClass.py:925
+
+#: src/language\language.py:38 src/language\language.py:39
+#: src/messages\msg_processor.py:801 src/messages\msg_processor.py:878
+#: src/messages\msg_processor.py:896 src/messages\msg_processor.py:1041
+#: src/messages\msg_processor.py:1062 src/messages\msg_processor.py:1071
+#: src/messages\msg_processor.py:1103 src\main.py:195 src\main.py:196
+#: src\main.py:198 src\main.py:200
 msgid "YES"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:86
-#: src/messages\MessageProcessorClass.py:88
+#: src/messages\msg_processor.py:88 src/messages\msg_processor.py:91
 msgid "The sql object is missing, please contact your administrator."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:510
-msgid "Unnokown Error"
+#: src/messages\msg_processor.py:592
+msgid "Unknown language error"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:513
+#: src/messages\msg_processor.py:597
 msgid "There has been an error with the changing of the language class, this error has been returned: {Error}"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:516
+#: src/messages\msg_processor.py:600
 msgid "Please, contact your administrator."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:617
+#: src/messages\msg_processor.py:704
 msgid "Sorry, but this command could not be interpreted."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:662
+#: src/messages\msg_processor.py:752
 msgid ""
 "Welcome.\n"
 "What can I do for you?\n"
 "Press /help for all my commands"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:680
-msgid "Welcome to the poll creation, please follow the following steps.\n"
+#: src/messages\msg_processor.py:771
+msgid ""
+"Welcome to the poll creation, please follow the following steps.\n"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:681
-#: src/messages\MessageProcessorClass.py:686
+#: src/messages\msg_processor.py:773 src/messages\msg_processor.py:777
 msgid "Please enter the name of the new poll."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:693
+#: src/messages\msg_processor.py:786
 msgid "Please choose the poll to add the answer to:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:701
-#: src/messages\MessageProcessorClass.py:735
+#: src/messages\msg_processor.py:796 src/messages\msg_processor.py:873
 msgid ""
 "Sorry but there are no poll in your database.\n"
 "Do you want to add some?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:705
-#: src/messages\MessageProcessorClass.py:739
-#: src/messages\MessageProcessorClass.py:755
-#: src/messages\MessageProcessorClass.py:869
-#: src/messages\MessageProcessorClass.py:888
-#: src/messages\MessageProcessorClass.py:905
-#: src/messages\MessageProcessorClass.py:933
+#: src/messages\msg_processor.py:802 src/messages\msg_processor.py:879
+#: src/messages\msg_processor.py:897 src/messages\msg_processor.py:1043
+#: src/messages\msg_processor.py:1063 src/messages\msg_processor.py:1082
+#: src/messages\msg_processor.py:1111 src\main.py:195 src\main.py:213
 msgid "NO"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:715
+#: src/messages\msg_processor.py:812 src/messages\msg_processor.py:838
+msgid ""
+"Please choose the poll to delete the answer from.\n"
+"Attention if you delete the answer to the poll, the results to from that poll will be false."
+msgstr ""
+
+#: src/messages\msg_processor.py:823
+msgid ""
+"Sorry, you have no polls with answers to delete...\n"
+"Please add a poll /newpoll with answers so that you can delete them again."
+msgstr ""
+
+#: src/messages\msg_processor.py:831
 msgid ""
 "Here is the list with all your polls:\n"
 "{Polllist}"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:725
+#: src/messages\msg_processor.py:849
+msgid "Sorry, you have no polls to delete... Please, add some new ones to delete them again."
+msgstr ""
+
+#: src/messages\msg_processor.py:861
 msgid "Please choose the poll to add to the group:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:750
+#: src/messages\msg_processor.py:890
 msgid ""
 "Thank you very much for adding the commands.\n"
 "Do you want to add this poll to a group?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:761
+#: src/messages\msg_processor.py:903
 msgid ""
 "Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
 "\n"
@@ -120,156 +128,174 @@ msgid ""
 " /pollsettings - display's all the settings for a selected poll"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:775
+#: src/messages\msg_processor.py:918
 msgid "Please, choose the setting to change:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:789
+#: src/messages\msg_processor.py:933
 msgid "Please choose your preferred language:"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:827
+#: src/messages\msg_processor.py:973
 msgid "Language changed successfully."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:840
+#: src/messages\msg_processor.py:997
 msgid "The answer has been added, please add a additional answer to stop adding answers press /done or enter it."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:860
+#: src/messages\msg_processor.py:1003
+msgid "The answer already exists, please change the answer or to stop adding answers press /done or enter it."
+msgstr ""
+
+#: src/messages\msg_processor.py:1028
 msgid "The poll \"{PollName}\" has been created, please enter the question to the poll."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:864
+#: src/messages\msg_processor.py:1035
 msgid ""
 "The poll {PollName} already exists.\n"
 "Press /list and on the poll to modify it."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:882
+#: src/messages\msg_processor.py:1042
+msgid ""
+msgstr ""
+
+#: src/messages\msg_processor.py:1056
 msgid ""
 "The question has been added.\n"
 "Do you want to add some answers to the question?"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:899
+#: src/messages\msg_processor.py:1074
 msgid "Please enter your first possible answer to the question."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:906
+#: src/messages\msg_processor.py:1083
 msgid "You can add an answer later via the /addanswer command."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:934
+#: src/messages\msg_processor.py:1112
 msgid "You can add the poll later via the /polllink command."
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:945
+#: src/messages\msg_processor.py:1125
 msgid ""
 "Press the following link to add the poll to a group:\n"
 "{GroupURL}"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:980
+#: src/messages\msg_processor.py:1162
 msgid ""
 "{Question}\n"
 "{Options}"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:984
+#: src/messages\msg_processor.py:1178
 msgid ""
 "Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
 "Press here to add a new poll\n"
 "{BetterPollBotURL}"
 msgstr ""
 
-#: src/messages\MessageProcessorClass.py:990
+#: src/messages\msg_processor.py:1185
 msgid ""
 "Work in progress! @BetterPollBot is a bot similar to @PollBot, with more features and less spamming in groups.\n"
 "general commands\n"
 " /help - display's this message\n"
 " \n"
 " poll related commands\n"
-" /polls Â– displays all the available polls for this group\n"
-" /results Â– shows the temporary results\n"
+" /polls – displays all the available polls for this group\n"
+" /results – shows the temporary results\n"
 " /endpoll - close poll and show final results\n"
 msgstr ""
 
-#: src/parsers\ParserClass.py:145
+#: src/parsers\commandline.py:145
 msgid "Toggles the type of logging from the set settings in the config.ini."
 msgstr ""
 
-#: src/parsers\ParserClass.py:155
+#: src/parsers\commandline.py:158
 msgid "Set the file to log into temporary to the set destination."
 msgstr ""
 
-#: src/parsers\ParserClass.py:165
+#: src/parsers\commandline.py:170
 msgid "Changes the set language temporary."
 msgstr ""
 
-#: src/parsers\ParserClass.py:176
+#: src/parsers\commandline.py:181
 msgid "Set's the time for the main loop to wait until the next request."
 msgstr ""
 
-#: src/parsers\ParserClass.py:187
+#: src/parsers\commandline.py:194
 msgid "Sets the telegram api token temporary."
 msgstr ""
 
-#: src/parsers\ParserClass.py:198
+#: src/parsers\commandline.py:205
 msgid "Changes the database name to connect to."
 msgstr ""
 
-#: src/parsers\ParserClass.py:208
+#: src/parsers\commandline.py:216
 msgid "Set the database user, needed to connect to the database."
 msgstr ""
 
-#: src/parsers\ParserClass.py:209 src/parsers\ParserClass.py:220
+#: src/parsers\commandline.py:218 src/parsers\commandline.py:233
 msgid "Attention use this option instead of the config.ini!"
 msgstr ""
 
-#: src/parsers\ParserClass.py:219
+#: src/parsers\commandline.py:231
 msgid "Set the database password, needed to connect to the database."
 msgstr ""
 
-#: src/parsers\ParserClass.py:229
+#: src/parsers\commandline.py:245
 msgid "Set the database host, needed to connect to the database."
 msgstr ""
 
-#: src/parsers\ParserClass.py:238
+#: src/parsers\commandline.py:258
 msgid "Set the database port, needed to connect to the database."
 msgstr ""
 
-#: src/sql\SqlClass.py:287 src/sql\SqlClass.py:293 src/sql\SqlClass.py:300
-#: src/sql\SqlClass.py:310 src/sql\SqlClass.py:328 src/sql\SqlClass.py:334
-#: src/sql\SqlClass.py:554 src/sql\SqlClass.py:1081
+#: src/sql\sql_api.py:293 src/sql\sql_api.py:302 src/sql\sql_api.py:312
+#: src/sql\sql_api.py:326 src/sql\sql_api.py:345 src/sql\sql_api.py:351
+#: src/sql\sql_api.py:377 src/sql\sql_api.py:388 src/sql\sql_api.py:399
+#: src/sql\sql_api.py:413 src/sql\sql_api.py:690 src/sql\sql_api.py:1290
+#: src/sql\sql_api.py:1308
 msgid "The database connector returned following error: {Error}"
 msgstr ""
 
-#: src/sql\SqlClass.py:288
+#: src/sql\sql_api.py:295 src/sql\sql_api.py:379
 msgid "Something is wrong with your user name or password."
 msgstr ""
 
-#: src/sql\SqlClass.py:294
+#: src/sql\sql_api.py:304 src/sql\sql_api.py:390
 msgid "The database does not exist, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:301
+#: src/sql\sql_api.py:314 src/sql\sql_api.py:401
 msgid "The database server seems to be offline, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:329
+#: src/sql\sql_api.py:346
 msgid "The database connection could not be closed correctly, please contact your administrator!"
 msgstr ""
 
-#: src/sql\SqlClass.py:422
+#: src/sql\sql_api.py:420
+msgid "The connection to the database server has been reestablished."
+msgstr ""
+
+#: src/sql\sql_api.py:427
+msgid "There is no connection to the database, please contact your administrator!"
+msgstr ""
+
+#: src/sql\sql_api.py:528
 msgid "The database returned following error: {Error}"
 msgstr ""
 
-#: src/sql\SqlClass.py:422
+#: src/sql\sql_api.py:530
 msgid "The executet query failed, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:429
+#: src/sql\sql_api.py:542
 msgid ""
 "The failed query is:\n"
 "Query:\n"
@@ -279,115 +305,116 @@ msgid ""
 "{Data}"
 msgstr ""
 
-#: src/sql\SqlClass.py:554
+#: src/sql\sql_api.py:692
 msgid "The following database table \"{TableName}\" could not be created, please contact your administrator."
 msgstr ""
 
-#: src/sql\SqlClass.py:987
+#: src/sql\sql_api.py:1145
 msgid "The where type in your query is not in the list of valid types. {Error}"
 msgstr ""
 
-#: src/sql\SqlClass.py:991
+#: src/sql\sql_api.py:1151
 msgid "There where two operator behind each other that doesn't work."
 msgstr ""
 
-#: src\Main.py:100
-msgid "{AppName} has been startet."
+#: src/sql\sql_api.py:1263
+msgid "The where clause is not available"
 msgstr ""
 
-#: src\Main.py:103
+#: src\main.py:121
+msgid "{AppName} has been started."
+msgstr ""
+
+#: src\main.py:126
 msgid "No telegram token has been added to the system!"
 msgstr ""
 
-#: src\Main.py:124
+#: src\main.py:150
 msgid "User:"
 msgstr ""
 
-#: src\Main.py:126
+#: src\main.py:153
 msgid "Password:"
 msgstr ""
 
-#: src\Main.py:144
+#: src\main.py:172
 msgid "try again"
 msgstr ""
 
-#: src\Main.py:146
+#: src\main.py:174
 msgid "too bad"
 msgstr ""
 
-#: src\Main.py:148
+#: src\main.py:176
 msgid "You have used {NrTry} of 3 times:"
 msgstr ""
 
-#: src\Main.py:155
+#: src\main.py:185
 msgid "{AppName} has been stopped, because you didn't input the correct user name of password."
 msgstr ""
 
-#: src\Main.py:161
+#: src\main.py:193
 msgid "Are you sure you want to install the database structure?"
 msgstr ""
 
-#: src\Main.py:163
+#: src\main.py:201
 msgid "{AppName} will now start to install the database structure"
 msgstr ""
 
-#: src\Main.py:167
-msgid "The database has been installed, please restart system."
+#: src\main.py:207
+msgid "The database has been installed, the system is restarting."
 msgstr ""
 
-#: src\Main.py:169
+#: src\main.py:214
 msgid "Database will not be installed terminating process."
 msgstr ""
 
-#: src\Main.py:175
+#: src\main.py:222
 msgid "Exit loop by pressing <Esc>, <q> or <Space>"
 msgstr ""
 
-#: src\Main.py:176
+#: src\main.py:223
 msgid "Getting updates from the telegram api."
 msgstr ""
 
-#: src\Main.py:187 src\Main.py:195
+#: src\main.py:236 src\main.py:245
 msgid "A user shutdown was requested will now shutdown."
 msgstr ""
 
-#: src\TelegramClass.py:174
+#: src\telegram.py:188
 msgid "Starting self check"
 msgstr ""
 
-#: src\TelegramClass.py:209
-msgid "The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."
-msgstr ""
-
-#: src\TelegramClass.py:209
-msgid "The webserver returned the HTTPError \"{Error}\"."
-msgstr ""
-
-#: src\TelegramClass.py:211
-msgid "The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."
-msgstr ""
-
-#: src\TelegramClass.py:211 src\TelegramClass.py:213 src\TelegramClass.py:215
-#: src\TelegramClass.py:217 src\TelegramClass.py:220
+#: src\telegram.py:237 src\telegram.py:250 src\telegram.py:259
+#: src\telegram.py:267 src\telegram.py:277 src\telegram.py:287
 msgid "The web server returned the HTTPError \"{Error}\"."
 msgstr ""
 
-#: src\TelegramClass.py:213
+#: src\telegram.py:241
+msgid "The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."
+msgstr ""
+
+#: src\telegram.py:253
+msgid "The ApiToken you are using has not been found in the system. Try later or check the ApiToken for spelling errors."
+msgstr ""
+
+#: src\telegram.py:262
 msgid "The address is forbidden to access, please try later."
 msgstr ""
 
-#: src\TelegramClass.py:215
+#: src\telegram.py:270
 msgid "The requested resource was not found. This status code can also be used to reject a request without closer reason. Links, which refer to those error pages, also referred to as dead links."
 msgstr ""
 
-#: src\TelegramClass.py:217
+#: src\telegram.py:280
 msgid "The server could not fulfill its function as a gateway or proxy, because it has itself obtained an invalid response. Please try later."
 msgstr ""
 
-#: src\TelegramClass.py:220
+#: src\telegram.py:290
 msgid "The server could not fulfill its function as a gateway or proxy, because it has not received a reply from it's servers or services within a specified period of time."
 msgstr ""
 
-#: src\TelegramClass.py:224
+#: src\telegram.py:299
 msgid "Exiting the system!"
 msgstr ""
+

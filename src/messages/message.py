@@ -4,6 +4,7 @@
 import sys
 import json
 
+
 class MessageToBeSend(object):
     """
     A class to create and configure the message to be send.

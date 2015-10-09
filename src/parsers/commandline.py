@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import gobjects
-import argparse
 
+import argparse
+import gobjects
 
 
 class CustomParser(argparse.ArgumentParser):
@@ -38,18 +38,31 @@ class CustomParser(argparse.ArgumentParser):
                         automatic string translation
         """
 
-        Description = ("An in python written telegram bot,"
-                       " called BetterPollBot.")
-        Epilog = ("Author:\t\t\t{Author}\nCredits:\t\t{Credits}"
-                  "\nVersion:\t\t{Version}\nRelease:\t\t"
-                  "{Release}\nLicense:\t\t{License}\n"
-                  "Copyright:\t\t{Copyright}".format(
-            Author=gobjects.__author__,
-            Credits=", ".join(gobjects.__credits__),
-            Version=gobjects.__version__,
-            Release=gobjects.__release__,
-            License=gobjects.__license__,
-            Copyright=gobjects.__copyright__)
+        if "ConfigurationObject" in OptionalObjects:
+            self.Configuration = OptionalObjects["ConfigurationObject"]
+        else:
+            raise ValueError("Missing ConfigurationObject")
+
+        if "LanguageObject" in OptionalObjects:
+            self.LanguageObject = OptionalObjects["LanguageObject"]
+            self._ = self.LanguageObject.gettext
+        else:
+            raise ValueError("Missing LanguageObject")
+
+        Description = self._(
+            "An in python written telegram bot, called BetterPollBot."
+        )
+
+        Epilog = self._(
+            "Author:\t\t\t{Author}\nCredits:\t\t{Credits}\nVersion:\t\t"
+            "{Version}\nRelease:\t\t{Release}\nLicense:\t\t{License}\n"
+            "Copyright:\t\t{Copyright}".format(
+                Author=gobjects.__author__,
+                Credits=", ".join(gobjects.__credits__),
+                Version=gobjects.__version__,
+                Release=gobjects.__release__,
+                License=gobjects.__license__,
+                Copyright=gobjects.__copyright__)
         )
 
         super().__init__(
@@ -58,16 +71,6 @@ class CustomParser(argparse.ArgumentParser):
             description=Description,
             epilog=Epilog
         )
-
-        if "ConfigurationObject" in OptionalObjects:
-            self.Configuration = OptionalObjects["ConfigurationObject"]
-        else:
-            raise ValueError("Missing ConfigurationObject")
-        if "LanguageObject" in OptionalObjects:
-            self.LanguageObject = OptionalObjects["LanguageObject"]
-            self._ = self.LanguageObject.gettext
-        else:
-            raise ValueError("Missing LanguageObject")
 
     def RunParser(self):
         """
@@ -142,12 +145,15 @@ class CustomParser(argparse.ArgumentParser):
         self.add_argument(
             "-c",
             "--console",
-            help=self._("Toggles the type of logging from the set settings in "
-                        "the config.ini."
-                        ),
-            action=("store_false"
-                    if self.Configuration.getboolean("Logging", "LogToConsole")
-                    else "store_true"),
+            help=self._(
+                "Toggles the type of logging from the set settings in the "
+                "config.ini."
+            ),
+            action=(
+                "store_false"
+                if self.Configuration.getboolean("Logging", "LogToConsole")
+                else "store_true"
+            ),
             dest="PrintToConsole"
         )
 
@@ -155,9 +161,9 @@ class CustomParser(argparse.ArgumentParser):
         self.add_argument(
             "-f",
             # "--FileToLog",
-            help=self._("Set the file to log into temporary to the set"
-                        " destination."
-                        ),
+            help=self._(
+                "Set the file to log into temporary to the set destination."
+            ),
             action="store",
             # metavar="\b",
             dest="File",
@@ -213,54 +219,60 @@ class CustomParser(argparse.ArgumentParser):
         self.add_argument(
             "-du",
             # "--DatabaseUser",
-            help=self._("Set the database user, needed to connect to the "
-                        "database.") + " " +
-                 self._("Attention use this option instead of the config.ini!"
-                        ),
+            help=self._(
+                "Set the database user, needed to connect to the database."
+            ) + " " +
+                 self._(
+                     "Attention use this option instead of the config.ini!"
+                 ),
             action="store",
             # metavar="\b",
             dest="DatabaseUser",
-            default=(self.Configuration["MySQLConnectionParameter"]
-                     ["DatabaseUser"]
-                     )
+            default=(
+                self.Configuration["MySQLConnectionParameter"]["DatabaseUser"]
+            )
         )
 
         self.add_argument(
             "-dp",
             # "--DatabasePassword",
-            help=self._("Set the database password, needed to connect to the "
-                        "database.") + " " +
-                 self._("Attention use this option instead of the config.ini!"
-                        ),
+            help=self._(
+                "Set the database password, needed to connect to the database."
+            ) + " " +
+                 self._(
+                     "Attention use this option instead of the config.ini!"
+                 ),
             action="store",
             dest="DatabasePassword",
-            default=(self.Configuration["MySQLConnectionParameter"]
-                     ["DatabasePassword"]
-                     )
+            default=(
+                self.Configuration["MySQLConnectionParameter"]
+                ["DatabasePassword"]
+            )
         )
 
         self.add_argument(
             "-dh",
             # "--DatabaseHost",
-            help=self._("Set the database host, needed to connect to the "
-                        "database."
-                        ),
+            help=self._(
+                "Set the database host, needed to connect to the database."
+            ),
             action="store",
             dest="DatabaseHost",
-            default=(self.Configuration["MySQLConnectionParameter"]
-                     ["DatabaseHost"]
-                     )
+            default=(
+                self.Configuration["MySQLConnectionParameter"]["DatabaseHost"]
+            )
         )
 
         self.add_argument(
             "-dhp",
             # "--DatabaseHostPort",
-            help=self._("Set the database port, needed to connect to the "
-                        "database."),
+            help=self._(
+                "Set the database port, needed to connect to the database."
+            ),
             dest="DatabaseHostPort",
-            default=(self.Configuration["MySQLConnectionParameter"]
-                     ["DatabasePort"]
-                     )
+            default=(
+                self.Configuration["MySQLConnectionParameter"]["DatabasePort"]
+            )
         )
 
         # A hidden option to install the Database

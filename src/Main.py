@@ -1,4 +1,4 @@
-#!/usr/bin/python3.4
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 
@@ -9,6 +9,7 @@ as the thread or multiprocess initiator.
 
 # standard modules import 
 import os
+import sys
 import getpass
 import time
 import platform
@@ -24,10 +25,28 @@ import gobjects
 import parsers.commandline
 import parsers.configuration
 import custom_logging
-import language.language
+import language
 import telegram
 import sql.sql_api
 import messages.msg_processor
+# import mp_background
+
+def RestartProgram():
+    """
+    Restarts the current program.
+    Note: this function does not return. Any cleanup action (like
+    saving data) must be done before calling this function.
+    """
+    python = sys.executable
+    os.execl(python, python, * sys.argv)
+
+def ProcessTheData():
+    """
+    Let's the system work on multiple threads independently from each other.
+
+    """
+
+    raise NotImplementedError
 
 
 def Main():
@@ -63,13 +82,19 @@ def Main():
         CursesObject.idlok(True)
         CursesObject.leaveok(True)
 
+    # This object in needed for the main process to interact with the
+    # subprocess (the worker).
+    # SecondQueue = multiprocessing.Queue(1)
+
+    Queue = multiprocessing.Queue()
+    Queue.put(None)
     try:
 
         # Create the configuration class and read the configuration class.
         Configuration = parsers.configuration.ConfigurationParser()
 
         # Create the language processor
-        LanguageMasterObject = language.language.CreateTranslationObject(
+        LanguageMasterObject = language.CreateTranslationObject(
             Configuration["Telegram"]["DefaultLanguage"].split(","))
 
         # This is the language objects only value
@@ -165,15 +190,12 @@ def Main():
 
         # This will be used if the database will be installed.
         if ParserArguments.InstallDatabaseStructure is True:
-            InstallDatabaseDefault = _("YES")
             InstallDatabase = input(_("Are you sure you want to install the"
                                       " database structure?") +
-                                    _("YES/NO [{Default}]").format(
-                                        Default=InstallDatabaseDefault)
-                                    )
-
+                                    _("YES") + "/" + _("NO") + " [{Default}]").format(
+                                        Default= _("YES"))
             if InstallDatabase == "":
-                InstallDatabase = InstallDatabaseDefault
+                InstallDatabase = _("YES")
 
             if InstallDatabase.lower() == _("YES").lower():
                 MasterLogger.info(_("{AppName} will now start to install "
@@ -183,8 +205,12 @@ def Main():
                 SqlCursor = SqlObject.CreateCursor()
                 SqlObject.CreateMainDatabase(SqlCursor)
                 MasterLogger.info(_("The database has been installed, "
-                                    "please restart system."))
-            elif InstallDatabase.lower() == _("NO").lower():
+                                    "the system is restarting.")
+                                  )
+                SqlObject.DestroyCursor(SqlCursor)
+                SqlObject.CloseConnection()
+                RestartProgram()
+            elif InstallDatabase.lower() in (_("NO").lower(), "n"):
                 MasterLogger.info(_("Database will not be installed "
                                     "terminating process."))
             raise SystemExit
@@ -197,8 +223,7 @@ def Main():
         MasterLogger.info(_("Getting updates from the telegram api."))
         # Add a comment number to the telegram request, so that the old
         # messages will be sorted out.
-        Queue = multiprocessing.Queue()
-        Queue.put(None)
+
 
         while True:
             # check if a key is pressed by user and stop if pressed.

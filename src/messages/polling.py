@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+
 class Poll(object):
     """
     In this class all the methods needed for the poll will be stored.
@@ -275,6 +276,24 @@ class Poll(object):
             TableName="Poll_Table",
             Where={
                 "Internal_Poll_Id":self.InternalPollId,
+                "Master_User_Id": self.InternalUserId
+            }
+        )
+
+    def DeleteAnswer(self, Answer):
+        """
+        The given answer will be deleted
+
+        Variables:
+            Answer                        ``string``
+                the answer or option to be deleted
+        """
+        self.SqlObject.DeleteEntry(
+            self.SqlCursor,
+            TableName="Options_Table",
+            Where={
+                "Id_Poll_Table": self.InternalPollId,
+                "Option_Name": Answer,
                 "Master_User_Id": self.InternalUserId
             }
         )
