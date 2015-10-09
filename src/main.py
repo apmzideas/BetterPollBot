@@ -3,8 +3,10 @@
 
 
 """
-The master file that will hold all the initiated classes and will be used
-as the thread or multiprocess initiator.
+The main.py this file is the entry to the programs execution.
+
+This will initialise the main classes and hold (for now) the main loop this
+will be changed as soon as multipossessing is implemented.
 """
 
 # standard modules import 
@@ -19,6 +21,9 @@ try:
     import msvcrt
 except ImportError:
     import curses
+except ImportError:
+    raise
+
 
 # personal imports
 import gobjects

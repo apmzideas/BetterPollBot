@@ -53,10 +53,12 @@ class CustomParser(argparse.ArgumentParser):
             "An in python written telegram bot, called BetterPollBot."
         )
 
-        Epilog = self._(
-            "Author:\t\t\t{Author}\nCredits:\t\t{Credits}\nVersion:\t\t"
-            "{Version}\nRelease:\t\t{Release}\nLicense:\t\t{License}\n"
-            "Copyright:\t\t{Copyright}".format(
+        Epilog = (
+            self._(
+                "Author:\t\t\t{Author}\nCredits:\t\t{Credits}\nVersion:\t\t"
+                "{Version}\nRelease:\t\t{Release}\nLicense:\t\t{License}\n"
+                "Copyright:\t\t{Copyright}"
+            ).format(
                 Author=gobjects.__author__,
                 Credits=", ".join(gobjects.__credits__),
                 Version=gobjects.__version__,
@@ -219,12 +221,15 @@ class CustomParser(argparse.ArgumentParser):
         self.add_argument(
             "-du",
             # "--DatabaseUser",
-            help=self._(
-                "Set the database user, needed to connect to the database."
-            ) + " " +
-                 self._(
-                     "Attention use this option instead of the config.ini!"
-                 ),
+            help=(
+                self._(
+                    "Set the database user, needed to connect to the "
+                    "database."
+                ) + " " +
+                self._(
+                    "Attention use this option instead of the config.ini!"
+                )
+            ),
             action="store",
             # metavar="\b",
             dest="DatabaseUser",
@@ -236,12 +241,15 @@ class CustomParser(argparse.ArgumentParser):
         self.add_argument(
             "-dp",
             # "--DatabasePassword",
-            help=self._(
-                "Set the database password, needed to connect to the database."
-            ) + " " +
-                 self._(
-                     "Attention use this option instead of the config.ini!"
-                 ),
+            help=(
+                self._(
+                    "Set the database password, needed to connect to the "
+                    "database."
+                ) + " " +
+                self._(
+                    "Attention use this option instead of the config.ini!"
+                )
+            ),
             action="store",
             dest="DatabasePassword",
             default=(
