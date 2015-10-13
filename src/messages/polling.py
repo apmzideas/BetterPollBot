@@ -7,7 +7,6 @@ class Poll(object):
     In this class all the methods needed for the poll will be stored.
     """
 
-
     BASE_URL = "https://telegram.me/"
     """
     The base of the telegram api url.
@@ -58,7 +57,7 @@ class Poll(object):
         if "LoggingObject" in OptionalObjects:
             self.LoggingObject = OptionalObjects["LoggingObject"]
         else:
-            raise ValueError("Missing LoggingObject cannot log")
+            raise TypeError("Missing LoggingObject cannot log")
 
         if "SqlObject" in OptionalObjects:
             self.SqlObject = OptionalObjects["SqlObject"]
@@ -68,7 +67,7 @@ class Poll(object):
             # safe.
             self.SqlCursor = self.SqlObject.CreateCursor()
         else:
-            raise ValueError("Missing SqlObject cannot create connection.")
+            raise TypeError("Missing SqlObject cannot create connection.")
 
     def UpdateQuestion(self, Question):
         """
@@ -78,6 +77,13 @@ class Poll(object):
             Question                      ``string``
                 holds the question given by the user
         """
+
+        if self.PollName is None:
+            raise TypeError("The poll name is not given!")
+
+        if self.InternalUserId is None:
+            raise TypeError("The internal user id is not given.")
+
         try:
             self.SqlObject.UpdateEntry(
                 self.SqlCursor,
@@ -92,6 +98,7 @@ class Poll(object):
             )
             return True
         except Exception:
+            self.SqlObject.Rollback()
             return False
 
     def GetPollByName(self):
@@ -101,6 +108,13 @@ class Poll(object):
         Variables:
             \-
         """
+
+        if self.PollName is None:
+            raise TypeError("The poll name is not given!")
+
+        if self.InternalUserId is None:
+            raise TypeError("The internal user id is not given.")
+
         self.InternalPollId = self.SqlObject.SelectEntry(
             self.SqlCursor,
             FromTable="Poll_Table",
@@ -123,6 +137,10 @@ class Poll(object):
         Variables:
             \-
         """
+
+        if self.InternalPollId is None:
+            raise TypeError("The internal poll id is not given!")
+
         Query = ("SELECT CAST(`External_Poll_Id` AS CHARACTER) AS "
                  "`External_Poll_Id` FROM `poll_table` WHERE "
                  "`Internal_Poll_Id`=%s;"
@@ -137,12 +155,27 @@ class Poll(object):
     def GetPollName(self):
         """
         This method will return the poll name if given.
-        
+
+        It requires the internal poll id or else it will raise an error, after
+        getting the poll name from the database it will return it and
+        automatically set the variable self.PollName.
+
         Variables:
             \-
         """
-        raise NotImplementedError
-        PollName = ""
+
+        if self.InternalPollId is None:
+            raise TypeError("The internal poll id is not given!")
+
+        PollName = self.SqlObject.SelectEntry(
+            self.SqlCursor,
+            FromTable="Poll_Table",
+            Columns=("Poll_Name",),
+            Where=[["Internal_Poll_Id", "=", "%s"]],
+            Data=(self.InternalPollId,)
+        )[0]["Poll_Name"]
+
+        self.PollName = PollName
 
         return PollName
 
@@ -157,8 +190,9 @@ class Poll(object):
         Variables:
             \-
         """
-        # 
-        #
+
+        if self.ExternalPollId is None:
+            raise TypeError("The external poll id is not given!")
 
         self.InternalPollId = self.SqlObject.SelectEntry(
             Cursor=self.SqlCursor,
@@ -181,6 +215,7 @@ class Poll(object):
                 is needed to tell the telegram client what bot with what 
                 parameter to add to a user chosen group.
         """
+
         URL = [
             Poll.BASE_URL,
             NameOfApp,
@@ -256,10 +291,7 @@ class Poll(object):
             \-
         """
         raise NotImplementedError
-        self.SqlObject.SelectEntry(
-            self.SqlCursor,
 
-        )
 
     def DeletePoll(self):
         """
@@ -271,14 +303,41 @@ class Poll(object):
             \-
         """
 
-        return self.SqlObject.DeleteEntry(
-            Cursor=self.SqlCursor,
-            TableName="Poll_Table",
-            Where={
-                "Internal_Poll_Id":self.InternalPollId,
-                "Master_User_Id": self.InternalUserId
-            }
-        )
+        if self.InternalUserId is None:
+            raise TypeError("The internal user id is not given.")
+
+        if self.InternalPollId is None:
+            raise TypeError("The internal poll id is not given")
+
+        try:
+            #  delete the answers
+
+            self.SqlObject.DeleteEntry(
+                Cursor=self.SqlCursor,
+                TableName="Options_Table",
+                Where={
+                    "Id_Poll_Table":self.InternalPollId,
+                    "Master_User_Id":self.InternalUserId
+                }
+            )
+
+            #  delete the poll_table entry
+            self.SqlObject.DeleteEntry(
+                Cursor=self.SqlCursor,
+                TableName="Poll_Table",
+                Where={
+                    "Internal_Poll_Id":self.InternalPollId,
+                    "Master_User_Id": self.InternalUserId
+                }
+            )
+
+            return True
+
+        except Exception:
+            self.SqlObject.Rollback()
+            return False
+
+
 
     def DeleteAnswer(self, Answer):
         """

@@ -166,7 +166,7 @@ class MessageProcessor(object):
                 Data
             )[0]["User_String"])
 
-        self.LanguageObject = language.language.CreateTranslationObject(
+        self.LanguageObject = language.CreateTranslationObject(
             Languages=[self.LanguageName]
         )
 
@@ -836,15 +836,15 @@ class MessageProcessor(object):
             Polls = self.GetUserPolls()
             if len(Polls)>0:
                 MessageObject.Text = self._(
-                    "Please choose the poll to delete the answer from.\n"
-                    "Attention if you delete the answer to the poll, the "
-                    "results to from that poll will be false."
+                    "Please choose the poll to delete.\n"
+                    "Attention if you delete the poll, it will be gone"
+                    "forever."
                 )
                 MessageObject.ReplyKeyboardMarkup(
                     [Polls],
                     OneTimeKeyboard=True
                 )
-                self.SetLastSendCommand("/delanswer poll")
+                self.SetLastSendCommand("/delpoll poll")
             else:
                 MessageObject.Text = self._(
                     "Sorry, you have no polls to delete... Please, add some "
@@ -1067,6 +1067,7 @@ class MessageProcessor(object):
                     self.SetLastSendCommand("/newpoll answer", LastUsedId)
                 else:
                     raise Exception
+
             elif LastCommand.startswith("/newpoll answer"):
                 if self.Text == self._("YES"):
                     # add the first possible answer to the system and arrange
@@ -1122,10 +1123,49 @@ class MessageProcessor(object):
                 )
                 URL = Poll.GenerateURL(self.BotName)
 
-            MessageObject.Text = self._("Press the following link to add the"
-                                        " poll to a group:\n{GroupURL}"
-                                        ).format(GroupURL=URL)
+            MessageObject.Text = self._(
+                "Press the following link to add the poll to a group:\n"
+                "{GroupURL}"
+            ).format(GroupURL=URL)
             self.ClearLastCommand()
+
+        elif LastCommand.startswith("/delpoll"):
+            if LastCommand == "/delpoll poll":
+                Poll = polling.Poll(
+                    PollName=self.Text,
+                    InternalUserId=self.InternalUserId,
+                    SqlObject=self.SqlObject
+                )
+                Poll.GetPollByName()
+
+                MessageObject.Text = self._(
+                    "Are you sure, you want to delete the {PollName}?"
+                ).format(PollName=self.Text)
+
+
+
+                self.SetLastSendCommand("/delpoll unclear",Poll.InternalPollId)
+
+            elif LastCommand == "/delpoll unclear":
+                if self.Text == self._("YES"):
+                    Poll = polling.Poll(
+                        InternalPollId=LastUsedId,
+                        InternalUserId=self.InternalUserId,
+                        SqlObject=self.SqlObject
+                    )
+
+                    MessageObject.Text = self._(
+                        "The poll {PollName} has been deleted."
+                    ).format(PollName = Poll.GetPollName())
+                    Poll.DeletePoll()
+
+                elif self.Text == self._("NO"):
+                    MessageObject.Text = self._(
+                        "You can always delete the poll later via the /delpoll"
+                        " command."
+                    )
+                    self.ClearLastCommand()
+
 
         return MessageObject
 
@@ -1208,4 +1248,4 @@ class MessageProcessor(object):
                 is the message object that has to be modified
         """
         raise NotImplementedError
-        return MessageObject
+        # return MessageObject

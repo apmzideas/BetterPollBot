@@ -59,3 +59,4 @@ if __name__ == "__main__":
         path_to=path_to_files,
         do_count=count
     )
+    os.system("pause")

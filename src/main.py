@@ -119,7 +119,7 @@ def Main():
             FileName=Configuration["Logging"]["LoggingFileName"],
             MaxLogs=Configuration["Logging"]["MaxLogs"],
             LoggingFormat=Configuration["Logging"]["LoggingFormat"],
-            Dateformat=Configuration["Logging"]["Dateformat"],
+            Dateformat=Configuration["Logging"]["DateFormat"],
             LoggingLevel="debug",
             CursesObject=CursesObject)
 
@@ -162,6 +162,7 @@ def Main():
                 ParserArguments.DatabaseUser,
                 ParserArguments.DatabasePassword,
                 ParserArguments.DatabaseName,
+                Configuration["MySQLConnectionParameter"]["ReconnectionTimer"],
                 LoggingObject=MasterLogger,
                 LanguageObject=LanguageMasterObject
             )

@@ -14,6 +14,9 @@ some useful links:\n
 """
 # standard library
 import sys
+import time
+# This is needed to sleep while trying
+# to reconnect to the server.
 # third party requirements
 import mysql.connector
 # The custom modules
@@ -35,7 +38,7 @@ class Api(object):
         +------------------------------------------------------------+
         |Poll_Table                                                  |  
         +==================+===================+=====================+
-        |Internal_Poll_Id  |conntains          |Integer              |
+        |Internal_Poll_Id  |contains           |Integer              |
         |                  |the internal       |(auto_increment)     |
         |                  |polltable id       |                     |   
         +------------------+-------------------+---------------------+    
@@ -206,6 +209,7 @@ class Api(object):
                  DatabaseName=None,
                  Host="127.0.0.1",
                  Port="3306",
+                 ReconnectTimer = 3000,
                  **OptionalObjects):
 
         """
@@ -233,6 +237,7 @@ class Api(object):
         self.Host = Host
         self.DatabaseName = DatabaseName
         self.Port = Port
+        self.ReconnectTimer = (ReconnectTimer / 1000.0)
 
         # This variable defines if the system should shutdown if no connection
         # was created.
@@ -258,7 +263,8 @@ class Api(object):
         else:
             self.LoggingObject = custom_logging.Logger()
 
-        # Create the connection to the database. 
+        # Create the connection to the database.
+        self.DatabaseConnection = None
         self.DatabaseConnection = self.CreateConnection()
 
     def CreateConnection(self):
@@ -272,7 +278,6 @@ class Api(object):
         Variables:
             \-
         """
-
         try:
             config = {
                 "user": self.User,
@@ -310,7 +315,7 @@ class Api(object):
             elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
                 self.LoggingObject.critical(
                     self._("The database connector returned following"
-                           " error: {Error}").format(Error=err) + " " +
+                            " error: {Error}").format(Error=err) + " " +
                     self._(
                         "The database server seems to be offline, please "
                         "contact your administrator.")
@@ -321,15 +326,14 @@ class Api(object):
                 self.LoggingObject.error(err)
                 if self._DieOnLostConnection is True:
                     raise SystemExit
-        except:
+        except Exception:
             self.LoggingObject.critical(
                 self._("The database connector returned following "
                        "error: {Error}").format(Error=sys.exc_info()[0]))
+            self.CloseConnection()
             if self._DieOnLostConnection is True:
                 raise SystemExit
 
-        else:
-            self.CloseConnection()
 
     def CloseConnection(self, ):
         """
@@ -351,6 +355,8 @@ class Api(object):
                 self._("The database connector returned following error: "
                        "{Error}").format(Error=sys.exc_info()[0]))
 
+
+
     def DetectConnection(self):
         """
         This method will check if the database connection is open.
@@ -361,12 +367,9 @@ class Api(object):
         Variables:
             \-
         """
-        import time
-        # This is needed to sleep while trying
-        # to reconnect to the server.
-#        print(self.DatabaseConnection.is_connected())
+
         Connection = True
-        while True:
+        while Connection is True:
             if self.DatabaseConnection is not None:
                 try:
                     self.DatabaseConnection.reconnect()
@@ -393,8 +396,7 @@ class Api(object):
                         )
                         if self._DieOnLostConnection is True:
                             raise SystemExit
-                    elif (err.errno ==
-                              mysql.connector.errorcode.CR_CONN_HOST_ERROR):
+                    elif (err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR):
                         self.LoggingObject.critical(
                             self._("The database connector returned following"
                                    " error: {Error}").format(Error=err) + " " +
@@ -431,8 +433,8 @@ class Api(object):
             else:
                 self.DatabaseConnection = self.CreateConnection()
 
-            # sleep for three seconds
-            time.sleep(3)
+            # sleep for the given time
+            time.sleep(self.ReconnectTimer)
 
 
     def CreateCursor(self,
@@ -528,7 +530,7 @@ class Api(object):
                 self._("The database returned following error: {Error}"
                        ).format(Error=err) + " " +
                 self._(
-                    "The executet query failed, please contact your "
+                    "The executed query failed, please contact your "
                     "administrator."
                 )
             )
@@ -1308,3 +1310,10 @@ class Api(object):
                 self._("The database connector returned following error:"
                        " {Error}").format(Error=Error))
             self.DatabaseConnection.rollback()
+
+    def Rollback(self,):
+        """
+        This method will rollback the changes made.
+        """
+
+        self.DatabaseConnection.rollback()

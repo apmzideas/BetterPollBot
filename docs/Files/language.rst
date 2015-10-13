@@ -1,12 +1,12 @@
-language package
-================
+language
+========
 
 This package contains all the language processing modules.
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   
-   language.language.rst
+.. automodule:: language.language
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
    

@@ -123,7 +123,7 @@ class ConfigurationParser(configparser.RawConfigParser):
             # This is the value needed for the main loop it states how long we
             # need to wait
             # until to state a request the telegram server.
-            # It's in miliseconds
+            # It's in milliseconds
             ("RequestTimer", 1000),
             ("DefaultLanguage", "en_US"),
             ("ApiToken", "")
@@ -131,6 +131,7 @@ class ConfigurationParser(configparser.RawConfigParser):
 
         self["MySQLConnectionParameter"] = collections.OrderedDict(
             (
+                ("ReconnectionTimer", 3000),
                 ("MaxDatabaseConnection", 10),
                 ("DatabaseName", "BetterPollBotDatabase"),
                 ("DatabaseHost", "127.0.0.1"),
@@ -145,7 +146,7 @@ class ConfigurationParser(configparser.RawConfigParser):
             ("LoggingFileName", "log.txt"),
             ("MaxLogs", 20),
             ("LoggingFormat", "[%(asctime)s] - [%(levelname)s] - %(message)s"),
-            ("Dateformat", "%d.%M.%Y %H:%M:%S")
+            ("DateFormat", "%d.%M.%Y %H:%M:%S")
         ))
 
         # Writes the default configuration in to the correct file
