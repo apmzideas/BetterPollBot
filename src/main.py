@@ -121,7 +121,8 @@ def Main():
             LoggingFormat=Configuration["Logging"]["LoggingFormat"],
             Dateformat=Configuration["Logging"]["DateFormat"],
             LoggingLevel="debug",
-            CursesObject=CursesObject)
+            CursesObject=CursesObject
+        )
 
         MasterLogger.info(_("{AppName} has been started.").format(
             AppName=gobjects.__AppName__
@@ -140,6 +141,7 @@ def Main():
             LanguageObject=LanguageMasterObject,
             ExitOnError=False
         )
+
         BotName = TelegramObject.GetBotName()
 
         SqlObject = None
@@ -159,10 +161,13 @@ def Main():
                 )
 
             SqlObject = sql.sql_api.Api(
-                ParserArguments.DatabaseUser,
-                ParserArguments.DatabasePassword,
-                ParserArguments.DatabaseName,
-                Configuration["MySQLConnectionParameter"]["ReconnectionTimer"],
+                User=ParserArguments.DatabaseUser,
+                Password=ParserArguments.DatabasePassword,
+                DatabaseName=ParserArguments.DatabaseName,
+                Host=Configuration["MySQLConnectionParameter"]["DatabaseHost"],
+                Port=Configuration["MySQLConnectionParameter"]["DatabasePort"],
+                ReconnectTimer=int(Configuration["MySQLConnectionParameter"]
+                    ["ReconnectionTimer"]),
                 LoggingObject=MasterLogger,
                 LanguageObject=LanguageMasterObject
             )
@@ -198,7 +203,8 @@ def Main():
         if ParserArguments.InstallDatabaseStructure is True:
             InstallDatabase = input(_("Are you sure you want to install the"
                                       " database structure?") +
-                                    _("YES") + "/" + _("NO") + " [{Default}]").format(
+                                    _("YES") + "/" + _("NO") + " [{Default}]"
+                                    ).format(
                                         Default= _("YES"))
             if InstallDatabase == "":
                 InstallDatabase = _("YES")

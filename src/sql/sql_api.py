@@ -295,41 +295,53 @@ class Api(object):
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
                 self.LoggingObject.warning(
-                    self._("The database connector returned following"
-                           " error: {Error}").format(Error=err) + " " +
-                    self._("Something is wrong with your user name or "
-                           "password."),
+                    self._(
+                        "The database connector returned following"
+                        " error: {Error}"
+                    ).format(Error=err) + " " +
+                    self._(
+                        "Something is wrong with your user name or "
+                        "password."
+                    ),
                 )
-                if self._DieOnLostConnection is True:
-                    raise SystemExit
+
             elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.LoggingObject.error(
-                    self._("The database connector returned following"
-                           " error: {Error}").format(Error=err) + " " +
+                    self._(
+                        "The database connector returned following"
+                        " error: {Error}"
+                    ).format(Error=err) + " " +
                     self._(
                         "The database does not exist, please contact your "
-                        "administrator.")
+                        "administrator."
+                    )
                 )
-                if self._DieOnLostConnection is True:
-                    raise SystemExit
+
             elif err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR:
                 self.LoggingObject.critical(
-                    self._("The database connector returned following"
-                            " error: {Error}").format(Error=err) + " " +
+                    self._(
+                        "The database connector returned following"
+                        " error: {Error}"
+                    ).format(Error=err) + " " +
                     self._(
                         "The database server seems to be offline, please "
-                        "contact your administrator.")
+                        "contact your administrator."
+                    )
                 )
-                if self._DieOnLostConnection is True:
-                    raise SystemExit
+
             else:
                 self.LoggingObject.error(err)
-                if self._DieOnLostConnection is True:
-                    raise SystemExit
+
+            if self._DieOnLostConnection is True:
+                raise SystemExit
+
         except Exception:
             self.LoggingObject.critical(
-                self._("The database connector returned following "
-                       "error: {Error}").format(Error=sys.exc_info()[0]))
+                self._(
+                    "The database connector returned following "
+                    "error: {Error}"
+                ).format(Error=sys.exc_info()[0])
+            )
             self.CloseConnection()
             if self._DieOnLostConnection is True:
                 raise SystemExit
@@ -369,11 +381,14 @@ class Api(object):
         """
 
         Connection = True
-        while Connection is True:
+        while True:
             if self.DatabaseConnection is not None:
                 try:
                     self.DatabaseConnection.reconnect()
+                    Connection = True
                 except mysql.connector.Error as err:
+                    Connection = False
+
                     if (err.errno ==
                             mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR):
                         self.LoggingObject.warning(
@@ -383,8 +398,7 @@ class Api(object):
                                 "Something is wrong with your user name or "
                                 "password."),
                         )
-                        if self._DieOnLostConnection is True:
-                            raise SystemExit
+
                     elif (err.errno ==
                               mysql.connector.errorcode.ER_BAD_DB_ERROR):
                         self.LoggingObject.error(
@@ -394,8 +408,7 @@ class Api(object):
                                 "The database does not exist, please contact"
                                 " your administrator.")
                         )
-                        if self._DieOnLostConnection is True:
-                            raise SystemExit
+
                     elif (err.errno == mysql.connector.errorcode.CR_CONN_HOST_ERROR):
                         self.LoggingObject.critical(
                             self._("The database connector returned following"
@@ -404,13 +417,14 @@ class Api(object):
                                 "The database server seems to be offline, "
                                 "please contact your administrator.")
                         )
-                        if self._DieOnLostConnection is True:
-                            raise SystemExit
+
                     else:
                         self.LoggingObject.error(err)
-                        if self._DieOnLostConnection is True:
-                            raise SystemExit
+
+                    if self._DieOnLostConnection is True:
+                        raise SystemExit
                 except Exception as Error:
+                    Connection = False
                     self.LoggingObject.critical(
                         self._("The database connector returned following "
                                "error: {Error}").format(Error=Error))
@@ -424,6 +438,7 @@ class Api(object):
                             "reestablished.")
                         )
                     return True
+
                 else:
                     Connection = False
                     self.LoggingObject.critical(self._(
@@ -431,6 +446,7 @@ class Api(object):
                         "contact your administrator!")
                     )
             else:
+                Connection = False
                 self.DatabaseConnection = self.CreateConnection()
 
             # sleep for the given time
